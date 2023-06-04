@@ -4,6 +4,8 @@ from app.core.db import get_db
 from app.scripts.user import get_user_by_username, update_last_connection
 from app.security.token import verify_password, create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
+from app.security.schemas.profile_response import ProfileResponse
+from app.security.token import get_current_active_user
 
 auth = APIRouter()
 
@@ -23,3 +25,10 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     response.set_cookie(key='num_doc', value=user_exists.num_doc)
     update_last_connection(db, user_exists.num_doc)
     return access_token
+
+@auth.get('/logout')
+async def logout(response: Response):
+    response.delete_cookie(key='access_token')
+    response.delete_cookie(key='username')
+    response.delete_cookie(key='num_doc')
+    return {'message': "Sesión cerrada correctamente"}

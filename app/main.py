@@ -25,6 +25,7 @@ from app.routes.private.client_review import client_review
 from app.routes.private.products import products
 from app.routes.private.assembly import assemblies_pr
 from app.routes.private.order import order
+from app.routes.private.workers import workers
 
 app = FastAPI(title=settings.PROJECT_NAME, description=settings.PROJECT_DESCRIPTION, docs_url=settings.DOCS_URL, redoc_url=settings.REDOC_URL, version=1.0)
 
@@ -82,6 +83,7 @@ routes = [
     (roles, "/private/roles", "Roles Administrativos"),
     (role_privileges, "/private/role_privileges", "Privilegios de Roles"),
     (register, "/private/register", "Registro de Trabajadores y Administradores"),
+    (workers, "/private/workers", "Trabajadores"),
     (supplier, "/private/supplier", "Proveedores"),
     (supplier_categories, "/private/supplier/categories", "Categorias de Proveedores"),
     (categories_pr, "/private/categories", "Categorias"),
