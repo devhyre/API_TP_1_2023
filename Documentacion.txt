@@ -1,0 +1,38 @@
+    TABLA DE TABLAS
+ID | ID_TABLA | DESCRIPCION
+---|----------|----------------
+1  | 1        | DNI                 -> Longitud 8
+1  | 4        | EXTRANJERIA         -> Longitud 12
+1  | 6        | RUC                 -> Longitud 11
+1  | 7        | PASAPORTE           -> Longitud 12
+---|----------|----------------
+2  | 1        | Rol 1
+2  | 2        | Rol 2
+2  | 3        | Rol 3
+2  | N        | Rol N
+---|----------|----------------
+3  | 1        | Categoria 1
+3  | 2        | Categoria 2
+3  | 3        | Categoria 3
+3  | N        | Categoria N
+---|----------|----------------
+4  | 1        | PENDIENTE           -> El pedido ha sido realizado pero aún no ha sido procesado o confirmado por el sistema o el vendedor. (UN PEDIDO ES UNA ORDEN)
+4  | 2        | APROBADO            -> El pedido ha sido procesado y confirmado por el sistema o el vendedor.
+4  | 3        | ENTREGADO           -> El pedido ha sido entregado al cliente.
+4  | 4        | RECHAZADO           -> El pedido ha sido rechazado por el sistema o el vendedor.
+4  | 5        | ANULADO             -> El pedido ha sido anulado antes de su entrega o finalización.
+4  | 6        | DEVOLUCION          -> El cliente ha solicitado devolver uno o varios productos del pedido.
+4  | 7        | REEMBOLSO           -> El cliente ha recibido el reembolso correspondiente por un pedido anulado o devuelto.
+---|----------|----------------
+5  | 1        | ACTIVO              -> El producto está disponible pero no se puede comprar.
+5  | 2        | INACTIVO            -> El producto no está disponible para su venta y espera alguna acción para ser activado.
+5  | 3        | AGOTADO             -> El producto no está disponible para su venta y no puede ser visualizado por los clientes.
+5  | 4        | STOCK               -> El producto está disponible en el inventario y se puede comprar.
+5  | 5        | DESCATALOGADO       -> El producto no está disponible en el inventario y no se puede comprar.
+---|----------|----------------
+6  | 1        | DISPONIBLE          -> El producto está disponible para su venta.
+6  | 2        | NO_DISPONIBLE       -> El producto no está disponible para su venta.
+---|----------|----------------
+
+
+
