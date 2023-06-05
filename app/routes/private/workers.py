@@ -25,10 +25,10 @@ async def get_worker(dni: str, db: Session = Depends(get_db), user: ProfileRespo
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Trabajador no encontrado')
     return worker
 
-@workers.put('/actualizarTrabajador/{dni}', status_code=status.HTTP_200_OK)
-async def update_worker(dni: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+@workers.put('/actualizarRolTrabajador/{dni}', status_code=status.HTTP_200_OK)
+async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
-    update_role_worker(db, dni)
+    update_role_worker(db, dni, role_id)
     return {'message': 'Rol actualizado'}
