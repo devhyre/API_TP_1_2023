@@ -11,7 +11,7 @@ from app.models.detail_order import DetailOrder as DetailOrderModel
 from datetime import datetime
 from app.models.order_guide import OrderGuide as OrderGuideModel
 from app.models.detail_order_guide import DetailOrderGuide as DetailOrderGuideModel
-from app.models.sn import Sn as SerialNumberModel
+from app.models.sn import SerialNumber as SerialNumberModel
 
 sale = APIRouter()
 
