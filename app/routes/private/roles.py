@@ -23,7 +23,7 @@ async def obtener_rol(id_table: int, db: Session = Depends(get_db), user: Profil
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2 and TableOfTablesModel.id_table == id_table).first()
+        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         return {'id': role.id_table, 'description': role.description}
@@ -34,7 +34,7 @@ async def registrar_rol(id_table:int, description: str, db: Session = Depends(ge
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        role_exists = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2 and TableOfTablesModel.id_table == id_table).first()
+        role_exists = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         if role_exists:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='El rol ya esta registrado')
         role = TableOfTablesModel(id=2, id_table=id_table, description=description)
@@ -50,7 +50,7 @@ async def actualizar_rol(id_table: int, description: str, db: Session = Depends(
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2 and TableOfTablesModel.id_table == id_table).first()
+        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         role.description = description
@@ -63,7 +63,7 @@ async def eliminar_rol(id_table: int, db: Session = Depends(get_db), user: Profi
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2 and TableOfTablesModel.id_table == id_table).first()
+        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         db.delete(role)
