@@ -26,6 +26,8 @@ from app.routes.private.products import products
 from app.routes.private.assembly import assemblies_pr
 from app.routes.private.order import order
 from app.routes.private.workers import workers
+from app.routes.private.sale import sale
+from app.routes.private.repaires_maintenance import repairs_maintenance
 
 app = FastAPI(title=settings.PROJECT_NAME, description=settings.PROJECT_DESCRIPTION, docs_url=settings.DOCS_URL, redoc_url=settings.REDOC_URL, version=1.0)
 
@@ -92,7 +94,9 @@ routes = [
     (client_review, "/private/client_review", "Reseñas de Clientes"),
     (products, "/private/products", "Inventario de Productos"),
     (assemblies_pr, "/private/assemblies", "Recomendaciones para ensamblar"),
-    (order, "/private/order", "Pedidos")
+    (order, "/private/order", "Pedidos"),
+    (sale, "/private/sale", "Ventas"),
+    (repairs_maintenance, "/private/repairs_maintenance", "Reparaciones y Mantenimiento")
 ]
 
 for route, prefix, tag in routes:

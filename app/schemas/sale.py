@@ -27,7 +27,9 @@ class Sale(BaseModel):
         return total
 
 class SalePost(Sale):
-    pass
+    code_payment: str
+    created_at: datetime
+    total: float
 
 class SalePut(Sale):
     code_payment: str

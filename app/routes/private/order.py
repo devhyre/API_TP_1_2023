@@ -73,11 +73,70 @@ async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depend
         if order_db is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
         else:
-            if order.status_order == 2 or order.status_order == 3 or order.status_order == 4 or order.status_order == 7:
-                order_db.status_order = order.status_order
-                db.commit()
-                db.refresh(order_db)
-                return order_db
+            #!EL ESTADO FUE REGISTRADO CON ESTADO 1, EL FLUJO DE LA ORDEN ES EL SIGUIENTE:
+            #!1: PENDIENTE -> PUEDE CAMBIAR A 2: APROBADO O 4: RECHAZADO
+            #!2: APROBADO -> PUEDE CAMBIAR A 8: PAGADO O 5: ANULADO
+            #!8: PAGADO -> PUEDE CAMBIAR A 9: LISTO
+            #!9: LISTO -> PUEDE CAMBIAR A 3: ENTREGADO
+            #!3: ENTREGADO -> PUEDE CAMBIAR A 6: DEVOLUCIÓN
+            #!6: DEVOLUCIÓN -> PUEDE CAMBIAR A 7: REEMBOLSO
+            #!7: REEMBOLSO -> PUEDE CAMBIAR A 5: ANULADO
+            if order_db.status_order == 1:
+                if order.status_order == 2 or order.status_order == 4:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser aprobado o rechazado')
+            elif order_db.status_order == 2:
+                if order.status_order == 8 or order.status_order == 5:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser pagado o anulado')
+            elif order_db.status_order == 8:
+                if order.status_order == 9:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser listo')
+            elif order_db.status_order == 9:
+                if order.status_order == 3:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser entregado')
+            elif order_db.status_order == 3:
+                if order.status_order == 6:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser devuelto')
+            elif order_db.status_order == 6:
+                if order.status_order == 7:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser reembolsado')
+            elif order_db.status_order == 7:
+                if order.status_order == 5:
+                    order_db.status_order = order.status_order
+                    db.commit()
+                    db.refresh(order_db)
+                    return order_db
+                else:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser anulado')
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no es válido')
             
