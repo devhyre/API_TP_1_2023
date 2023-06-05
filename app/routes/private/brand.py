@@ -20,13 +20,13 @@ async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: Pro
         db.refresh(new_brand)
         return new_brand
 
-@brand_pr.put('/actualizarMarca/{id_brand}', response_model=Brand)
-async def actualizar_marca(id_brand: int, brand: BrandPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+@brand_pr.put('/actualizarMarca/{id}', response_model=Brand)
+async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        brand_db = db.query(BrandModel).filter(BrandModel.id_brand == id_brand).first()
+        brand_db = db.query(BrandModel).filter(BrandModel.id == id).first()
         if not brand_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
         brand_db.name = brand.name
@@ -34,13 +34,13 @@ async def actualizar_marca(id_brand: int, brand: BrandPut, db: Session = Depends
         db.refresh(brand_db)
         return brand_db
 
-@brand_pr.delete('/eliminarMarca/{id_brand}')
-async def eliminar_marca(id_brand: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+@brand_pr.delete('/eliminarMarca/{id}')
+async def eliminar_marca(id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        brand_db = db.query(BrandModel).filter(BrandModel.id_brand == id_brand).first()
+        brand_db = db.query(BrandModel).filter(BrandModel.id == id).first()
         if not brand_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
         db.delete(brand_db)
