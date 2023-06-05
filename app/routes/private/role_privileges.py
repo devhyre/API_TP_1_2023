@@ -10,7 +10,7 @@ from app.security.token import get_current_active_user
 
 role_privileges = APIRouter()
 
-@role_privileges.get('/listarPrivilegiosRol')
+@role_privileges.get('/listarPrivilegiosRol', status_code=status.HTTP_200_OK)
 async def listar_privilegios_rol(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -19,7 +19,7 @@ async def listar_privilegios_rol(db: Session = Depends(get_db), user: ProfileRes
         role_privileges = db.query(RolePrivilegeModel).all()
         return [role_privileges for role_privilege in role_privileges]
     
-@role_privileges.get('/obtenerPrivilegiosRol/{id_role}')
+@role_privileges.get('/obtenerPrivilegiosRol/{id_role}', status_code=status.HTTP_200_OK)
 async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -31,7 +31,7 @@ async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), u
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El rol no existe')
     
-@role_privileges.post('/crearPrivilegioRol', response_model=RolePrivilege)
+@role_privileges.post('/crearPrivilegioRol', status_code=status.HTTP_201_CREATED)
 async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -43,7 +43,7 @@ async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = 
         db.refresh(new_role_privilege)
         return new_role_privilege
     
-@role_privileges.put('/actualizarPrivilegioRol/{id_role}', response_model=RolePrivilege)
+@role_privileges.put('/actualizarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK)
 async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegePut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

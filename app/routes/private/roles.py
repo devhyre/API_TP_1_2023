@@ -8,7 +8,7 @@ from app.security.token import get_current_active_user
 
 roles = APIRouter()
 
-@roles.get('/listadoRoles')
+@roles.get('/listadoRoles',status_code=status.HTTP_200_OK)
 async def listar_roles(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -17,7 +17,7 @@ async def listar_roles(db: Session = Depends(get_db), user: ProfileResponse = De
         roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
         return [{'id': role.id_table, 'description': role.description} for role in roles]
 
-@roles.get('/obtenerRol/{id_table}')
+@roles.get('/obtenerRol/{id_table}', status_code=status.HTTP_200_OK)
 async def obtener_rol(id_table: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -57,7 +57,7 @@ async def actualizar_rol(id_table: int, description: str, db: Session = Depends(
         db.commit()
         return {'id': role.id_table, 'description': role.description}
 
-@roles.delete('/eliminarRol/{id_table}', status_code=status.HTTP_204_NO_CONTENT)
+@roles.delete('/eliminarRol/{id_table}', status_code=status.HTTP_200_OK)
 async def eliminar_rol(id_table: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

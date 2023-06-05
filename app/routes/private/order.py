@@ -11,12 +11,12 @@ from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 
 order = APIRouter()
 
-@order.get('/listadoEstadosOrden')
+@order.get('/listadoEstadosOrden', status_code=status.HTTP_200_OK)
 async def listar_estados_orden(db: Session = Depends(get_db)):
     states = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 4).all()
     return [{'id': state.id_table, 'description': state.description} for state in states]
 
-@order.get('/obtenerOrdenes')
+@order.get('/obtenerOrdenes', status_code=status.HTTP_200_OK)
 async def obtener_ordenes(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -25,13 +25,13 @@ async def obtener_ordenes(db: Session = Depends(get_db), user: ProfileResponse =
         orders = db.query(OrderModel).all()
         return orders
     
-@order.get('/obtenerOrdenesPorUsuario')
+@order.get('/obtenerOrdenesPorUsuario', status_code=status.HTTP_200_OK)
 async def obtener_ordenes_por_usuario(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     orders = db.query(OrderModel).filter(OrderModel.user_id == user[user_type]['numeroDocumento']).all()
     return orders
 
-@order.post('/crearOrden')
+@order.post('/crearOrden', status_code=status.HTTP_201_CREATED)
 async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     order_db = OrderModel(
@@ -45,7 +45,7 @@ async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: Pro
     db.refresh(order_db)
     return order_db
 
-@order.put('/actualizarEstadoOrdenCliente/{id}')
+@order.put('/actualizarEstadoOrdenCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
@@ -63,7 +63,7 @@ async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depend
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no es válido')
             
-@order.put('/actualizarEstadoOrden/{id}')
+@order.put('/actualizarEstadoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -83,7 +83,7 @@ async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depend
             
 #!DETALLE ORDENES
 
-@order.get('/obtenerDetalleOrdenUsuario/{id}')
+@order.get('/obtenerDetalleOrdenUsuario/{id}', status_code=status.HTTP_200_OK)
 async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     #!Verificar que el usuario sea el dueño de la orden
     user_type = list(user.keys())[0]
@@ -101,7 +101,7 @@ async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: Pr
             detail_order = db.query(DetailOrderModel).filter(DetailOrderModel.order_id == id).all()
             return detail_order
         
-@order.post('/crearDetalleOrden')
+@order.post('/crearDetalleOrden', status_code=status.HTTP_201_CREATED)
 async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     order_db = db.query(OrderModel).filter(OrderModel.id == detail_order.order_id).first()

@@ -9,7 +9,7 @@ from app.schemas.assembly import AssemblyPost, AssemblyPut
 assemblies_pr = APIRouter()
 
 #!OBTENER ASSEMBLIES
-@assemblies_pr.get('/obtenerAssemblies')
+@assemblies_pr.get('/obtenerAssemblies', status_code=status.HTTP_200_OK)
 async def obtener_assemblies(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
@@ -19,7 +19,7 @@ async def obtener_assemblies(db: Session = Depends(get_db), user: ProfileRespons
         return assemblies
 
 #!CREAR ASSEMBLY
-@assemblies_pr.post('/crearAssembly')
+@assemblies_pr.post('/crearAssembly', status_code=status.HTTP_201_CREATED)
 async def crear_assembly(assembly: AssemblyPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -36,7 +36,7 @@ async def crear_assembly(assembly: AssemblyPost, db: Session = Depends(get_db), 
         return assembly_db
 
 #!ACTUALIZAR ASSEMBLY
-@assemblies_pr.put('/actualizarAssembly/{id}')
+@assemblies_pr.put('/actualizarAssembly/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def actualizar_assembly(id:int, assembly: AssemblyPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -52,7 +52,7 @@ async def actualizar_assembly(id:int, assembly: AssemblyPut, db: Session = Depen
             return assembly_db
         
 #!ELIMINAR ASSEMBLY
-@assemblies_pr.delete('/eliminarAssembly/{id}')
+@assemblies_pr.delete('/eliminarAssembly/{id}', status_code=status.HTTP_200_OK)
 async def eliminar_assembly(id:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':

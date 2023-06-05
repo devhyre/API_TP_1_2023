@@ -12,12 +12,12 @@ from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 
 products = APIRouter()
 
-@products.get('/estadosProductos')
+@products.get('/estadosProductos', status_code=status.HTTP_200_OK)
 async def estados_pedidos(db: Session = Depends(get_db)):
     estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
-@products.get('/obtenerProductos')
+@products.get('/obtenerProductos', status_code=status.HTTP_200_OK)
 async def obtener_productos(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
@@ -26,7 +26,7 @@ async def obtener_productos(db: Session = Depends(get_db), user: ProfileResponse
         products = db.query(ProductModel).all()
         return products
 
-@products.get('/obtenerProductosPaginacion')
+@products.get('/obtenerProductosPaginacion', status_code=status.HTTP_200_OK)
 async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
@@ -35,7 +35,7 @@ async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), 
         products = db.query(ProductModel).offset(page).limit(10).all()
         return products
 
-@products.get('/obtenerProducto/{id}')
+@products.get('/obtenerProducto/{id}', status_code=status.HTTP_200_OK)
 async def obtener_producto(id:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
@@ -44,7 +44,7 @@ async def obtener_producto(id:int, db: Session = Depends(get_db), user: ProfileR
         product = db.query(ProductModel).filter(ProductModel.id == id).first()
         return product
     
-@products.post('/crearProducto')
+@products.post('/crearProducto', status_code=status.HTTP_201_CREATED)
 async def crear_producto(product: ProductPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -69,7 +69,7 @@ async def crear_producto(product: ProductPost, db: Session = Depends(get_db), us
         db.refresh(product_db)
         return product_db
     
-@products.put('/actualizarProducto/{id}')
+@products.put('/actualizarProducto/{id}', status_code=status.HTTP_200_OK)
 async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -95,12 +95,12 @@ async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends
             db.refresh(product_db)
             return product_db
         
-@products.get('/estadosSerialNumbers')
+@products.get('/estadosSerialNumbers', status_code=status.HTTP_200_OK)
 async def estados_serial_numbers(db: Session = Depends(get_db)):
     estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
-@products.get('/obtenerSerialNumbers')
+@products.get('/obtenerSerialNumbers', status_code=status.HTTP_200_OK)
 async def obtener_serial_numbers(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
@@ -109,7 +109,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: ProfileRes
         serial_numbers = db.query(SerialNumberModel).all()
         return serial_numbers
 
-@products.post('/crearSerialNumber')
+@products.post('/crearSerialNumber', status_code=status.HTTP_201_CREATED)
 async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
