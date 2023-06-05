@@ -26,7 +26,7 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        model_db = db.query(ModelModel).filter(ModelModel.id_model == id_model).first()
+        model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
         model_db.name = model.name
@@ -40,7 +40,7 @@ async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: Pr
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        model_db = db.query(ModelModel).filter(ModelModel.id_model == id_model).first()
+        model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
         db.delete(model_db)
