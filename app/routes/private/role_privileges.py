@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
@@ -11,14 +10,14 @@ from app.security.token import get_current_active_user
 
 role_privileges = APIRouter()
 
-@role_privileges.get('/listarPrivilegiosRol', response_model=List[RolePrivilege])
+@role_privileges.get('/listarPrivilegiosRol')
 async def listar_privilegios_rol(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         role_privileges = db.query(RolePrivilegeModel).all()
-        return role_privileges
+        return [role_privileges for role_privilege in role_privileges]
     
 @role_privileges.get('/obtenerPrivilegiosRol/{id_role}')
 async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):

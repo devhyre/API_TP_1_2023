@@ -1,16 +1,14 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.brand import Brand as BrandModel
-from app.schemas.brand import Brand
 
 brand_pu = APIRouter()
 
-@brand_pu.get('/listadoMarcas', response_model=List[Brand])
+@brand_pu.get('/listadoMarcas')
 async def listar_marcas(db: Session = Depends(get_db)):
     brands = db.query(BrandModel).all()
-    return brands
+    return [brand for brand in brands]
 
 @brand_pu.get('/obtenerMarca/{id_brand}')
 async def obtener_marca(id_brand: int, db: Session = Depends(get_db)):

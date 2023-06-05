@@ -9,14 +9,14 @@ from app.security.token import get_current_active_user
 
 supplier_categories = APIRouter()
 
-@supplier_categories.get('/listadoCategoriasProveedor', response_model=List[SupplierCategory])
+@supplier_categories.get('/listadoCategoriasProveedor')
 async def listar_categorias_proveedor(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         supplier_categories = db.query(SupplierCategoryModel).all()
-        return supplier_categories
+        return [{'id_supplier': supplier_category.supplier_id, 'id_category': supplier_category.category_id} for supplier_category in supplier_categories]
     
 @supplier_categories.get('/obtenerCategoriasProveedor/{num_doc_supplier}')
 async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):

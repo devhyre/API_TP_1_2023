@@ -6,7 +6,6 @@ from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.client_review import ClientReview as ClientReviewModel
 from app.schemas.client_review import ClientReview, ClientReviewPost, ClientReviewPut
-from typing import List
 
 client_review = APIRouter()
 
@@ -28,14 +27,14 @@ async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Se
         client_review = update_client_review(db, user[user_type]['id'],id, review_data)
         return client_review
     
-@client_review.get('/obtenerReseñasCliente', response_model=List[ClientReview])
+@client_review.get('/obtenerReseñasCliente')
 async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         client_reviews = db.query(ClientReviewModel).filter(ClientReviewModel.client_id == user[user_type]['id']).all()
-        return client_reviews
+        return [client_review for client_review in client_reviews]
     
 @client_review.get('/obtenerReseñas', response_model=ClientReview)
 async def obtener_reseñas(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):

@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
@@ -7,10 +6,10 @@ from app.schemas.model import Model
 
 model_pu = APIRouter()
 
-@model_pu.get('/listadoModelos', response_model=List[Model])
+@model_pu.get('/listadoModelos')
 async def listar_modelos(db: Session = Depends(get_db)):
     models = db.query(ModelModel).all()
-    return models
+    return [model for model in models]
 
 @model_pu.get('/obtenerModelo/{id_model}')
 async def obtener_modelo(id_model: int, db: Session = Depends(get_db)):
