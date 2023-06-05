@@ -12,9 +12,9 @@ def create_supplier(db: Session, supplier: SupplierPost):
     supplier_represenative_data = get_peruvian_card(supplier.num_doc_representative, 1)
     supplier_db = SupplierModel(
         num_doc = supplier.num_doc,
-        name = supplier_data["name"],
+        name = supplier_data["nombre"],
         num_doc_representative = supplier.num_doc_representative,
-        name_representative = supplier_represenative_data["name"],
+        name_representative = supplier_represenative_data["nombre"],
         email = supplier.email,
         phone = supplier.phone,
         status = True
@@ -31,7 +31,7 @@ def update_supplier(db: Session, id_supplier: str, supplier: SupplierPut):
     supplier_data = get_peruvian_card(supplier.num_doc_representative, 1)
     db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).update({
         SupplierModel.num_doc_representative: supplier.num_doc_representative,
-        SupplierModel.name_representative: supplier_data["name"],
+        SupplierModel.name_representative: supplier_data["nombre"],
         SupplierModel.email: supplier.email,
         SupplierModel.phone: supplier.phone
     })
