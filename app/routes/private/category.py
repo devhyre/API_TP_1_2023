@@ -16,7 +16,7 @@ async def registrar_categoria(id_table:int, description: str, db: Session = Depe
         category = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
         if category:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"La categoria con id {id_table} ya existe")
-        category = TableOfTablesModel(id=3, description=description)
+        category = TableOfTablesModel(id=3, id_table=id_table, description=description)
         db.add(category)
         db.commit()
         db.refresh(category)
