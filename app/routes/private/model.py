@@ -14,7 +14,7 @@ async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: Pr
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        new_model = ModelModel(**model.dict())
+        new_model = ModelModel(name=model.name, description=model.description, brand_id=model.brand_id)
         db.add(new_model)
         db.commit()
         db.refresh(new_model)
@@ -29,7 +29,7 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
         model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
-        model_db.name = model.name
+        model_db.description = model.description
         db.commit()
         db.refresh(model_db)
         return model_db
