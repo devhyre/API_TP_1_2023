@@ -5,11 +5,7 @@ class Model(BaseModel):
     description: str
     brand_id: int
 
-    @validator('name')
-    def name_must_be_valid(cls, name):
-        if len(name) < 3:
-            raise ValueError("El nombre debe tener al menos 3 caracteres")
-        return name
+    
     
     @validator('description')
     def description_must_be_valid(cls, description):
@@ -27,7 +23,14 @@ class ModelPost(Model):
     pass
 
 class ModelPut(Model):
+    name: str
     description: str
+
+    @validator('name')
+    def name_must_be_valid(cls, name):
+        if len(name) < 3:
+            raise ValueError("El nombre debe tener al menos 3 caracteres")
+        return name
 
     @validator('description')
     def description_must_be_valid(cls, description):

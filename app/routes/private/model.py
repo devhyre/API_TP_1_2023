@@ -29,6 +29,7 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
         model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
+        model_db.name = model.name
         model_db.description = model.description
         db.commit()
         db.refresh(model_db)
