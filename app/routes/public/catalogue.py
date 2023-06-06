@@ -27,31 +27,31 @@ async def obtener_producto(id:int, db: Session = Depends(get_db)):
 #!OBTENER TODOS LOS PRODUCTOS CON EL ESTADO 4(STOCK) POR CATEGORIAS, MARCAS, RANGO DE PRECIOS, RANGO DE DESCUENTOS Y RANGO DE RANKING. NO ES NECESARIO QUE SE INGRESEN TODOS LOS PARAMETROS, SOLO LOS QUE SE DESEEN FILTRAR.
 @catalogue.get('/obtenerProductosFiltros')
 async def obtener_productos_filtro(categoria_id: int = None, marca_id: int = None, precio_min: float = None, precio_max: float = None, descuento_min: int = None, descuento_max: int = None, ranking_min: int = None, ranking_max: int = None, db: Session = Depends(get_db)):
-    filters = [
-        (categoria_id, ProductModel.category_id),
-        (marca_id, ProductModel.brand_id),
-        (precio_min, ProductModel.price >= precio_min),
-        (precio_max, ProductModel.price <= precio_max),
-        (descuento_min, ProductModel.discount >= descuento_min),
-        (descuento_max, ProductModel.discount <= descuento_max),
-        (ranking_min, ProductModel.ranking >= ranking_min),
-        (ranking_max, ProductModel.ranking <= ranking_max)
-    ]
-
-    query = db.query(ProductModel).filter(ProductModel.status_id == 4)
-
-    for r in range(1, 9):  # Generate combinations of 1 to 8 filters
-        for combination in itertools.combinations(filters, r):
-            filters_to_apply = []
-            for value, condition in combination:
-                if value is not None:
-                    filters_to_apply.append(condition)
-            if filters_to_apply:
-                query = query.filter(*filters_to_apply)
-
-            products = query.all()
-            # Process the resulting products here or return them
-
-    # Handle the case where no filters are applied
-
-    return []
+    #!OBTENER TODOS LOS PRODUCTOS
+    products = db.query(ProductModel).all()
+    #!VERIFICAR QUE PARAMETROS SE INGRESARON
+    if categoria_id:
+        FILTRO_CATEGORIA = filter(lambda product: product.category_id == categoria_id, products)
+        products = list(FILTRO_CATEGORIA)
+    if marca_id:
+        FILTRO_MARCA = filter(lambda product: product.brand_id == marca_id, products)
+        products = list(FILTRO_MARCA)
+    if precio_min:
+        FILTRO_PRECIO_MIN = filter(lambda product: product.price >= precio_min, products)
+        products = list(FILTRO_PRECIO_MIN)
+    if precio_max:
+        FILTRO_PRECIO_MAX = filter(lambda product: product.price <= precio_max, products)
+        products = list(FILTRO_PRECIO_MAX)
+    if descuento_min:
+        FILTRO_DESCUENTO_MIN = filter(lambda product: product.discount >= descuento_min, products)
+        products = list(FILTRO_DESCUENTO_MIN)
+    if descuento_max:
+        FILTRO_DESCUENTO_MAX = filter(lambda product: product.discount <= descuento_max, products)
+        products = list(FILTRO_DESCUENTO_MAX)
+    if ranking_min:
+        FILTRO_RANKING_MIN = filter(lambda product: product.ranking >= ranking_min, products)
+        products = list(FILTRO_RANKING_MIN)
+    if ranking_max:
+        FILTRO_RANKING_MAX = filter(lambda product: product.ranking <= ranking_max, products)
+        products = list(FILTRO_RANKING_MAX)
+    return products
