@@ -116,7 +116,7 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         serial_number_db = SerialNumberModel(
-            serial_number = serial_number.serial_number,
+            sn_id = serial_number.serial_number,
             product_id = serial_number.product_id,
             supplier_id = serial_number.supplier_id,
             user_id = user[user_type]['numeroDocumento'],
