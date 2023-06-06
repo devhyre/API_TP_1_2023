@@ -36,7 +36,7 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         db.refresh(category)
         return {'id': category.id_table, 'description': category.description}
     
-@categories_pr.delete('/eliminarCategoria/{id_table}', status_code=status.HTTP_204_NO_CONTENT)
+@categories_pr.delete('/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK)
 async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

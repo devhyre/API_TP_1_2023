@@ -4,6 +4,7 @@ from app.core.db import get_db
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.model import Model as ModelModel
+from app.models.brand import Brand as BrandModel
 from app.schemas.model import Model, ModelPost, ModelPut
 
 model_pr = APIRouter()
@@ -14,6 +15,9 @@ async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: Pr
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        brand_exist = db.query(BrandModel).filter(BrandModel.id == model.brand_id).first()
+        if not brand_exist:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
         new_model = ModelModel(name=model.name, description=model.description, brand_id=model.brand_id)
         db.add(new_model)
         db.commit()

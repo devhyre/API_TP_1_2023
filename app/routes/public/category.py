@@ -10,11 +10,12 @@ categories_pu = APIRouter()
 @categories_pu.get('/listadoCategorias')
 async def listar_categorias(db: Session = Depends(get_db)):
     categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+    categories = sorted(categories, key=lambda x: x.id_table)
     return [{'id': category.id_table, 'description': category.description} for category in categories]
     
 @categories_pu.get('/obtenerCategoria/{id_table}')
 async def obtener_categoria(id_table: int, db: Session = Depends(get_db)):
-    category = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3 and TableOfTablesModel.id_table == id_table).first()
+    category = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
     return {'id': category.id_table, 'description': category.description}

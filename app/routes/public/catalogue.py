@@ -2,32 +2,56 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.product import Product as ProductModel
+import itertools
 
 catalogue = APIRouter()
 
-#!OBTENER TODOS LOS PRODUCTOS CON EL ESTADO 4(STOCK)
 @catalogue.get('/obtenerProductos')
 async def obtener_productos(db: Session = Depends(get_db)):
-    products = db.query(ProductModel).filter(ProductModel.status_id == 4).all()
+    products_4 = db.query(ProductModel).filter(ProductModel.status_id == 4).all()
+    products_1 = db.query(ProductModel).filter(ProductModel.status_id == 1).all()
+    products = products_4 + products_1
     return products
 
-#!OBTENER TODOS LOS PRODUCTOS CON EL ESTADO 4(STOCK) CON PAGINACION
-@catalogue.get('/obtenerProductosPaginacion')
-async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db)):
-    products = db.query(ProductModel).filter(ProductModel.status_id == 4).offset(page).limit(10).all()
-    return products
-
-#!OBTENER UN PRODUCTO CON EL ESTADO 4(STOCK)
 @catalogue.get('/obtenerProducto/{id}')
 async def obtener_producto(id:int, db: Session = Depends(get_db)):
-    product = db.query(ProductModel).filter(ProductModel.id == id).filter(ProductModel.status_id == 4).first()
-    if product == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
+    product_4 = db.query(ProductModel).filter(ProductModel.id == id).filter(ProductModel.status_id == 4).first()
+    product_1 = db.query(ProductModel).filter(ProductModel.id == id).filter(ProductModel.status_id == 1).first()
+    if product_1:
+        return product_1
+    elif product_4:
+        return product_4
     else:
-        return product
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El producto no existe")
     
-#!OBTENER TODOS LOS PRODUCTOS CON EL ESTADO 4(STOCK) POR CATEGORIAS, MARCAS, RANGO DE PRECIOS, RANGO DE DESCUENTOS Y RANGO DE RANKING
+#!OBTENER TODOS LOS PRODUCTOS CON EL ESTADO 4(STOCK) POR CATEGORIAS, MARCAS, RANGO DE PRECIOS, RANGO DE DESCUENTOS Y RANGO DE RANKING. NO ES NECESARIO QUE SE INGRESEN TODOS LOS PARAMETROS, SOLO LOS QUE SE DESEEN FILTRAR.
 @catalogue.get('/obtenerProductosFiltros')
-async def obtener_productos_filtros(category_id:int, brand_id:int, price_min:float, price_max:float, discount_min:float, discount_max:float, ranking_min:float, ranking_max:float, db: Session = Depends(get_db)):
-    products = db.query(ProductModel).filter(ProductModel.status_id == 4).filter(ProductModel.category_id == category_id).filter(ProductModel.brand_id == brand_id).filter(ProductModel.price >= price_min).filter(ProductModel.price <= price_max).filter(ProductModel.discount >= discount_min).filter(ProductModel.discount <= discount_max).filter(ProductModel.ranking >= ranking_min).filter(ProductModel.ranking <= ranking_max).all()
-    return products
+async def obtener_productos_filtro(categoria_id: int = None, marca_id: int = None, precio_min: float = None, precio_max: float = None, descuento_min: int = None, descuento_max: int = None, ranking_min: int = None, ranking_max: int = None, db: Session = Depends(get_db)):
+    filters = [
+        (categoria_id, ProductModel.category_id),
+        (marca_id, ProductModel.brand_id),
+        (precio_min, ProductModel.price >= precio_min),
+        (precio_max, ProductModel.price <= precio_max),
+        (descuento_min, ProductModel.discount >= descuento_min),
+        (descuento_max, ProductModel.discount <= descuento_max),
+        (ranking_min, ProductModel.ranking >= ranking_min),
+        (ranking_max, ProductModel.ranking <= ranking_max)
+    ]
+
+    query = db.query(ProductModel).filter(ProductModel.status_id == 4)
+
+    for r in range(1, 9):  # Generate combinations of 1 to 8 filters
+        for combination in itertools.combinations(filters, r):
+            filters_to_apply = []
+            for value, condition in combination:
+                if value is not None:
+                    filters_to_apply.append(condition)
+            if filters_to_apply:
+                query = query.filter(*filters_to_apply)
+
+            products = query.all()
+            # Process the resulting products here or return them
+
+    # Handle the case where no filters are applied
+
+    return []

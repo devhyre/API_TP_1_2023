@@ -12,7 +12,7 @@ async def listar_marcas(db: Session = Depends(get_db)):
 
 @brand_pu.get('/obtenerMarca/{id_brand}')
 async def obtener_marca(id_brand: int, db: Session = Depends(get_db)):
-    brand = db.query(BrandModel).filter(BrandModel.id_brand == id_brand).first()
+    brand = db.query(BrandModel).filter(BrandModel.id == id_brand).first()
     if not brand:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
     return brand

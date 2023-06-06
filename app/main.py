@@ -1,4 +1,4 @@
-from fastapi import APIRouter, FastAPI, status, HTTPException
+from fastapi import APIRouter, FastAPI, status, HTTPException, responses
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.db import Session, engine, Base
@@ -54,7 +54,7 @@ def shutdown():
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return HTTPException(status_code=status.HTTP_200_OK, detail="Bienvenido a Rayotec API")
+    return responses.RedirectResponse(url="/docs")
 
 @app.get("/about", include_in_schema=False)
 async def about():

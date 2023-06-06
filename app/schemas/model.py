@@ -22,7 +22,7 @@ class Model(BaseModel):
 class ModelPost(Model):
     pass
 
-class ModelPut(Model):
+class ModelPut(BaseModel):
     name: str
     description: str
 

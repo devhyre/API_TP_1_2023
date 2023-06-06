@@ -9,6 +9,7 @@ documents = APIRouter()
 @documents.get('/listadoDocumentos')
 async def listar_documentos(db: Session = Depends(get_db)):
     documents = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 1).all()
+    documents = sorted(documents, key=lambda x: x.id_table)
     return [{'id': document.id_table, 'description': document.description} for document in documents]
 
 @documents.get('/obtenerDocumento/{id_table}')
