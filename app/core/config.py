@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Optional, Union
 class Settings(BaseSettings):
     #! Database
     MYSQL_USER: str = "admin"
-    MYSQL_PASSWORD: str = "sDAd9Ipp"
-    MYSQL_HOST: str = "mysql-129771-0.cloudclusters.net"
-    MYSQL_PORT: str = "15851"
-    MYSQL_DB: str = "tp"
+    MYSQL_PASSWORD: str = "NYvEmxqD"
+    MYSQL_HOST: str = "mysql-130305-0.cloudclusters.net"
+    MYSQL_PORT: str = "10122"
+    MYSQL_DB: str = "Rayotec"
     SQLALCHEMY_DATABASE_URI: Optional[AnyUrl] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
