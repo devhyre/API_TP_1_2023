@@ -52,7 +52,9 @@ async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegeP
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No se puede modificar el rol de administrador')
     else:
         role_privilege_db = db.query(RolePrivilegeModel).filter(RolePrivilegeModel.id_role == id_role).first()
-        if role_privilege_db:
+        if role_privilege_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El rol no existe')
+        else:
             role_privilege_db.module_1 = role_privilege.module_1
             role_privilege_db.module_2 = role_privilege.module_2
             role_privilege_db.module_3 = role_privilege.module_3
@@ -76,5 +78,3 @@ async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegeP
             db.commit()
             db.refresh(role_privilege_db)
             return role_privilege_db
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El rol no existe')
