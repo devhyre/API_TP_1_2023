@@ -11,7 +11,7 @@ class SerialNumber(BaseModel):
     entrance_at: datetime
     departure_at: Optional[datetime] = None
 
-    @validator('serial_number')
+    @validator('sn_id')
     def serial_number_must_be_valid(cls, serial_number):
         if not serial_number.isalnum():
             raise ValueError("El serial debe ser válido")
