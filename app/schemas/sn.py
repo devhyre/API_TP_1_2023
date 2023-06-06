@@ -3,7 +3,7 @@ from pydantic import BaseModel, validator
 from datetime import datetime
 
 class SerialNumber(BaseModel):
-    serial_number: str
+    sn_id: str
     product_id: int
     supplier_id: str
     user_id: str

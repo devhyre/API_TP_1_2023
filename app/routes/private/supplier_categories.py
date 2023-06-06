@@ -45,6 +45,6 @@ async def eliminar_categoria_proveedor(num_doc_supplier: str, id_category: int, 
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        db.query(SupplierCategoryModel).filter(SupplierCategoryModel.num_doc_supplier == num_doc_supplier, SupplierCategoryModel.category_id == id_category).delete()
+        db.query(SupplierCategoryModel).filter(SupplierCategoryModel.supplier_id == num_doc_supplier, SupplierCategoryModel.category_id == id_category).delete()
         db.commit()
         return {'message': 'Se eliminó la categoría del proveedor'}
