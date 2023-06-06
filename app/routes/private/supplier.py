@@ -49,9 +49,9 @@ async def actualizar_proveedor(id_supplier: str, supplier: SupplierPut, db: Sess
     else:
         supplier_exists = db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).first()
         if not supplier_exists:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El proveedor con id {id_supplier} no existe")
-        update_supplier(db, id_supplier, supplier)
-        return {'message': f'Proveedor con id {id_supplier} actualizado' }
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El proveedor {id_supplier} no existe")
+        update = update_supplier(db, id_supplier, supplier)
+        return update
     
 @supplier.put('/actualizarProveedor/{id_supplier}/estado', status_code=status.HTTP_202_ACCEPTED)
 async def actualizar_estado_proveedor(id_supplier: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
@@ -62,8 +62,8 @@ async def actualizar_estado_proveedor(id_supplier: str, db: Session = Depends(ge
         supplier_exists = db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).first()
         if not supplier_exists:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El proveedor con id {id_supplier} no existe")
-        update_status_supplier(db, id_supplier)
-        return {'message': f'Proveedor con id {id_supplier} actualizado' }
+        update = update_status_supplier(db, id_supplier)
+        return update
 
 @supplier.delete('/eliminarProveedor/{id_supplier}', status_code=status.HTTP_204_NO_CONTENT)
 async def eliminar_proveedor(id_supplier: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
