@@ -12,6 +12,8 @@ from app.models.user import User as UserModel
 
 def create_user_worker(db: Session, user: UserPost, role_id: int, level: int):
     worker_data = get_peruvian_card(user.num_doc, user.type_doc)
+    if 'nombre' not in worker_data:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El numero de documento no existe")
     user_db = create_user(db, user, worker_data['nombre'])
     worker_db = WorkerModel(
         user_id = user_db.num_doc,

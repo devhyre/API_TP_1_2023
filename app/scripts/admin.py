@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
+from fastapi import HTTPException, status
 #!USER
 from app.util.request import get_peruvian_card
 from app.schemas.user import UserPost
@@ -10,6 +11,8 @@ from app.schemas.admin import AdminPost
 
 def create_user_admin(db: Session, user: UserPost, role_id: int, level: int):
     admin_data = get_peruvian_card(user.num_doc, user.type_doc)
+    if 'nombre' not in admin_data:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El numero de documento no existe")
     user_db = create_user(db, user, admin_data['nombre'])
     admin_db = AdminModel(
         user_id = user_db.num_doc,

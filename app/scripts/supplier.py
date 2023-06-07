@@ -10,7 +10,11 @@ from app.schemas.supplier import SupplierPost, SupplierPut
 
 def create_supplier(db: Session, supplier: SupplierPost):
     supplier_data = get_peruvian_card(supplier.num_doc, 6)
+    if 'nombre' not in supplier_data:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El numero de documento no existe")
     supplier_represenative_data = get_peruvian_card(supplier.num_doc_representative, 1)
+    if 'nombre' not in supplier_represenative_data:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El numero de documento no existe")
     supplier_db = SupplierModel(
         num_doc = supplier.num_doc,
         name = supplier_data["nombre"],
