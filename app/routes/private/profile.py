@@ -46,5 +46,3 @@ async def put_password(user_data: UserPutPassword, user: ProfileResponse = Depen
     user_type = list(user.keys())[0]
     update_password(db, user[user_type]['numeroDocumento'], user_data.password)
     return {'message': 'Contraseña actualizada'}
-    
-

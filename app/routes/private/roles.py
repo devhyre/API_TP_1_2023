@@ -5,6 +5,7 @@ from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 from app.models.role_privileges import RolePrivilege as RolePrivilegeModel
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
+from app.models.role_privileges import RolePrivilege as RolePrivilegeModel
 
 roles = APIRouter()
 
@@ -38,7 +39,29 @@ async def registrar_rol(id_table:int, description: str, db: Session = Depends(ge
         if role_exists:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='El rol ya esta registrado')
         role = TableOfTablesModel(id=2, id_table=id_table, description=description)
-        new_role_privilege = RolePrivilegeModel(role_id=id_table)
+        new_role_privilege = RolePrivilegeModel(
+            role_id = id_table,
+            module_1 = False,
+            module_2 = False,
+            module_3 = False,
+            module_4 = False,
+            module_5 = False,
+            module_6 = False,
+            module_7 = False,
+            module_8 = False,
+            module_9 = False,
+            module_10 = False,
+            module_11 = False,
+            module_12 = False,
+            module_13 = False,
+            module_14 = False,
+            module_15 = False,
+            module_16 = False,
+            module_17 = False,
+            module_18 = False,
+            module_19 = False,
+            module_20 = False
+        )
         db.add(role)
         db.add(new_role_privilege)
         db.commit()

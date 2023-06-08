@@ -29,10 +29,10 @@ class RolePrivilege(BaseModel):
             raise ValueError("El rol debe ser válido")
         return role_id
     
-class RolePrivilegePost(RolePrivilege):
-    pass
+class RolePrivilegePost(BaseModel):
+    role_id: int
 
-class RolePrivilegePut(RolePrivilege):
+class RolePrivilegePut(BaseModel):
     module_1: bool
     module_2: bool
     module_3: bool
