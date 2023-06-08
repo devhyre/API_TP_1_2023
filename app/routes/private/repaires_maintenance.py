@@ -42,7 +42,9 @@ async def get_repairs_maintenance(user: dict = Depends(get_current_active_user),
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        list_repairs_maintenance = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 3 or RepairsMaintenanceModel.type_service_id == 4).all()
+        list_repairs_3 = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 3).all()
+        list_repairs_4 = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 4).all()
+        list_repairs_maintenance = list_repairs_3 + list_repairs_4
         return list_repairs_maintenance
     
 @repairs_maintenance.get('/listarMantenimientos', status_code=status.HTTP_200_OK)
@@ -51,7 +53,9 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        list_repairs_maintenance = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 1 or RepairsMaintenanceModel.type_service_id == 2).all()
+        list_maintenance_1 = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 1).all()
+        list_maintenance_2 = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.type_service_id == 2).all()
+        list_repairs_maintenance = list_maintenance_1 + list_maintenance_2
         return list_repairs_maintenance
     
 @repairs_maintenance.get('/listarReparacionesMantenimientos', status_code=status.HTTP_200_OK)
@@ -89,6 +93,10 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
             discount = repairs_maintenance.discount,
             total = repairs_maintenance.total * (1 - repairs_maintenance.discount / 100)
         )
+        db.add(db_repairs_maintenance)
+        db.commit()
+        db.refresh(db_repairs_maintenance)
+        return db_repairs_maintenance
 
 @repairs_maintenance.put('/actualizarReparacionMantenimiento/{id}', status_code=status.HTTP_200_OK)
 async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenancePut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
