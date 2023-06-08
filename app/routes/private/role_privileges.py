@@ -21,7 +21,7 @@ async def listar_privilegios_rol(db: Session = Depends(get_db), user: dict = Dep
 @role_privileges.get('/obtenerPrivilegiosRol/{id_role}', status_code=status.HTTP_200_OK)
 async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
-    if user_type != 'admin':
+    if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         role_privilege = db.query(RolePrivilegeModel).filter(RolePrivilegeModel.role_id == id_role).first()
