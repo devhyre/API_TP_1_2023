@@ -11,8 +11,8 @@ class ProfileResponse(BaseModel):
     estadoUsuario: str
     fechaCreacion: datetime
     ultimoInicioSesion: datetime
-    rol: int | None
-    nivelAcceso: int | None
+    rol: Optional[int] = None
+    nivelAcceso: Optional[int] = None
 
     class Config:
         orm_mode = True
