@@ -4,15 +4,15 @@ from datetime import datetime
 
 class ProfileResponse(BaseModel):
     id: int
-    tipoDocumento: Optional[str]
+    tipoDocumento: int
     numeroDocumento: str
     nombreCompleto: str
     correoElectronico: str
     estadoUsuario: str
     fechaCreacion: datetime
     ultimoInicioSesion: datetime
-    rol: Optional[str]
-    nivelAcceso: Optional[int]
+    rol: int
+    nivelAcceso: int
 
     class Config:
         orm_mode = True
