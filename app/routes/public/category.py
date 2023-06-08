@@ -7,7 +7,7 @@ from app.security.token import get_current_active_user
 
 categories_pu = APIRouter()
 
-@categories_pu.get('/listadoCategorias')
+@categories_pu.get('/listadoCategorias', status_code=status.HTTP_200_OK)
 async def listar_categorias(db: Session = Depends(get_db)):
     categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
     categories = sorted(categories, key=lambda x: x.id_table)
