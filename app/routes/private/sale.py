@@ -62,7 +62,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_
             #!ACTUALIZAR EL STOCK DE LOS PRODUCTOS
             product_db.stock = product_db.stock - detail_order.quantity
             if product_db.stock < 0:
-                return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock\nPodroducto faltante {product_db.name}.'
+                return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock\nPodroducto faltante {product_db.name}.')
             db.add(product_db)
             db.commit()
             db.refresh(product_db)
