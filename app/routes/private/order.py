@@ -17,7 +17,7 @@ async def listar_estados_orden(db: Session = Depends(get_db)):
     return [{'id': state.id_table, 'description': state.description} for state in states]
 
 @order.get('/obtenerOrdenes', status_code=status.HTTP_200_OK)
-async def obtener_ordenes(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_ordenes(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -26,13 +26,13 @@ async def obtener_ordenes(db: Session = Depends(get_db), user: ProfileResponse =
         return orders
     
 @order.get('/obtenerOrdenesPorUsuario', status_code=status.HTTP_200_OK)
-async def obtener_ordenes_por_usuario(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_ordenes_por_usuario(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     orders = db.query(OrderModel).filter(OrderModel.user_id == user[user_type]['numeroDocumento']).all()
     return orders
 
 @order.post('/crearOrden', status_code=status.HTTP_201_CREATED)
-async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     order_db = OrderModel(
         user_id = user[user_type]['numeroDocumento'],
@@ -46,7 +46,7 @@ async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: Pro
     return order_db
 
 @order.put('/actualizarEstadoOrdenCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -64,7 +64,7 @@ async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depend
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no es válido')
             
 @order.put('/actualizarEstadoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -143,7 +143,7 @@ async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depend
 #!DETALLE ORDENES
 
 @order.get('/obtenerDetalleOrdenUsuario/{id}', status_code=status.HTTP_200_OK)
-async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     #!Verificar que el usuario sea el dueño de la orden
     user_type = list(user.keys())[0]
     order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
@@ -161,7 +161,7 @@ async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: Pr
             return detail_order
         
 @order.post('/crearDetalleOrden', status_code=status.HTTP_201_CREATED)
-async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     order_db = db.query(OrderModel).filter(OrderModel.id == detail_order.order_id).first()
     if order_db is None:

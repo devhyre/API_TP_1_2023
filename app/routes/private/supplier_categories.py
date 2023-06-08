@@ -10,7 +10,7 @@ from app.security.token import get_current_active_user
 supplier_categories = APIRouter()
 
 @supplier_categories.get('/listadoCategoriasProveedor', status_code=status.HTTP_200_OK)
-async def listar_categorias_proveedor(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def listar_categorias_proveedor(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -19,7 +19,7 @@ async def listar_categorias_proveedor(db: Session = Depends(get_db), user: Profi
         return [{'id_supplier': supplier_category.supplier_id, 'id_category': supplier_category.category_id} for supplier_category in supplier_categories]
     
 @supplier_categories.get('/obtenerCategoriasProveedor/{num_doc_supplier}', status_code=status.HTTP_200_OK)
-async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -28,7 +28,7 @@ async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depen
         return [{'id_supplier': supplier_category.supplier_id, 'id_category': supplier_category.category_id} for supplier_category in supplier_categories]
     
 @supplier_categories.post('/registrarCategoriaProveedor', status_code=status.HTTP_201_CREATED)
-async def registrar_categoria_proveedor(supplier_category: SupplierCategoryPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def registrar_categoria_proveedor(supplier_category: SupplierCategoryPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -40,7 +40,7 @@ async def registrar_categoria_proveedor(supplier_category: SupplierCategoryPost,
         return {'id_supplier': supplier_category_db.supplier_id, 'id_category': supplier_category_db.category_id}
     
 @supplier_categories.delete('/eliminarCategoriaProveedor/{num_doc_supplier}/{id_category}', status_code=status.HTTP_200_OK)
-async def eliminar_categoria_proveedor(num_doc_supplier: str, id_category: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_categoria_proveedor(num_doc_supplier: str, id_category: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

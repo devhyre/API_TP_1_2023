@@ -18,7 +18,7 @@ async def estados_pedidos(db: Session = Depends(get_db)):
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
 @products.get('/obtenerProductos', status_code=status.HTTP_200_OK)
-async def obtener_productos(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_productos(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -27,7 +27,7 @@ async def obtener_productos(db: Session = Depends(get_db), user: ProfileResponse
         return products
 
 @products.get('/obtenerProductosPaginacion', status_code=status.HTTP_200_OK)
-async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -36,7 +36,7 @@ async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), 
         return products
 
 @products.get('/obtenerProducto/{id}', status_code=status.HTTP_200_OK)
-async def obtener_producto(id:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_producto(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -45,7 +45,7 @@ async def obtener_producto(id:int, db: Session = Depends(get_db), user: ProfileR
         return product
     
 @products.post('/crearProducto', status_code=status.HTTP_201_CREATED)
-async def crear_producto(product: ProductPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_producto(product: ProductPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -70,7 +70,7 @@ async def crear_producto(product: ProductPost, db: Session = Depends(get_db), us
         return product_db
     
 @products.put('/actualizarProducto/{id}', status_code=status.HTTP_200_OK)
-async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -101,7 +101,7 @@ async def estados_serial_numbers(db: Session = Depends(get_db)):
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
 @products.get('/obtenerSerialNumbers', status_code=status.HTTP_200_OK)
-async def obtener_serial_numbers(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -110,7 +110,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: ProfileRes
         return serial_numbers
 
 @products.post('/crearSerialNumber', status_code=status.HTTP_201_CREATED)
-async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

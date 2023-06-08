@@ -4,14 +4,13 @@ from app.core.db import get_db
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 from app.models.role_privileges import RolePrivilege as RolePrivilegeModel
 from app.schemas.role_privileges import RolePrivilegePost, RolePrivilegePut
-
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 
 role_privileges = APIRouter()
 
 @role_privileges.get('/listarPrivilegiosRol', status_code=status.HTTP_200_OK)
-async def listar_privilegios_rol(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def listar_privilegios_rol(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -20,7 +19,7 @@ async def listar_privilegios_rol(db: Session = Depends(get_db), user: ProfileRes
         return role_privileges
     
 @role_privileges.get('/obtenerPrivilegiosRol/{id_role}', status_code=status.HTTP_200_OK)
-async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -32,7 +31,7 @@ async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), u
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El rol no existe')
     
 @role_privileges.post('/crearPrivilegioRol', status_code=status.HTTP_201_CREATED)
-async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -69,7 +68,7 @@ async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = 
         return new_role_privilege
     
 @role_privileges.put('/actualizarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK)
-async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegePut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegePut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -105,7 +104,7 @@ async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegeP
             return role_privilege_db
         
 @role_privileges.delete('/eliminarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK)
-async def eliminar_privilegio_rol(id_role: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_privilegio_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

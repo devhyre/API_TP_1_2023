@@ -37,7 +37,7 @@ async def obtener_estado_servicio(id_table: int, db: Session = Depends(get_db)):
     return {'id': state_service.id_table, 'description': state_service.description}
 
 @repairs_maintenance.get('/listarReparaciones', status_code=status.HTTP_200_OK)
-async def get_repairs_maintenance(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_repairs_maintenance(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -46,7 +46,7 @@ async def get_repairs_maintenance(user: ProfileResponse = Depends(get_current_ac
         return list_repairs_maintenance
     
 @repairs_maintenance.get('/listarMantenimientos', status_code=status.HTTP_200_OK)
-async def get_maintenance(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_maintenance(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -55,7 +55,7 @@ async def get_maintenance(user: ProfileResponse = Depends(get_current_active_use
         return list_repairs_maintenance
     
 @repairs_maintenance.get('/listarReparacionesMantenimientos', status_code=status.HTTP_200_OK)
-async def get_repairs_maintenance(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_repairs_maintenance(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -64,7 +64,7 @@ async def get_repairs_maintenance(user: ProfileResponse = Depends(get_current_ac
         return list_repairs_maintenance
     
 @repairs_maintenance.get('/listarReparacionesMantenimientosTrabajadorAsignado/{worker_id}', status_code=status.HTTP_200_OK)
-async def get_repairs_maintenance(worker_id: int, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_repairs_maintenance(worker_id: int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -73,7 +73,7 @@ async def get_repairs_maintenance(worker_id: int, user: ProfileResponse = Depend
         return list_repairs_maintenance
     
 @repairs_maintenance.post('/registrarReparacionMantenimiento', status_code=status.HTTP_201_CREATED)
-async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -91,7 +91,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
         )
 
 @repairs_maintenance.put('/actualizarReparacionMantenimiento/{id}', status_code=status.HTTP_200_OK)
-async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenancePut, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenancePut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

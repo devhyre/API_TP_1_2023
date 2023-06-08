@@ -10,7 +10,7 @@ from app.schemas.model import Model, ModelPost, ModelPut
 model_pr = APIRouter()
 
 @model_pr.post('/crearModelo', status_code=status.HTTP_201_CREATED)
-async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -25,7 +25,7 @@ async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: Pr
         return new_model
     
 @model_pr.put('/actualizarModelo/{id_model}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -40,7 +40,7 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
         return model_db
     
 @model_pr.delete('/eliminarModelo/{id_model}', status_code=status.HTTP_200_OK)
-async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

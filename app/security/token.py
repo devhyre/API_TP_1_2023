@@ -131,10 +131,15 @@ def decode_access_token(token: str):
         return None
 
 
+blacklisted_tokens = set()
+
 def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
     print(token)
     data = decode_access_token(token)
     if data:
+        if token in blacklisted_tokens:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
         return db.query(UserModel).filter(UserModel.username == data["sub"]).first()
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -166,7 +171,8 @@ def get_current_active_user(token: str = Depends(oauth2_schema)):
                 "ultimoInicioSesion": user_type_data.last_connection,
                 "rol": None if user_type == "client" else user_type_data.role_id,
                 "nivelAcceso": None if user_type == "client" else user_type_data.level
-            }
+            },
+            'access_token': token
         }
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,

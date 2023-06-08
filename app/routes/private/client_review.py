@@ -10,7 +10,7 @@ from app.schemas.client_review import ClientReview, ClientReviewPost, ClientRevi
 client_review = APIRouter()
 
 @client_review.post('/crearReseñaCliente', status_code=status.HTTP_201_CREATED)
-async def crear_reseña_cliente(review_data: ClientReviewPost,db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_reseña_cliente(review_data: ClientReviewPost,db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -19,7 +19,7 @@ async def crear_reseña_cliente(review_data: ClientReviewPost,db: Session = Depe
         return client_review
     
 @client_review.put('/actualizarReseñaCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -28,7 +28,7 @@ async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Se
         return client_review
     
 @client_review.get('/obtenerReseñasCliente', status_code=status.HTTP_200_OK)
-async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -37,7 +37,7 @@ async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: ProfileR
         return [client_review for client_review in client_reviews]
     
 @client_review.get('/obtenerReseñas', status_code=status.HTTP_200_OK)
-async def obtener_reseñas(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -46,7 +46,7 @@ async def obtener_reseñas(db: Session = Depends(get_db), user: ProfileResponse 
         return client_reviews
 
 @client_review.get('/obtenerReseña/{id}', status_code=status.HTTP_200_OK)
-async def obtener_reseña(id:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def obtener_reseña(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -55,7 +55,7 @@ async def obtener_reseña(id:int, db: Session = Depends(get_db), user: ProfileRe
         return client_review
     
 @client_review.delete('/eliminarReseña/{id}' , status_code=status.HTTP_200_OK)
-async def eliminar_reseña(id:int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_reseña(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

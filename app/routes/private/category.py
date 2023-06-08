@@ -8,7 +8,7 @@ from app.security.token import get_current_active_user
 categories_pr = APIRouter()
 
 @categories_pr.post('/registrarCategoria', status_code=status.HTTP_201_CREATED)
-async def registrar_categoria(id_table:int, description: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def registrar_categoria(id_table:int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -23,7 +23,7 @@ async def registrar_categoria(id_table:int, description: str, db: Session = Depe
         return {'id': category.id_table, 'description': category.description}
     
 @categories_pr.put('/actualizarCategoria/{id_table}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_categoria(id_table: int, description: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_categoria(id_table: int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -37,7 +37,7 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         return {'id': category.id_table, 'description': category.description}
     
 @categories_pr.delete('/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK)
-async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

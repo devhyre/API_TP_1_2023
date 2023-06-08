@@ -2,10 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.scripts.user import get_user_by_username, update_last_connection
-from app.security.token import verify_password, create_access_token
+from app.security.token import verify_password, create_access_token, get_current_active_user, blacklisted_tokens
 from fastapi.security import OAuth2PasswordRequestForm
 from app.security.schemas.profile_response import ProfileResponse
-from app.security.token import get_current_active_user
 
 auth = APIRouter()
 
@@ -27,8 +26,19 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     return access_token
 
 @auth.get('/logout')
-async def logout(response: Response):
+async def logout(response: Response, user: dict = Depends(get_current_active_user)):
     response.delete_cookie(key='access_token')
     response.delete_cookie(key='username')
     response.delete_cookie(key='num_doc')
-    return {'message': "Sesión cerrada correctamente"}
+    access_token = user.get("access_token")
+    if access_token:
+        blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
+    return {'message': 'Logout exitoso'}
+
+@auth.post('/revoke_token')
+async def revoke_token(user: ProfileResponse = Depends(get_current_active_user)):
+    access_token = user.get("access_token")
+    if access_token:
+        blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
+    return {'message': 'Token revocado exitosamente'}
+

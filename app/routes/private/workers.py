@@ -8,7 +8,7 @@ from app.scripts.worker import get_all_workers, get_worker_by_id, update_role_wo
 workers = APIRouter()
 
 @workers.get('/obtenerTrabajadores', status_code=status.HTTP_200_OK)
-async def get_workers(db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def get_workers(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
@@ -16,7 +16,7 @@ async def get_workers(db: Session = Depends(get_db), user: ProfileResponse = Dep
     return workers
 
 @workers.get('/obtenerTrabajador/{dni}', status_code=status.HTTP_200_OK)
-async def get_worker(dni: str, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def get_worker(dni: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
@@ -26,7 +26,7 @@ async def get_worker(dni: str, db: Session = Depends(get_db), user: ProfileRespo
     return worker
 
 @workers.put('/actualizarRolTrabajador/{dni}', status_code=status.HTTP_200_OK)
-async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')

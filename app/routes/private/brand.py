@@ -9,7 +9,7 @@ from app.security.token import get_current_active_user
 brand_pr = APIRouter()
 
 @brand_pr.post('/crearMarca', status_code=status.HTTP_201_CREATED)
-async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -21,7 +21,7 @@ async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: Pro
         return new_brand
 
 @brand_pr.put('/actualizarMarca/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -36,7 +36,7 @@ async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_d
         return brand_db
 
 @brand_pr.delete('/eliminarMarca/{id}', status_code=status.HTTP_200_OK)
-async def eliminar_marca(id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

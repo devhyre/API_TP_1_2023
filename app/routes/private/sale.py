@@ -16,7 +16,7 @@ from app.models.sn import SerialNumber as SerialNumberModel
 sale = APIRouter()
 
 @sale.get('/listarVentas', status_code=status.HTTP_200_OK)
-async def get_sales(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -25,7 +25,7 @@ async def get_sales(user: ProfileResponse = Depends(get_current_active_user), db
         return sales
     
 @sale.get('/listarVenta/{id}', status_code=status.HTTP_200_OK)
-async def get_sale(id:int, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_sale(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -34,13 +34,13 @@ async def get_sale(id:int, user: ProfileResponse = Depends(get_current_active_us
         return sale
     
 @sale.get('/listarVentasUsuario', status_code=status.HTTP_200_OK)
-async def get_sales_user(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_sales_user(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     sales = db.query(SaleModel).filter(SaleModel.user_id == user[user_type]['numeroDocumento']).all()
     return sales
 
 @sale.post('/registrarVenta', status_code=status.HTTP_201_CREATED)
-async def create_sale(codigo_pago:str, sale: SalePost, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -109,7 +109,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: ProfileResponse = D
         return sale_db
     
 @sale.get('/listarGuiaOrden/{id}', status_code=status.HTTP_200_OK)
-async def get_order_guide(id:int, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_order_guide(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -118,7 +118,7 @@ async def get_order_guide(id:int, user: ProfileResponse = Depends(get_current_ac
         return order_guide
     
 @sale.get('/listarGuiasOrden', status_code=status.HTTP_200_OK)
-async def get_order_guides(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_order_guides(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -127,7 +127,7 @@ async def get_order_guides(user: ProfileResponse = Depends(get_current_active_us
         return order_guides
     
 @sale.get('/listarGuiasOrdenUsuario', status_code=status.HTTP_200_OK)
-async def get_order_guides_user(user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_order_guides_user(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     order_guides = db.query(OrderGuideModel).filter(OrderGuideModel.user_id == user[user_type]['numeroDocumento']).all()
     return order_guides
@@ -142,7 +142,7 @@ async def get_detail_order_guide(id:int, user: ProfileResponse = Depends(get_cur
         return detail_order_guide
     
 @sale.get('/listarDetalleGuiasOrdenUsuario/{id}', status_code=status.HTTP_200_OK)
-async def get_order_guides_user(id:int, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_order_guides_user(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     order_guides = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).filter(DetailOrderGuideModel.user_id == user[user_type]['numeroDocumento']).all()
     return order_guides

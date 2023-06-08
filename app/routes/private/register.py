@@ -11,7 +11,7 @@ from app.security.token import get_current_active_user
 register = APIRouter()
 
 @register.post('/registrarTrabajador', status_code=status.HTTP_201_CREATED)
-async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para registrar un trabajador')
@@ -25,7 +25,7 @@ async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(
         return {'message': 'Trabajador creado'}
     
 @register.post('/registrarAdministrador', status_code=status.HTTP_201_CREATED)
-async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: ProfileResponse = Depends(get_current_active_user)):
+async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para registrar un administrador')
