@@ -11,6 +11,8 @@ profile = APIRouter()
 async def get_profile(user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     print('Tipo de usuario: ', user_type)
+    print('Usuario: ', user[user_type])
+    print('Token: ', user['access_token'])
     return ProfileResponse(
         id=user[user_type]['id'],
         tipoDocumento=user[user_type]['tipoDocumento'],
