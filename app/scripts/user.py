@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from datetime import datetime
 #!SECURITY
-from app.security.token import get_password_hash, get_type_user_by_num_doc, send_email_user_created
+from app.security.token import get_password_hash, get_type_user_by_num_doc, send_email_user_created, send_email_user_updated_email, send_email_user_updated_password
 #!USER
 from app.schemas.user import UserPost
 from app.models.user import User as UserModel
@@ -49,6 +49,7 @@ def update_email(db, num_doc: str, email: str):
         
 def change_email(db, num_doc: str, email: str):
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
+    send_email_user_updated_email(user.full_name, user.username, email)
     user.email = email
     db.commit()
     db.refresh(user)
@@ -60,6 +61,7 @@ def update_password(db, num_doc: str, password: str):
 
 def change_password(db, num_doc: str, password: str):
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
+    send_email_user_updated_password(user.full_name, user.username, user.email, password)
     user.password = get_password_hash(password)
     db.commit()
     db.refresh(user)

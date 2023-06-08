@@ -10,6 +10,7 @@ profile = APIRouter()
 @profile.get('/obtenerPerfil', response_model=ProfileResponse, status_code=status.HTTP_200_OK)
 async def get_profile(user: ProfileResponse = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
+    print('Tipo de usuario: ', user_type)
     return ProfileResponse(
         id=user[user_type]['id'],
         tipoDocumento=user[user_type]['tipoDocumento'],
@@ -25,8 +26,8 @@ async def get_profile(user: ProfileResponse = Depends(get_current_active_user)):
 
 @profile.put('/actualizarEmail', response_model=ProfileResponse, status_code=status.HTTP_200_OK)
 async def put_email(user_data: UserPutEmail, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    user_update = update_email(db, user['client']['numeroDocumento'], user_data.email)
     user_type = list(user.keys())[0]
+    user_update = update_email(db, user[user_type]['numeroDocumento'], user_data.email)
     return ProfileResponse(
         id=user[user_type]['id'],
         tipoDocumento=user[user_type]['tipoDocumento'],
