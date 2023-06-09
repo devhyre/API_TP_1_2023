@@ -19,7 +19,7 @@ sale = APIRouter()
 async def get_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         sales = db.query(SaleModel).all()
         return sales
@@ -28,7 +28,7 @@ async def get_sales(user: dict = Depends(get_current_active_user), db: Session =
 async def get_sale(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         sale = db.query(SaleModel).filter(SaleModel.id == id).first()
         return sale
@@ -43,14 +43,14 @@ async def get_sales_user(user: dict = Depends(get_current_active_user), db: Sess
 async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         #!SELECCIONAR LA ORDEN Y VERIFICAR EL ESTADO QUE TENGA ESTADO 8
         order_db = db.query(OrderModel).filter(OrderModel.id == sale.order_id).first()
         if order_db is None:
-            return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No se encontró la orden')
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No se encontró la orden')
         if order_db.status_order != 3:
-            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='La orden no se encuentra en aprobada')
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='La orden no se encuentra en aprobada')
         #!REGISTRAR LA VENTA
         #!OBTENER EL PRECIO DE LOS PRODUCTOS DEL TODOS LOS DETALLES DE LA ORDEN
         #!OBTENER EL TOTAL DE LA ORDEN
@@ -62,7 +62,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_
             #!ACTUALIZAR EL STOCK DE LOS PRODUCTOS
             product_db.stock = product_db.stock - detail_order.quantity
             if product_db.stock < 0:
-                return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock\nPodroducto faltante {product_db.name}.')
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock\nPodroducto faltante {product_db.name}.')
             db.add(product_db)
             db.commit()
             db.refresh(product_db)
@@ -114,7 +114,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_
 async def get_order_guide(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         order_guide = db.query(OrderGuideModel).filter(OrderGuideModel.id == id).first()
         return order_guide
@@ -123,7 +123,7 @@ async def get_order_guide(id:int, user: dict = Depends(get_current_active_user),
 async def get_order_guides(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         order_guides = db.query(OrderGuideModel).all()
         return order_guides
@@ -138,7 +138,7 @@ async def get_order_guides_user(user: dict = Depends(get_current_active_user), d
 async def get_detail_order_guide(id:int, user: ProfileResponse = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         detail_order_guide = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).all()
         return detail_order_guide
