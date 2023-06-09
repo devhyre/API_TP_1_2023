@@ -102,7 +102,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_
             db.commit()
             db.refresh(serial_number_db)
             detail_order_guide_db = DetailOrderGuideModel(
-                sn_id = serial_number_db.id,
+                sn_id = serial_number_db.sn_id,
                 order_guide_id = order_guide_db.id
             )
             db.add(detail_order_guide_db)
