@@ -49,7 +49,7 @@ async def create_sale(codigo_pago:str, sale: SalePost, user: dict = Depends(get_
         order_db = db.query(OrderModel).filter(OrderModel.id == sale.order_id).first()
         if order_db is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No se encontró la orden')
-        if order_db.status_order != 3:
+        if order_db.status_order != 2:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='La orden no se encuentra en aprobada')
         #!REGISTRAR LA VENTA
         #!OBTENER EL PRECIO DE LOS PRODUCTOS DEL TODOS LOS DETALLES DE LA ORDEN
