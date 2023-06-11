@@ -33,7 +33,11 @@ def get_user_by_username(db, username: str):
     return db.query(UserModel).filter(UserModel.username == username).first()
 
 def get_user_by_num_doc_username_email(db, num_doc: str, username: str, email: str):
-    return db.query(UserModel).filter(UserModel.num_doc == num_doc, UserModel.username == username, UserModel.email == email).first()
+    num_doc_exists = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
+    username_exists = db.query(UserModel).filter(UserModel.username == username).first()
+    email_exists = db.query(UserModel).filter(UserModel.email == email).first()
+    if num_doc_exists or username_exists or email_exists:
+        return True
 
 def update_email(db, num_doc: str, email: str):
     user = db.query(UserModel).filter(UserModel.email == email).first()
