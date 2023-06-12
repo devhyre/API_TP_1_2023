@@ -27,21 +27,9 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 
 @auth.get('/logout')
 async def logout(response: Response, user: dict = Depends(get_current_active_user)):
+    access_token = user.get("access_token")
+    blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
     response.delete_cookie(key='access_token')
     response.delete_cookie(key='username')
     response.delete_cookie(key='num_doc')
-    """
-    access_token = user.get("access_token")
-    if access_token:
-        blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
-        """
     return {'message': 'Logout exitoso'}
-"""
-@auth.post('/revoke_token')
-async def revoke_token(user: ProfileResponse = Depends(get_current_active_user)):
-    access_token = user.get("access_token")
-    if access_token:
-        blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
-    return {'message': 'Token revocado exitosamente'}
-
-"""

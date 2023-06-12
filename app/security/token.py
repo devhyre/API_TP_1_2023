@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import time
+from typing import Set
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -131,17 +133,41 @@ def decode_access_token(token: str):
         return None
 
 
-blacklisted_tokens = set()
+blacklisted_tokens: Set[str] = set()
+
+def token_not_blacklisted(token: str):
+    return token not in blacklisted_tokens
+
+"""
+def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
+    print(token)
+    data = decode_access_token(token)
+    if data:
+        
+        if token in blacklisted_tokens:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
+                                
+        return db.query(UserModel).filter(UserModel.username == data["sub"]).first()
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
+""" 
 
 def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
     print(token)
     data = decode_access_token(token)
     if data:
-        """
-        if token in blacklisted_tokens:
+        if not token_not_blacklisted(token):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
-                                """
+
+        current_time = time.time()
+        if "exp" in data and current_time > data["exp"]:
+            blacklisted_tokens.add(token)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Token expirado", headers={"WWW-Authenticate": "Bearer"})
+
         return db.query(UserModel).filter(UserModel.username == data["sub"]).first()
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
