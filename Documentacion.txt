@@ -51,3 +51,14 @@ NIVELES DE ACCESO PARA USUARIOS ADMINISTRATIVOS
 1: GET, POST
 2: GET, POST, PUT
 3: GET, POST, PUT, DELETE
+
+FLUJO DE VENTAS
+1. El cliente ingresa a la tienda y agrega productos al carrito.
+2. El cliente procede a realizar el pedido.
+3. Si aun no ha iniciado sesión, se le solicita que inicie sesión o se registre.
+4. El sistema valida el pedido y lo registra.
+5. El sistema pide al cliente el pago del pedido.
+6. El cliente realiza el pago del pedido.
+7. El sistema registra la venta del pedido con el codigo de transacción.
+8. El sistema actualiza el estado del pedido.
+9. El pedido esta a la espera de los estados listo y entregado respectivamente.
