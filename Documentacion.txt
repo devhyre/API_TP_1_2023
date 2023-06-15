@@ -16,14 +16,14 @@ ID | ID_TABLA | DESCRIPCION
 3  | 3        | Categoria 3
 3  | N        | Categoria N
 ---|----------|----------------
-4  | 1        | PENDIENTE           -> El pedido ha sido realizado pero aún no ha sido procesado o confirmado por el sistema o el vendedor. (UN PEDIDO ES UNA ORDEN)
-4  | 2        | APROBADO            -> El pedido ha sido procesado y confirmado por el sistema o el vendedor.
+4  | 1        | PENDIENTE           -> El pedido ha sido a sido registrado con exito y espera ser aprobado.
+4  | 2        | APROBADO            -> El pedido ha sido aprobado y validado por  el sistema.
 4  | 3        | ENTREGADO           -> El pedido ha sido entregado al cliente.
-4  | 4        | RECHAZADO           -> El pedido ha sido rechazado por el sistema o el vendedor.
-4  | 5        | ANULADO             -> El pedido ha sido anulado antes de su entrega o finalización.
-4  | 6        | DEVOLUCION          -> El cliente ha solicitado devolver uno o varios productos del pedido.
-4  | 7        | REEMBOLSO           -> El cliente ha recibido el reembolso correspondiente por un pedido anulado o devuelto.
-4  | 8        | PAGADO              -> El pedido ha sido cancelado por el cliente.
+4  | 4        | RECHAZADO           -> El pedido ha sido rechazado por el vendedor antes del pago.
+4  | 5        | ANULADO             -> El pedido ha sido anulado por el cliente antes del pago.
+4  | 6        | DEVOLUCION          -> --.
+4  | 7        | REEMBOLSO           -> --.
+4  | 8        | PAGADO              -> El pedido ha sido pagado.
 4  | 9        | LISTO               -> El pedido está listo para ser entregado.
 ---|----------|----------------
 5  | 1        | ACTIVO              -> El producto está disponible pero no se puede comprar.

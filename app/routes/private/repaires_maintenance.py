@@ -3,10 +3,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.schemas.repairs_maintenance import RepairsMaintenancePost, RepairsMaintenancePut
-from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.repairs_maintenance import RepairsMaintenance as RepairsMaintenanceModel
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
+from app.models.worker import Worker as WorkerModel
+from app.models.sn import SerialNumber as SerialNumberModel
 
 repairs_maintenance = APIRouter()
 
@@ -76,12 +77,22 @@ async def get_repairs_maintenance(worker_id: int, user: dict = Depends(get_curre
         list_repairs_maintenance = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.worker_id == worker_id).all()
         return list_repairs_maintenance
     
+@repairs_maintenance.get('/obtenerSerial/{serial}', status_code=status.HTTP_200_OK)
+async def get_serial(serial: str, db: Session = Depends(get_db)):
+    serial_number = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == serial).first()
+    if not serial_number:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El serial {serial} no existe")
+    return serial_number
+
 @repairs_maintenance.post('/registrarReparacionMantenimiento', status_code=status.HTTP_201_CREATED)
 async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        worker_exist = db.query(WorkerModel).filter(WorkerModel.id == repairs_maintenance.worker_id).first()
+        if not worker_exist:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El ID: {repairs_maintenance.worker_id} del trabajador no existe")
         db_repairs_maintenance = RepairsMaintenanceModel(
             type_service_id = repairs_maintenance.type_service_id,
             serial_number_id = repairs_maintenance.serial_number_id,

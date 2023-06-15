@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
-from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.order import Order as OrderModel
 from app.schemas.order import OrderPost, OrderPut
 from app.models.detail_order import DetailOrder as DetailOrderModel
 from app.schemas.detail_order import DetailOrderPost
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
+from app.models.product import Product as ProductModel
 
 order = APIRouter()
 
@@ -45,106 +45,8 @@ async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: dic
     db.refresh(order_db)
     return order_db
 
-@order.put('/actualizarEstadoOrdenCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type != 'client':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
-    else:
-        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
-        if order_db is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
-        else:
-            if order.status_order == 5 or order.status_order == 6:
-                order_db.status_order = order.status_order
-                db.commit()
-                db.refresh(order_db)
-                return order_db
-            else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no es válido')
-            
-@order.put('/actualizarEstadoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
-async def actualizar_estado_orden(id: int, order: OrderPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type == 'client':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
-    else:
-        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
-        if order_db is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
-        else:
-            #!EL ESTADO FUE REGISTRADO CON ESTADO 1, EL FLUJO DE LA ORDEN ES EL SIGUIENTE:
-            #!1: PENDIENTE -> PUEDE CAMBIAR A 2: APROBADO O 4: RECHAZADO
-            #!2: APROBADO -> PUEDE CAMBIAR A 8: PAGADO O 5: ANULADO
-            #!8: PAGADO -> PUEDE CAMBIAR A 9: LISTO
-            #!9: LISTO -> PUEDE CAMBIAR A 3: ENTREGADO
-            #!3: ENTREGADO -> PUEDE CAMBIAR A 6: DEVOLUCIÓN
-            #!6: DEVOLUCIÓN -> PUEDE CAMBIAR A 7: REEMBOLSO
-            #!7: REEMBOLSO -> PUEDE CAMBIAR A 5: ANULADO
-            if order_db.status_order == 1:
-                if order.status_order == 2 or order.status_order == 4:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser aprobado o rechazado')
-            elif order_db.status_order == 2:
-                if order.status_order == 8 or order.status_order == 5:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser pagado o anulado')
-            elif order_db.status_order == 8:
-                if order.status_order == 9:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser listo')
-            elif order_db.status_order == 9:
-                if order.status_order == 3:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser entregado')
-            elif order_db.status_order == 3:
-                if order.status_order == 6:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser devuelto')
-            elif order_db.status_order == 6:
-                if order.status_order == 7:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser reembolsado')
-            elif order_db.status_order == 7:
-                if order.status_order == 5:
-                    order_db.status_order = order.status_order
-                    db.commit()
-                    db.refresh(order_db)
-                    return order_db
-                else:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El pedido solo puede ser anulado')
-            else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no es válido')
-            
-#!DETALLE ORDENES
-
 @order.get('/obtenerDetalleOrdenUsuario/{id}', status_code=status.HTTP_200_OK)
 async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    #!Verificar que el usuario sea el dueño de la orden
     user_type = list(user.keys())[0]
     order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
     if order_db is None:
@@ -190,3 +92,107 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
             db.commit()
             db.refresh(detail_order_db)
             return detail_order_db
+        
+@order.put('/aprobarOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
+async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type != user_type:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    else:
+        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+        if order_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
+        else:
+            if order_db.status_order == 1:
+                #!VERIFICAMOS SI HAY STOCK DE TODOS LOS PRODUCTOS QUE SE PIDIERON PARA PODER APROBAR LA ORDEN
+                detail_order = db.query(DetailOrderModel).filter(DetailOrderModel.order_id == id).all()
+                for detail in detail_order:
+                    product_db = db.query(ProductModel).filter(ProductModel.id == detail.product_id).first()
+                    if product_db.stock < detail.quantity:
+                        #!ALMACENAMOS EN UNA LISTA LOS PRODUCTOS QUE NO TIENEN STOCK SUFICIENTE
+                        products_without_stock = []
+                        products_without_stock.append(product_db.name)
+                if len(products_without_stock) > 0:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(products_without_stock))
+                #!SI HAY STOCK SUFICIENTE DE TODOS LOS PRODUCTOS, SE ACTUALIZA EL ESTADO DE LA ORDEN A APROBADA
+                order_db.status_order = 2
+                db.commit()
+                db.refresh(order_db)
+                return order_db
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no permite realizar esta acción')
+
+@order.put('/anularOrdenCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
+async def anular_orden_cliente(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type != 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    else:
+        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+        if order_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
+        else:
+            if order_db.status_order == 1 or order_db.status_order == 2:
+                order_db.status_order = 5
+                db.commit()
+                db.refresh(order_db)
+                return order_db
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no permite realizar esta acción')
+            
+@order.put('/rechazarOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
+async def rechazar_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    else:
+        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+        if order_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
+        else:
+            if order_db.status_order == 1 or order_db.status_order == 2:
+                order_db.status_order = 4
+                db.commit()
+                db.refresh(order_db)
+                return order_db
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no permite realizar esta acción')
+            
+#! AL CREAR LA VENTA, SE ACTUALIZA EL ESTADO DE LA ORDEN PAGADO
+#! AHORA ACA TENEMOS QUE TENER LISTO Y ENTREGADO
+
+@order.put('/listoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
+async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type != 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    else:
+        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+        if order_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
+        else:
+            if order_db.status_order == 8:
+                order_db.status_order = 9
+                db.commit()
+                db.refresh(order_db)
+                return order_db
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no permite realizar esta acción')
+            
+@order.put('/entregadoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
+async def entregado_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type != 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    else:
+        order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+        if order_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
+        else:
+            if order_db.status_order == 9:
+                order_db.status_order = 3
+                db.commit()
+                db.refresh(order_db)
+                return order_db
+            else:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El estado de la orden no permite realizar esta acción')
