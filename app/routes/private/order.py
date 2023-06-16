@@ -164,7 +164,7 @@ async def rechazar_orden(id: int, db: Session = Depends(get_db), user: dict = De
 @order.put('/listoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
-    if user_type != 'client':
+    if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
@@ -182,7 +182,7 @@ async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depen
 @order.put('/entregadoOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def entregado_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
-    if user_type != 'client':
+    if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
