@@ -11,8 +11,8 @@ from app.models.detail_order import DetailOrder as DetailOrderModel
 
 
 def create_client_review(db: Session, user_id: str, client_id: int, client_review: ClientReviewPost):
-    #!OBTENER TODOS LAS ORDENES DEL CLIENTE QUE TENGAN EL ESTADO 2 O 3
-    orders = db.query(OrderModel).filter(OrderModel.user_id == user_id, OrderModel.status.in_([2, 3])).all()
+    #!OBTENER TODOS LAS ORDENES DEL CLIENTE QUE TENGAN EL ESTADO 3
+    orders = db.query(OrderModel).filter(OrderModel.user_id == user_id, OrderModel.status_order == 3).all()
     if not orders:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Debe haber realizado al menos una compra para poder realizar una reseña de un producto')
     #!BUSCAR EN CADA ORDEN SI EXISTE EL PRODUCTO, SI EXISTE EN ALGUNA ORDEN, SE CREA LA RESEÑA

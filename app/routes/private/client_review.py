@@ -9,7 +9,7 @@ from app.schemas.client_review import ClientReview, ClientReviewPost, ClientRevi
 
 client_review = APIRouter()
 
-@client_review.post('/crearReseñaCliente', status_code=status.HTTP_201_CREATED)
+@client_review.post('/crearReviewCliente', status_code=status.HTTP_201_CREATED)
 async def crear_reseña_cliente(review_data: ClientReviewPost,db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
@@ -18,7 +18,7 @@ async def crear_reseña_cliente(review_data: ClientReviewPost,db: Session = Depe
         client_review = create_client_review(db, user[user_type]['numeroDocumento'], user[user_type]['id'], review_data)
         return client_review
     
-@client_review.put('/actualizarReseñaCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
+@client_review.put('/actualizarReviewCliente/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
@@ -27,7 +27,7 @@ async def actualizar_reseña_cliente(id:int, review_data: ClientReviewPut,db: Se
         client_review = update_client_review(db, user[user_type]['id'],id, review_data)
         return client_review
     
-@client_review.get('/obtenerReseñasCliente', status_code=status.HTTP_200_OK)
+@client_review.get('/obtenerReviewsCliente', status_code=status.HTTP_200_OK)
 async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
@@ -36,7 +36,7 @@ async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: dict = D
         client_reviews = db.query(ClientReviewModel).filter(ClientReviewModel.client_id == user[user_type]['id']).all()
         return [client_review for client_review in client_reviews]
     
-@client_review.get('/obtenerReseñas', status_code=status.HTTP_200_OK)
+@client_review.get('/obtenerReviews', status_code=status.HTTP_200_OK)
 async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -45,7 +45,7 @@ async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(g
         client_reviews = db.query(ClientReviewModel).all()
         return client_reviews
 
-@client_review.get('/obtenerReseña/{id}', status_code=status.HTTP_200_OK)
+@client_review.get('/obtenerReview/{id}', status_code=status.HTTP_200_OK)
 async def obtener_reseña(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -54,7 +54,7 @@ async def obtener_reseña(id:int, db: Session = Depends(get_db), user: dict = De
         client_review = db.query(ClientReviewModel).filter(ClientReviewModel.id == id).first()
         return client_review
     
-@client_review.delete('/eliminarReseña/{id}' , status_code=status.HTTP_200_OK)
+@client_review.delete('/eliminarReview/{id}' , status_code=status.HTTP_200_OK)
 async def eliminar_reseña(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
