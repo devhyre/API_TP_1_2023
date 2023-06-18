@@ -48,7 +48,7 @@ class Supplier(BaseModel):
 class SupplierPost(Supplier):
     pass
 
-class SupplierPut(Supplier):
+class SupplierPut(BaseModel):
     num_doc_representative: str
     email: str
     phone: str
