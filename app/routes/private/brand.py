@@ -5,6 +5,7 @@ from app.models.brand import Brand as BrandModel
 from app.schemas.brand import Brand, BrandPost, BrandPut
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
+from app.models.model import Model as ModelModel
 
 brand_pr = APIRouter()
 
@@ -44,6 +45,9 @@ async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = De
         brand_db = db.query(BrandModel).filter(BrandModel.id == id).first()
         if not brand_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
+        models = db.query(ModelModel).filter(ModelModel.brand_id == id).first()
+        if models:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Existen modelos asociados a esta marca')
         db.delete(brand_db)
         db.commit()
         return {'message': 'Se eliminó la marca'}

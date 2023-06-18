@@ -52,6 +52,7 @@ def update_status_supplier(db: Session, id_supplier: str):
     supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).first()
     status = not supplier.status
     supplier.status = status
+    db.add(supplier)
     db.commit()
     db.refresh(supplier)
     return supplier
