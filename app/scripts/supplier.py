@@ -44,6 +44,7 @@ def update_supplier(db: Session, id_supplier: str, supplier: SupplierPut):
             email = supplier.email,
             phone = supplier.phone
         )
+        db.add(supplier_exists)
         db.commit()
         db.refresh(supplier_exists)
         return supplier_exists

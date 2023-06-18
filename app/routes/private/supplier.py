@@ -66,14 +66,14 @@ async def actualizar_estado_proveedor(id_supplier: str, db: Session = Depends(ge
         return update
 
 @supplier.delete('/eliminarProveedor/{id_supplier}', status_code=status.HTTP_204_NO_CONTENT)
-async def eliminar_proveedor(id_supplier: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def eliminar_proveedor(id_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        supplier_exists = db.query(SupplierModel).filter(SupplierModel.id_supplier == id_supplier).first()
+        supplier_exists = db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).first()
         if not supplier_exists:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El proveedor con id {id_supplier} no existe")
-        db.query(SupplierModel).filter(SupplierModel.id_supplier == id_supplier).delete()
+        db.query(SupplierModel).filter(SupplierModel.num_doc == id_supplier).delete()
         db.commit()
         return {'message': f'Proveedor con id {id_supplier} eliminado'}
