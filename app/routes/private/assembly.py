@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
-from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.assembly import Assembly as AssemblyModel
 from app.schemas.assembly import AssemblyPost, AssemblyPut

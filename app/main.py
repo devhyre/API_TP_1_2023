@@ -93,7 +93,7 @@ routes = [
     (model_pr, "/private/model", "Modelos"),
     (client_review, "/private/client_review", "Reseñas de Clientes"),
     (products, "/private/products", "Inventario de Productos"),
-    (assemblies_pr, "/private/assemblies", "Recomendaciones para ensamblar"),
+    (assemblies_pr, "/private/assemblies", "Recomendaciones para Armar una Computadora"),
     (order, "/private/order", "Pedidos"),
     (sale, "/private/sale", "Ventas"),
     (repairs_maintenance, "/private/repairs_maintenance", "Reparaciones y Mantenimiento")
