@@ -4,7 +4,6 @@ from app.core.db import get_db
 from app.scripts.user import get_user_by_username, update_last_connection
 from app.security.token import verify_password, create_access_token, get_current_active_user, blacklisted_tokens
 from fastapi.security import OAuth2PasswordRequestForm
-from app.security.schemas.profile_response import ProfileResponse
 
 auth = APIRouter()
 

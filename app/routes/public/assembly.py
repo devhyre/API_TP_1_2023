@@ -23,7 +23,7 @@ assemblies_pu = APIRouter()
 #AUDIFONOS(*)
 #MICROFONO(*)
 #PARLANTES(*)
-
+"""
 @assemblies_pu.get('/obtenerAssemblies/{id}', status_code=status.HTTP_200_OK)
 async def obtener_assemblies(case_id: int = None, placa_id: int = None, procesador_id: int = None, ram_id: int=None, almacenamiento: int=None,
                              gpu_id: int = None, fan_id: int = None, fuente_id: int = None, monitor_id: int = None, mouse_id: int=None, teclado_id:int=None,
@@ -40,3 +40,5 @@ async def obtener_assemblies(case_id: int = None, placa_id: int = None, procesad
     if
     
     return productos
+
+"""
