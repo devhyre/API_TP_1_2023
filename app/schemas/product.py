@@ -7,7 +7,6 @@ class Product(BaseModel):
     quantity: int
     price: float
     discount: int
-    fan: bool
     warranty: int
     category_id: int
     brand_id: int

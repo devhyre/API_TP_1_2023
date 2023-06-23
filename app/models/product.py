@@ -12,7 +12,6 @@ class Product(Base):
     quantity = Column(Integer)
     price = Column(Float)
     discount = Column(Integer)
-    fan = Column(Boolean)
     warranty = Column(Integer)
     category_id = Column(Integer)
     brand_id = Column(Integer, ForeignKey("brands.id"))

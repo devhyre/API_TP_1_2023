@@ -17,129 +17,240 @@ assemblies_pu = APIRouter()
 #FAN(*)
 #FUENTE(*)
 
-@assemblies_pu.get('/obtenerAssemblies', status_code=status.HTTP_200_OK)
-async def obtener_assemblies(case_id: int, placa_id: int = None, procesador_id: int = None, ram_id: int=None,
-                             gpu_id: int = None, db: Session = Depends(get_db)):
+#Mejor placa segun case
+@assemblies_pu.get('/obtenerMejorPlaca', status_code=status.HTTP_200_OK)
+async def obtener_mejor_placa(case_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
-    #!RECOMENDACIONES DE SOLO CASES
-    assemblys = db.query(ProductModel).filter(ProductModel.category_id == 11).all()
-    
-    #SOLO MOSTRAR LAS PLACAS QUE SON COMPATIBLES CON EL CASE
-    if case_id:
-        #Busco en AssemblyModel el assembly que tenga el case_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id == assembly[0].product_id:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 7
-        assemblys = list(filter(lambda x: x.category_id == 7, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LOS PROCESADORES QUE SON COMPATIBLES CON LA PLACA
-    if placa_id and case_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id == assembly[0].product_id:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 8
-        assemblys = list(filter(lambda x: x.category_id == 8, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LAS RAMS QUE SON COMPATIBLES CON LA PLACA Y EL PROCESADOR
-    if placa_id and procesador_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco en AssemblyModel el assembly que tenga el procesador_id
-        assembly2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
-        lista_unida = []
-        #Busco los product_id iguales en ambas listas
-        for product in assembly:
-            for product2 in assembly2:
-                if product.product_id == product2.product_id:
-                    lista_unida.append(product.product_id)
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id in lista_unida:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 13
-        assemblys = list(filter(lambda x: x.category_id == 13, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LOS ALMACENAMIENTOS QUE SON COMPATIBLES CON LA PLACA PERO TIENEN QUE HABER PEDIDO TODOS LOS COMPONENTES ANTERIORES
-    if placa_id and procesador_id and ram_id and case_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id == assembly[0].product_id:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 9 y 12
-        assemblys = list(filter(lambda x: x.category_id == 9 and x.category_id == 12, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LAS GPUS QUE SON COMPATIBLES CON LA PLACA Y EL PROCESADOR
-    if placa_id and procesador_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco en AssemblyModel el assembly que tenga el procesador_id
-        assembly2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
-        lista_unida = []
-        #Busco los product_id iguales en ambas listas
-        for product in assembly:
-            for product2 in assembly2:
-                if product.product_id == product2.product_id:
-                    lista_unida.append(product.product_id)
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id in lista_unida:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 23
-        assemblys = list(filter(lambda x: x.category_id == 23, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LAS FUENTES QUE SON COMPATIBLES CON LA PLACA, PROCESADOR Y  EN CASO DE TENER GPU CON LA GPU
-    if placa_id and procesador_id and gpu_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco en AssemblyModel el assembly que tenga el procesador_id
-        assembly2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
-        #Busco en AssemblyModel el assembly que tenga el gpu_id
-        assembly3 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == gpu_id).all()
-        lista_unida = []
-        #Busco los product_id iguales en ambas listas
-        for product in assembly:
-            for product2 in assembly2:
-                for product3 in assembly3:
-                    if product.product_id == product2.product_id == product3.product_id:
-                        lista_unida.append(product.product_id)
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id in lista_unida:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 10
-        assemblys = list(filter(lambda x: x.category_id == 10, assemblys))
-        return assemblys
-    #SOLO MOSTRAR LOS COOLERS QUE SON COMPATIBLES CON LA PLACA, EL PROCESADOR Y EN CASO DE TENER GPU CON LA GPU
-    if placa_id and procesador_id and gpu_id and case_id:
-        #Busco en AssemblyModel el assembly que tenga el placa_id
-        assembly = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
-        #Busco en AssemblyModel el assembly que tenga el procesador_id
-        assembly2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
-        #Busco en AssemblyModel el assembly que tenga el gpu_id
-        assembly3 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == gpu_id).all()
-        #Busco en AssemblyModel el assembly que tenga el case_id
-        assembly4 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
-        lista_unida = []
-        #Busco los product_id iguales que tengan en comun las 4 listas
-        for product in assembly:
-            for product2 in assembly2:
-                for product3 in assembly3:
-                    for product4 in assembly4:
-                        if product.product_id == product2.product_id == product3.product_id == product4.product_id:
-                            lista_unida.append(product.product_id)
-        #Busco los productos con assembly.product_id en la lista de productos
-        for product in productos:
-            if product.id in lista_unida:
-                assemblys.append(product)
-        #Filtro que los productos solo tengan la category_id = 15 y 16
-        assemblys = list(filter(lambda x: x.category_id == 15 and x.category_id == 16, assemblys))
-        return assemblys
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL CASE
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+    #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA PLACA
+    for assembly in assemblies:
+        for producto in productos:
+            if assembly.product_id == producto.id and producto.category_id == 7:
+                data["Name"].append(producto.name)
+                data["Price"].append(producto.price)
+                data["Discount"].append(producto.discount)
+                data["Ranking"].append(producto.ranking)
+                data["Warranty"].append(producto.warranty)
+                data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
+
+#Mejor procesador segun placa
+@assemblies_pu.get('/obtenerMejorProcesador', status_code=status.HTTP_200_OK)
+async def obtener_mejor_procesador(placa_id: int, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+    #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA PROCESADOR
+    for assembly in assemblies:
+        for producto in productos:
+            if assembly.product_id == producto.id and producto.category_id == 8:
+                data["Name"].append(producto.name)
+                data["Price"].append(producto.price)
+                data["Discount"].append(producto.discount)
+                data["Ranking"].append(producto.ranking)
+                data["Warranty"].append(producto.warranty)
+                data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
+
+#Mejor ram segun placa y procesador
+@assemblies_pu.get('/obtenerMejorRam', status_code=status.HTTP_200_OK)
+async def obtener_mejor_ram(placa_id: int, procesador_id: int, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PROCESADOR
+    assemblies2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+    #!BUSCAR QUE LAS RAM SEAN COMPATIBLES CON LA PLACA Y PROCESADOR
+    #Unir las dos listas y quedarme con los que se repiten
+    for assembly in assemblies:
+        for assembly2 in assemblies2:
+            if assembly.product_id == assembly2.product_id:
+                for producto in productos:
+                    if assembly.product_id == producto.id and producto.category_id == 13:
+                        data["Name"].append(producto.name)
+                        data["Price"].append(producto.price)
+                        data["Discount"].append(producto.discount)
+                        data["Ranking"].append(producto.ranking)
+                        data["Warranty"].append(producto.warranty)
+                        data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
+
+#Mejor almacenamiento segun placa
+@assemblies_pu.get('/obtenerMejorAlmacenamiento', status_code=status.HTTP_200_OK)
+async def obtener_mejor_almacenamiento(placa_id: int, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+
+    #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA ALMACENAMIENTO
+    for assembly in assemblies:
+        for producto in productos:
+            if assembly.product_id == producto.id and producto.category_id == 9:
+                data["Name"].append(producto.name)
+                data["Price"].append(producto.price)
+                data["Discount"].append(producto.discount)
+                data["Ranking"].append(producto.ranking)
+                data["Warranty"].append(producto.warranty)
+                data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
+
+
+#Mejor Cooler segun placa, procesador y case, si hubiera gpu tambien
+@assemblies_pu.get('/obtenerMejorCooler', status_code=status.HTTP_200_OK)
+async def obtener_mejor_cooler(placa_id: int, procesador_id: int, case_id: int, gpu_id: int = None, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PROCESADOR
+    assemblies2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL CASE
+    assemblies3 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+    #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA COOLER
+    #Si no hay gpu
+    if gpu_id == None:
+        for assembly in assemblies:
+            for assembly2 in assemblies2:
+                for assembly3 in assemblies3:
+                    if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
+                        for producto in productos:
+                            if assembly.product_id == producto.id and producto.category_id == 10:
+                                data["Name"].append(producto.name)
+                                data["Price"].append(producto.price)
+                                data["Discount"].append(producto.discount)
+                                data["Ranking"].append(producto.ranking)
+                                data["Warranty"].append(producto.warranty)
+                                data["Description"].append(assembly.description)
+    #Si hay gpu
+    else:
+        #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA GPU
+        assemblies4 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == gpu_id).all()
+
+        for assembly in assemblies:
+            for assembly2 in assemblies2:
+                for assembly3 in assemblies3:
+                    for assembly4 in assemblies4:
+                        if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id and assembly3.product_id == assembly4.product_id:
+                            for producto in productos:
+                                if assembly.product_id == producto.id and producto.category_id == 10:
+                                    data["Name"].append(producto.name)
+                                    data["Price"].append(producto.price)
+                                    data["Discount"].append(producto.discount)
+                                    data["Ranking"].append(producto.ranking)
+                                    data["Warranty"].append(producto.warranty)
+                                    data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
+
+#Mejor fuente segun placa, procesador y case, si hubiera gpu tambien
+@assemblies_pu.get('/obtenerMejorFuente', status_code=status.HTTP_200_OK)
+async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, gpu_id: int = None, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PROCESADOR
+    assemblies2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL CASE
+    assemblies3 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
+
+    #!DATA A MOSTRAR
+    data = {
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+    #Si no hay gpu
+    if gpu_id == None:
+        #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA FUENTE
+        for assembly in assemblies:
+            for assembly2 in assemblies2:
+                for assembly3 in assemblies3:
+                    if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
+                        for producto in productos:
+                            if assembly.product_id == producto.id and producto.category_id == 11:
+                                data["Name"].append(producto.name)
+                                data["Price"].append(producto.price)
+                                data["Discount"].append(producto.discount)
+                                data["Ranking"].append(producto.ranking)
+                                data["Warranty"].append(producto.warranty)
+                                data["Description"].append(assembly.description)
+    #Si hay gpu
+    else:
+        assemblies4 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == gpu_id).all()
+        #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA FUENTE
+        for assembly in assemblies:
+            for assembly2 in assemblies2:
+                for assembly3 in assemblies3:
+                    for assembly4 in assemblies4:
+                        if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id and assembly3.product_id == assembly4.product_id:
+                            for producto in productos:
+                                if assembly.product_id == producto.id and producto.category_id == 11:
+                                    data["Name"].append(producto.name)
+                                    data["Price"].append(producto.price)
+                                    data["Discount"].append(producto.discount)
+                                    data["Ranking"].append(producto.ranking)
+                                    data["Warranty"].append(producto.warranty)
+                                    data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
