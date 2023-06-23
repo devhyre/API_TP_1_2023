@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, Boolean
 from sqlalchemy.orm import relationship
 from app.core.db import Base
 
@@ -12,6 +12,7 @@ class Product(Base):
     quantity = Column(Integer)
     price = Column(Float)
     discount = Column(Integer)
+    fan = Column(Boolean)
     warranty = Column(Integer)
     category_id = Column(Integer)
     brand_id = Column(Integer, ForeignKey("brands.id"))
