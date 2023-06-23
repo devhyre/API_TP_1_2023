@@ -11,6 +11,7 @@ from app.routes.public.brand import brand_pu
 from app.routes.public.model import model_pu
 from app.routes.public.catalogue import catalogue
 from app.routes.public.assembly import assemblies_pu
+from app.routes.public.combo import combo_pu
 #!PRIVATE ROUTES
 from app.routes.private.profile import profile
 from app.routes.private.roles import roles
@@ -24,6 +25,7 @@ from app.routes.private.supplier_categories import supplier_categories
 from app.routes.private.client_review import client_review
 from app.routes.private.products import products
 from app.routes.private.assembly import assemblies_pr
+from app.routes.private.combo import combo_pr
 from app.routes.private.order import order
 from app.routes.private.workers import workers
 from app.routes.private.sale import sale
@@ -80,7 +82,8 @@ routes = [
     (brand_pu, "/public/brand", "Marcas"),
     (model_pu, "/public/model", "Modelos"),
     (catalogue, "/public/catalogue", "Catalogo de Productos"),
-    (assemblies_pu, "/public/assemblies", "Recomendaciones para ensamblar"),
+    (assemblies_pu, "/public/assemblies", "Recomendaciones para Armar una Computadora"),
+    (combo_pu, "/public/combo", "Combos de Productos"),
     (profile, "/private", "Perfil de usuario"),
     (roles, "/private/roles", "Roles Administrativos"),
     (role_privileges, "/private/role_privileges", "Privilegios de Roles"),
@@ -94,6 +97,7 @@ routes = [
     (client_review, "/private/client_review", "Reseñas de Clientes"),
     (products, "/private/products", "Inventario de Productos"),
     (assemblies_pr, "/private/assemblies", "Recomendaciones para Armar una Computadora"),
+    (combo_pr, "/private/combo", "Combos de Productos"),
     (order, "/private/order", "Pedidos"),
     (sale, "/private/sale", "Ventas"),
     (repairs_maintenance, "/private/repairs_maintenance", "Reparaciones y Mantenimiento")
