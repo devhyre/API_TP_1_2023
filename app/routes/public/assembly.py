@@ -268,3 +268,46 @@ async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, 
                                     data["Description"].append(assembly.description)
     #!DEVOLVER DATA
     return data
+
+#Mejor gpu segun placa, procesador y case
+@assemblies_pu.get('/obtenerMejorGpu', status_code=status.HTTP_200_OK)
+async def obtener_mejor_gpu(placa_id: int, procesador_id: int, case_id: int, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS PRODUCTOS
+    productos = db.query(ProductModel).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA LA PLACA
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == placa_id).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PROCESADOR
+    assemblies2 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == procesador_id).all()
+
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL CASE
+    assemblies3 = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == case_id).all()
+
+    #!DATA A MOSTRAR
+    data = {
+        "Id": [],
+        "Name": [],
+        "Price": [],
+        "Discount": [],
+        "Ranking": [],
+        "Warranty": [],
+        "Description": []
+    }
+
+    #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA GPU
+    for assembly in assemblies:
+        for assembly2 in assemblies2:
+            for assembly3 in assemblies3:
+                if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
+                    for producto in productos:
+                        if assembly.product_id == producto.id and producto.category_id == 5:
+                            data["Id"].append(producto.id)
+                            data["Name"].append(producto.name)
+                            data["Price"].append(producto.price)
+                            data["Discount"].append(producto.discount)
+                            data["Ranking"].append(producto.ranking)
+                            data["Warranty"].append(producto.warranty)
+                            data["Description"].append(assembly.description)
+    #!DEVOLVER DATA
+    return data
