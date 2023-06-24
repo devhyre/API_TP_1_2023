@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.scripts.client_review import create_client_review, update_client_review
-from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.models.client_review import ClientReview as ClientReviewModel
 from app.schemas.client_review import ClientReview, ClientReviewPost, ClientReviewPut
