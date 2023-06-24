@@ -113,7 +113,7 @@ async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Dep
                         products_without_stock = []
                         products_without_stock.append(product_db.name + '\n')
                 if len(products_without_stock) > 0:
-                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(products_without_stock).replace('[', '').replace(']', '').replace("'", ''))
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(products_without_stock).replace('[', '').replace(']', ''))
                 #!SI HAY STOCK SUFICIENTE DE TODOS LOS PRODUCTOS, SE ACTUALIZA EL ESTADO DE LA ORDEN A APROBADA
                 order_db.status_order = 2
                 db.commit()
