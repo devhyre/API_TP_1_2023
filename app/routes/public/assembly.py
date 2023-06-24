@@ -136,7 +136,7 @@ async def obtener_mejor_almacenamiento(placa_id: int, db: Session = Depends(get_
     #!BUSCAR QUE TODOS LOS PRODUCTOS SEAN DE LA CATEGORIA ALMACENAMIENTO
     for assembly in assemblies:
         for producto in productos:
-            if assembly.product_id == producto.id and producto.category_id == 9:
+            if assembly.product_id == producto.id and (producto.category_id == 9 or producto.category_id == 12):
                 data["Id"].append(producto.id)
                 data["Name"].append(producto.name)
                 data["Price"].append(producto.price)
@@ -177,7 +177,8 @@ async def obtener_mejor_cooler(placa_id: int, procesador_id: int, case_id: int, 
                 for assembly3 in assemblies3:
                     if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
                         for producto in productos:
-                            if assembly.product_id == producto.id and producto.category_id == 10:
+                            #CATEGORIA 15 O 16
+                            if assembly.product_id == producto.id and (producto.category_id == 15 or producto.category_id == 16):
                                 data["Id"].append(producto.id)
                                 data["Name"].append(producto.name)
                                 data["Price"].append(producto.price)
@@ -196,7 +197,7 @@ async def obtener_mejor_cooler(placa_id: int, procesador_id: int, case_id: int, 
                     for assembly4 in assemblies4:
                         if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id and assembly3.product_id == assembly4.product_id:
                             for producto in productos:
-                                if assembly.product_id == producto.id and producto.category_id == 10:
+                                if assembly.product_id == producto.id and (producto.category_id == 15 or producto.category_id == 16):
                                     data["Id"].append(producto.id)
                                     data["Name"].append(producto.name)
                                     data["Price"].append(producto.price)
@@ -240,7 +241,7 @@ async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, 
                 for assembly3 in assemblies3:
                     if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
                         for producto in productos:
-                            if assembly.product_id == producto.id and producto.category_id == 11:
+                            if assembly.product_id == producto.id and producto.category_id == 10:
                                 data["Id"].append(producto.id)
                                 data["Name"].append(producto.name)
                                 data["Price"].append(producto.price)
@@ -258,7 +259,7 @@ async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, 
                     for assembly4 in assemblies4:
                         if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id and assembly3.product_id == assembly4.product_id:
                             for producto in productos:
-                                if assembly.product_id == producto.id and producto.category_id == 11:
+                                if assembly.product_id == producto.id and producto.category_id == 10:
                                     data["Id"].append(producto.id)
                                     data["Name"].append(producto.name)
                                     data["Price"].append(producto.price)
