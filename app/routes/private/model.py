@@ -6,6 +6,7 @@ from app.security.token import get_current_active_user
 from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
 from app.schemas.model import Model, ModelPost, ModelPut
+from app.models.product import Product as ProductModel
 
 model_pr = APIRouter()
 
@@ -48,8 +49,9 @@ async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: di
         model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
+        products = db.query(ProductModel).filter(ProductModel.model_id == id_model).all()
+        if products:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='No se puede eliminar el modelo porque tiene productos asociados')
         db.delete(model_db)
         db.commit()
-        return {'message': 'Se eliminó el modelo'}
-
-
+        return {'detail': 'Modelo eliminado satisfactoriamente'}

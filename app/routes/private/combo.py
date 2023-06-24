@@ -8,6 +8,8 @@ from app.models.product import Product as ProductModel
 from app.schemas.product import Product as ProductSchema
 from app.schemas.detail_combo import DetailCombo as DetailComboSchema
 from datetime import datetime
+from app.models.model import Model as ModelModel
+from app.models.brand import Brand as BrandModel
 
 combo_pr = APIRouter()
 
@@ -21,14 +23,22 @@ async def create_combo(product: ProductSchema, db: Session = Depends(get_db), us
     #Si el producto existe
     if product_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El producto ya existe')
+    #Si la marca no existe
+    brand_db = db.query(BrandModel).filter(BrandModel.id == product.brand_id).first()
+    if not brand_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La marca no existe')
+    #Si el modelo no existe
+    model_db = db.query(ModelModel).filter(ModelModel.id == product.model_id).first()
+    if not model_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El modelo no existe')
     #Si el producto no existe
     product_db = ProductModel(
             name = product.name,
             description = product.description,
             path_image = product.path_image,
             quantity = 0,
-            discount = product.discount,
             price = product.price,
+            discount = product.discount,
             warranty = product.warranty,
             category_id = product.category_id,
             brand_id = product.brand_id,
@@ -51,7 +61,7 @@ async def create_combo(product: ProductSchema, db: Session = Depends(get_db), us
     db.add(combo_db)
     db.commit()
     db.refresh(combo_db)
-    return product_db
+    return {'detail': 'Combo creado, su ID es: ' + combo_id + ' y su ID de producto es: ' + str(product_db.id)}
 
 @combo_pr.delete('/combo/{product_id}')
 async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
