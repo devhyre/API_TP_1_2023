@@ -108,10 +108,10 @@ async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Dep
                 detail_order = db.query(DetailOrderModel).filter(DetailOrderModel.order_id == id).all()
                 for detail in detail_order:
                     product_db = db.query(ProductModel).filter(ProductModel.id == detail.product_id).first()
-                    if product_db.stock < detail.quantity:
+                    if product_db.quantity < detail.quantity:
                         #!ALMACENAMOS EN UNA LISTA LOS PRODUCTOS QUE NO TIENEN STOCK SUFICIENTE
                         products_without_stock = []
-                        products_without_stock.append(product_db.name)
+                        products_without_stock.append(product_db.name + '\n')
                 if len(products_without_stock) > 0:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(products_without_stock))
                 #!SI HAY STOCK SUFICIENTE DE TODOS LOS PRODUCTOS, SE ACTUALIZA EL ESTADO DE LA ORDEN A APROBADA
