@@ -299,7 +299,7 @@ async def obtener_mejor_gpu(placa_id: int, procesador_id: int, case_id: int, db:
     }
     #Categoria 23
 
-    #!Quedarme solo con los productos iguales que se repiten en los 3 assemblies, agregarlos a una lista y luego buscarlos en la tabla de productos para mostrarlos en la data si es que son de la categoria gpu
+    #!Si el producto se repite en las 3 listas, se agrega a la lista de productos iguales 1 vez
     for assembly in assemblies:
         for assembly2 in assemblies2:
             for assembly3 in assemblies3:
