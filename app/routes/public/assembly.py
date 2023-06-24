@@ -301,7 +301,7 @@ async def obtener_mejor_gpu(placa_id: int, procesador_id: int, case_id: int, db:
             for assembly3 in assemblies3:
                 if assembly.product_id == assembly2.product_id and assembly2.product_id == assembly3.product_id:
                     for producto in productos:
-                        if assembly.product_id == producto.id and producto.category_id == 5:
+                        if assembly.product_id == producto.id and producto.category_id == 23:
                             data["Id"].append(producto.id)
                             data["Name"].append(producto.name)
                             data["Price"].append(producto.price)
