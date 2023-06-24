@@ -96,6 +96,7 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
 @order.put('/aprobarOrden/{id}', status_code=status.HTTP_202_ACCEPTED)
 async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
+    products_without_stock = []
     if user_type != user_type:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
@@ -110,7 +111,6 @@ async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Dep
                     product_db = db.query(ProductModel).filter(ProductModel.id == detail.product_id).first()
                     if product_db.quantity < detail.quantity:
                         #!ALMACENAMOS EN UNA LISTA LOS PRODUCTOS QUE NO TIENEN STOCK SUFICIENTE
-                        products_without_stock = []
                         products_without_stock.append(product_db.name + '\n')
                 if len(products_without_stock) > 0:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(products_without_stock).replace('[', '').replace(']', ''))
