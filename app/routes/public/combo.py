@@ -97,6 +97,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
 async def get_combo_detail(combo_id: str, db: Session = Depends(get_db)):
     Data = {
         'combo_detail_id': [],
+        'combo_detail_quantity': [],
         'product_id': [],
         'name': [],
         'description': [],
@@ -116,6 +117,7 @@ async def get_combo_detail(combo_id: str, db: Session = Depends(get_db)):
     for detail in combo_detail:
         product = db.query(ProductModel).filter(ProductModel.id == detail.product_id).first()
         Data['combo_detail_id'].append(detail.id)
+        Data['combo_detail_quantity'].append(detail.quantity)
         Data['product_id'].append(product.id)
         Data['name'].append(product.name)
         Data['description'].append(product.description)
