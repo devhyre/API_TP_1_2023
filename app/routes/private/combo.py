@@ -98,7 +98,7 @@ async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dic
 
 #!COMBO DETAIL
 @combo_pr.post('/combo/{combo_id}/detail')
-async def create_combo_detail(combo_id: int, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
@@ -139,7 +139,7 @@ async def create_combo_detail(combo_id: int, detail_combo: DetailComboSchema, db
 
 #PUT
 @combo_pr.put('/combo/{combo_id}/detail/{product_id}')
-async def update_combo_detail(combo_id: int, product_id: int, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def update_combo_detail(combo_id: str, product_id: int, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
@@ -180,7 +180,7 @@ async def update_combo_detail(combo_id: int, product_id: int, detail_combo: Deta
 
 #DELETE
 @combo_pr.delete('/combo/{combo_id}/detail/{product_id}')
-async def delete_combo_detail(combo_id: int, product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def delete_combo_detail(combo_id: str, product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
