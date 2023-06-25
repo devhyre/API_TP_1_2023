@@ -16,6 +16,7 @@ combo_pu = APIRouter()
 @combo_pu.get('/combos')
 async def get_combos(db: Session = Depends(get_db)):
     Data = {
+        'combo_id': [],
         'product_id': [],
         'name': [],
         'description': [],
@@ -34,6 +35,7 @@ async def get_combos(db: Session = Depends(get_db)):
     combos = db.query(ComboModel).all()
     for combo in combos:
         product = db.query(ProductModel).filter(ProductModel.id == combo.product_id).first()
+        Data['combo_id'].append(combo.id)
         Data['product_id'].append(product.id)
         Data['name'].append(product.name)
         Data['description'].append(product.description)
@@ -54,6 +56,7 @@ async def get_combos(db: Session = Depends(get_db)):
 @combo_pu.get('/combo/{combo_id}')
 async def get_combo(combo_id: str, db: Session = Depends(get_db)):
     Data = {
+        'combo_id': [],
         'product_id': [],
         'name': [],
         'description': [],
@@ -71,6 +74,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
     #Obtener todos los combos y sus productos asociados luego agregarlos a Data
     combo = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
     product = db.query(ProductModel).filter(ProductModel.id == combo.product_id).first()
+    Data['combo_id'].append(combo.id)
     Data['product_id'].append(product.id)
     Data['name'].append(product.name)
     Data['description'].append(product.description)
@@ -92,6 +96,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
 @combo_pu.get('/combo_detail/{combo_id}')
 async def get_combo_detail(combo_id: str, db: Session = Depends(get_db)):
     Data = {
+        'combo_detail_id': [],
         'product_id': [],
         'name': [],
         'description': [],
@@ -110,6 +115,7 @@ async def get_combo_detail(combo_id: str, db: Session = Depends(get_db)):
     combo_detail = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id).all()
     for detail in combo_detail:
         product = db.query(ProductModel).filter(ProductModel.id == detail.product_id).first()
+        Data['combo_detail_id'].append(detail.id)
         Data['product_id'].append(product.id)
         Data['name'].append(product.name)
         Data['description'].append(product.description)
