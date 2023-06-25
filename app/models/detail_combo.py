@@ -5,7 +5,7 @@ from app.core.db import Base
 class DetailCombo(Base):
     __tablename__ = "detail_combos"
 
-    id = Column(String(100), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     product_id = Column(Integer, ForeignKey("products.id"))
     quantity = Column(Integer)
     combo_id = Column(String(255), ForeignKey("combos.id"))

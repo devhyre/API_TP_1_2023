@@ -1,15 +1,9 @@
 from pydantic import BaseModel, validator
 
 class DetailCombo(BaseModel):
-    combo_id: int
+    combo_id: str
     product_id: int
     quantity: int
-
-    @validator('combo_id')
-    def combo_id_must_be_valid(cls, combo_id):
-        if combo_id < 0:
-            raise ValueError("El combo debe ser válido")
-        return combo_id
     
     @validator('product_id')
     def product_id_must_be_valid(cls, product_id):
