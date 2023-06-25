@@ -1,7 +1,6 @@
 from pydantic import BaseModel, validator
 
 class DetailCombo(BaseModel):
-    combo_id: str
     product_id: int
     quantity: int
     

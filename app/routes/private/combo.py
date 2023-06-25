@@ -7,6 +7,7 @@ from app.models.detail_combo import DetailCombo as DetailComboModel
 from app.models.product import Product as ProductModel
 from app.schemas.product import Product as ProductSchema
 from app.schemas.detail_combo import DetailCombo as DetailComboSchema
+from app.schemas.detail_combo import DetailComboPut as DetailComboPutSchema
 from datetime import datetime
 from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
@@ -14,7 +15,7 @@ from app.models.brand import Brand as BrandModel
 combo_pr = APIRouter()
 
 #!Combo
-@combo_pr.post('/combo')
+@combo_pr.post('/crearCombo')
 async def create_combo(product: ProductSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -63,7 +64,7 @@ async def create_combo(product: ProductSchema, db: Session = Depends(get_db), us
     db.refresh(combo_db)
     return {'detail': 'Combo creado, su ID es: ' + combo_id + ' y su ID de producto es: ' + str(product_db.id)}
 
-@combo_pr.delete('/combo/{product_id}')
+@combo_pr.delete('/eliminarCombo/{product_id}')
 async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -97,7 +98,7 @@ async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dic
     return {'detail': 'Combo eliminado'}
 
 #!COMBO DETAIL
-@combo_pr.post('/combo/{combo_id}/detail')
+@combo_pr.post('/crearDetalleCombo/{combo_id}/Detalle')
 async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -114,18 +115,15 @@ async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
     
     # Verificar si el producto es un combo
-    combo_db = db.query(ComboModel).filter(ComboModel.product_id == detail_combo.product_id).first()
+    combo_db = db.query(ComboModel).filter(ComboModel.id == detail_combo.product_id).first()
     if combo_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto es un combo')
     
     # Verificar si el producto ya esta en el combo
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id, DetailComboModel.product_id == detail_combo.product_id).first()
-    #Si ya esta en en el combo se actualiza la cantidad
-    if detail_combo_db:
-        detail_combo_db.quantity += detail_combo.quantity
-        db.commit()
-        db.refresh(detail_combo_db)
-        return detail_combo_db
+    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id).all()
+    for detail in detail_combo_db:
+        if detail.product_id == detail_combo.product_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto ya esta en el combo')
     #Si no esta en el combo se crea
     detail_combo_db = DetailComboModel(
         product_id = detail_combo.product_id,
@@ -138,8 +136,8 @@ async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db
     return detail_combo_db
 
 #PUT
-@combo_pr.put('/combo/{combo_id}/detail/{product_id}')
-async def update_combo_detail(combo_id: str, product_id: int, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+@combo_pr.put('/actualizarDetalleCombo/{combo_id}/{detail_id}')
+async def update_combo_detail(combo_id: str, detail_id: int, detail_combo: DetailComboPutSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
@@ -149,31 +147,17 @@ async def update_combo_detail(combo_id: str, product_id: int, detail_combo: Deta
     if not combo_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
     
-    # Verificar si el producto existe
-    product_db = db.query(ProductModel).filter(ProductModel.id == product_id).first()
-    if not product_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
+    # Verificar si el detalle existe
+    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.id == detail_id).first()
+    if not detail_combo_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El detalle no existe')
     
-    # Verificar si el producto es un combo
-    combo_db = db.query(ComboModel).filter(ComboModel.product_id == product_id).first()
-    if combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto es un combo')
+    # Verificar si el detalle le pertenece al combo
+    if detail_combo_db.combo_id != combo_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El detalle no pertenece al combo')
     
-    # Verificar si el producto ya esta en el combo
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id, DetailComboModel.product_id == product_id).first()
-    #Si ya esta en en el combo se actualiza la cantidad
-    if detail_combo_db:
-        detail_combo_db.quantity = detail_combo.quantity
-        db.commit()
-        db.refresh(detail_combo_db)
-        return detail_combo_db
-    #Si no esta en el combo se crea
-    detail_combo_db = DetailComboModel(
-        product_id = product_id,
-        quantity = detail_combo.quantity,
-        combo_id = combo_id
-    )
-    db.add(detail_combo_db)
+    # Actualizar el detalle
+    detail_combo_db.quantity = detail_combo.quantity
     db.commit()
     db.refresh(detail_combo_db)
     return detail_combo_db
