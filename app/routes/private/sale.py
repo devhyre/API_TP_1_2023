@@ -148,12 +148,18 @@ async def get_detail_order_guide(id:int, user: dict = Depends(get_current_active
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
-    else:
-        detail_order_guide = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).all()
-        return detail_order_guide
+    # Obtener la Guia de Orden
+    order_guide = db.query(OrderGuideModel).filter(OrderGuideModel.id == id).first()
+    # Obtener la Orden
+    order = db.query(OrderModel).filter(OrderModel.id == order_guide.order_id).first()
+    if user_type['numeroDocumento'] != order.user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    detail_order_guide = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).all()
+    return detail_order_guide
     
 @sale.get('/listarDetalleGuiasOrdenUsuario/{id}', status_code=status.HTTP_200_OK)
 async def get_order_guides_user(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
-    order_guides = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).filter(DetailOrderGuideModel.user_id == user[user_type]['numeroDocumento']).all()
+    # Obtener todo el detalle de la guia del usuario.
+    order_guides = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).all()
     return order_guides
