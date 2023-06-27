@@ -17,6 +17,14 @@ assemblies_pu = APIRouter()
 #FAN(*)
 #FUENTE(*)
 
+#Mejor producto segun producto
+@assemblies_pu.get('/obtenerMejorProducto', status_code=status.HTTP_200_OK)
+async def obtener_mejor_producto(producto_id: int, db: Session = Depends(get_db)):
+    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PRODUCTO
+    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == producto_id).all()
+    return assemblies
+
+
 #Mejor placa segun case
 @assemblies_pu.get('/obtenerMejorPlaca', status_code=status.HTTP_200_OK)
 async def obtener_mejor_placa(case_id: int, db: Session = Depends(get_db)):
