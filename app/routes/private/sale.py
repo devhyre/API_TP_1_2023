@@ -136,8 +136,11 @@ async def get_order_guides_user(user: dict = Depends(get_current_active_user), d
     user_type = list(user.keys())[0]
     # Buscar la ordenes que le pertenecen al usuario
     order = db.query(OrderModel).filter(OrderModel.user_id == user[user_type]['numeroDocumento']).all()
-    # Buscar las guias de orden que le pertenecen a las ordenes del usuario
-    order_guides = db.query(OrderGuideModel).filter(OrderGuideModel.order_id == order.id).all()
+    # Obtener la guia de orden de cada orden con su id
+    order_guides = []
+    for o in order:
+        order_guide = db.query(OrderGuideModel).filter(OrderGuideModel.order_id == o.id).first()
+        order_guides.append(order_guide)
     return order_guides
 
 @sale.get('/listarDetalleGuiaOrden/{id}', status_code=status.HTTP_200_OK)
