@@ -114,19 +114,21 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
-    else:
-        serial_number_db = SerialNumberModel(
-            sn_id = serial_number.sn_id,
-            product_id = serial_number.product_id,
-            supplier_id = serial_number.supplier_id,
-            user_id = user[user_type]['numeroDocumento'],
-            status_id = 1,
-            entrance_at = datetime.now()
-        )
-        #!ACTUALIZAR CANTIDAD DE PRODUCTOS
-        product_db = db.query(ProductModel).filter(ProductModel.id == serial_number.product_id).first()
-        product_db.quantity = product_db.quantity + 1
-        db.add(serial_number_db)
-        db.commit()
-        db.refresh(serial_number_db)
-        return serial_number_db
+    serial_number_exist = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == serial_number.sn_id).first()
+    if serial_number_exist:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El numero de serie ya fue registrado')
+    serial_number_db = SerialNumberModel(
+        sn_id = serial_number.sn_id,
+        product_id = serial_number.product_id,
+        supplier_id = serial_number.supplier_id,
+        user_id = user[user_type]['numeroDocumento'],
+        status_id = 1,
+        entrance_at = datetime.now()
+    )
+    #!ACTUALIZAR CANTIDAD DE PRODUCTOS
+    product_db = db.query(ProductModel).filter(ProductModel.id == serial_number.product_id).first()
+    product_db.quantity = product_db.quantity + 1
+    db.add(serial_number_db)
+    db.commit()
+    db.refresh(serial_number_db)
+    return serial_number_db
