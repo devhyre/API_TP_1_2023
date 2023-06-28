@@ -152,8 +152,6 @@ async def get_detail_order_guide(id:int, user: dict = Depends(get_current_active
     order_guide = db.query(OrderGuideModel).filter(OrderGuideModel.id == id).first()
     # Obtener la Orden
     order = db.query(OrderModel).filter(OrderModel.id == order_guide.order_id).first()
-    if user_type['numeroDocumento'] != order.user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     detail_order_guide = db.query(DetailOrderGuideModel).filter(DetailOrderGuideModel.order_guide_id == id).all()
     return detail_order_guide
     
