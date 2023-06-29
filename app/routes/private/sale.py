@@ -19,7 +19,7 @@ from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 
 sale = APIRouter()
 
-@sale.get('/listarVentas', status_code=status.HTTP_200_OK)
+@sale.get('/admin/listarVentas', status_code=status.HTTP_200_OK)
 async def get_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
