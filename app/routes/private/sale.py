@@ -531,7 +531,7 @@ async def get_order_guides_user(user: dict = Depends(get_current_active_user), d
                 })
     return response
 
-@sale.get('/listarDetalleGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Obtener el detalle de una guia de orden')
+@sale.get('/admin//listarDetalleGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Obtener el detalle de una guia de orden')
 async def get_detail_order_guide(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
