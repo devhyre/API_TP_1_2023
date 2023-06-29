@@ -7,8 +7,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 auth = APIRouter()
 
-@auth.post('/login')
-async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db), name='Iniciar sesión', status_code=status.HTTP_200_OK):
+@auth.post('/login', name='Iniciar sesión', status_code=status.HTTP_200_OK)
+async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user_exists = get_user_by_username(db, user.username)
     if not user_exists:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Usuario no registrado')
@@ -24,8 +24,8 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     update_last_connection(db, user_exists.num_doc)
     return access_token
 
-@auth.get('/logout')
-async def logout(response: Response, user: dict = Depends(get_current_active_user), name='Cerrar sesión', status_code=status.HTTP_200_OK):
+@auth.get('/logout', name='Cerrar sesión', status_code=status.HTTP_200_OK)
+async def logout(response: Response, user: dict = Depends(get_current_active_user)):
     access_token = user.get("access_token")
     blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
     response.delete_cookie(key='access_token')
