@@ -9,7 +9,7 @@ from app.models.role_privileges import RolePrivilege as RolePrivilegeModel
 
 roles = APIRouter()
 
-@roles.get('/listadoRoles',status_code=status.HTTP_200_OK)
+@roles.get('/admin/listadoRoles',status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Listado de roles')
 async def listar_roles(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -18,7 +18,7 @@ async def listar_roles(db: Session = Depends(get_db), user: dict = Depends(get_c
         roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
         return [{'id': role.id_table, 'description': role.description} for role in roles]
 
-@roles.get('/obtenerRol/{id_table}', status_code=status.HTTP_200_OK)
+@roles.get('/admin/obtenerRol/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener rol')
 async def obtener_rol(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -29,7 +29,7 @@ async def obtener_rol(id_table: int, db: Session = Depends(get_db), user: dict =
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         return {'id': role.id_table, 'description': role.description}
 
-@roles.post('/registrarRol', status_code=status.HTTP_201_CREATED)
+@roles.post('/admin/registrarRol', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar rol')
 async def registrar_rol(id_table:int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -67,7 +67,7 @@ async def registrar_rol(id_table:int, description: str, db: Session = Depends(ge
         db.commit()
         return {'id': role.id_table, 'description': role.description}
 
-@roles.put('/actualizarRol/{id_table}', status_code=status.HTTP_202_ACCEPTED)
+@roles.put('/admin/actualizarRol/{id_table}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar rol')
 async def actualizar_rol(id_table: int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -80,7 +80,7 @@ async def actualizar_rol(id_table: int, description: str, db: Session = Depends(
         db.commit()
         return {'id': role.id_table, 'description': role.description}
 
-@roles.delete('/eliminarRol/{id_table}', status_code=status.HTTP_200_OK)
+@roles.delete('/admin/eliminarRol/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar rol')
 async def eliminar_rol(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

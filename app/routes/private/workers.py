@@ -33,6 +33,9 @@ async def get_workers(db: Session = Depends(get_db), user: dict = Depends(get_cu
             'user': {
                 'numeroDocumento': user.num_doc,
                 'nombreCompleto': user.full_name,
+                'email': user.email,
+                'estado': user.is_active,
+                'username': user.username
             },
             'role': {
                 'id': role['id'],
@@ -66,6 +69,9 @@ async def get_worker(dni: str, db: Session = Depends(get_db), user: dict = Depen
         'user': {
             'numeroDocumento': user.num_doc,
             'nombreCompleto': user.full_name,
+            'email': user.email,
+            'estado': user.is_active,
+            'username': user.username
         },
         'role': {
             'id': role['id'],
@@ -104,6 +110,9 @@ async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), u
         'user': {
             'numeroDocumento': user.num_doc,
             'nombreCompleto': user.full_name,
+            'email': user.email,
+            'estado': user.is_active,
+            'username': user.username
         },
         'role': {
             'id': role['id'],

@@ -5,12 +5,11 @@ from app.schemas.user import UserPost
 from app.scripts.user import get_user_by_num_doc_username_email
 from app.scripts.worker import create_user_worker
 from app.scripts.admin import create_user_admin
-from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 
 register = APIRouter()
 
-@register.post('/registrarTrabajador', status_code=status.HTTP_201_CREATED)
+@register.post('/admin/registrarTrabajador', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar trabajador')
 async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -24,7 +23,7 @@ async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(
         create_user_worker(db, worker, role_id, 0)
         return {'message': 'Trabajador creado'}
     
-@register.post('/registrarAdministrador', status_code=status.HTTP_201_CREATED)
+@register.post('/registrarAdministrador', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar trabajador')
 async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

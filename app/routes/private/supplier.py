@@ -69,7 +69,7 @@ async def registrar_proveedor(supplier: SupplierPost, db: Session = Depends(get_
         db_supplier = create_supplier(db, supplier)
         return db_supplier
 
-@supplier.put('/actualizarProveedor/{id_supplier}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar un proveedor')
+@supplier.put('/admin/actualizarProveedor/{id_supplier}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar un proveedor')
 async def actualizar_proveedor(id_supplier: str, supplier: SupplierPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user), name='ADMINISTRADOR|TRABAJADOR - Actualizar un proveedor'):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -93,7 +93,7 @@ async def actualizar_proveedor(id_supplier: str, supplier: SupplierPut, db: Sess
         return supplier_json
         
     
-@supplier.put('/actualizarProveedor/{id_supplier}/estado', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar el estado de un proveedor')
+@supplier.put('/admin/actualizarProveedor/{id_supplier}/estado', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar el estado de un proveedor')
 async def actualizar_estado_proveedor(id_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -116,7 +116,7 @@ async def actualizar_estado_proveedor(id_supplier: str, db: Session = Depends(ge
         # Retornar el Json del proveedor
         return supplier_json
 
-@supplier.delete('/eliminarProveedor/{id_supplier}', status_code=status.HTTP_204_NO_CONTENT, name='ADMINISTRADOR - Eliminar un proveedor')
+@supplier.delete('/admin/eliminarProveedor/{id_supplier}', status_code=status.HTTP_204_NO_CONTENT, name='ADMINISTRADOR - Eliminar un proveedor')
 async def eliminar_proveedor(id_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

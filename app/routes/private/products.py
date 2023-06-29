@@ -9,42 +9,148 @@ from app.schemas.product import ProductPost, ProductPut
 from app.models.sn import SerialNumber as SerialNumberModel
 from app.schemas.sn import SerialNumberPost
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
+from app.models.brand import Brand as BrandModel
+from app.models.model import Model as ModelModel
+from app.models.user import User as UserModel
 
 products = APIRouter()
 
-@products.get('/estadosProductos', status_code=status.HTTP_200_OK)
+@products.get('/estadosProductos', status_code=status.HTTP_200_OK, name='Estados de los productos')
 async def estados_pedidos(db: Session = Depends(get_db)):
     estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
-@products.get('/obtenerProductos', status_code=status.HTTP_200_OK)
+@products.get('/admin/obtenerProductos', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener productos')
 async def obtener_productos(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener categorias
+        categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+        categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+        # Obtener estados de los productos
+        estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+        estados = [{'id': estado.id_table, 'description': estado.description} for estado in estados]
+        # Obtener marcas
+        brands = db.query(BrandModel).all()
+        # Obtener modelos
+        models = db.query(ModelModel).all()
+        # Obtener productos
         products = db.query(ProductModel).all()
-        return products
 
-@products.get('/obtenerProductosPaginacion', status_code=status.HTTP_200_OK)
+        # Crear el Json de respuesta
+        response = []
+
+        for product in products:
+            category = next((item for item in categories if item['id'] == product.category_id), None)
+            brand = next((item for item in brands if item.id == product.brand_id), None)
+            model = next((item for item in models if item.id == product.model_id), None)
+            estado = next((item for item in estados if item['id'] == product.status_id), None)
+            response.append({
+                'id': product.id,
+                'name': product.name,
+                'description': product.description,
+                'path_image': product.path_image,
+                'quantity': product.quantity,
+                'discount': product.discount,
+                'price': product.price,
+                'warranty': product.warranty,
+                'category': category,
+                'brand': brand,
+                'model': model,
+                'estado': estado,
+                'ranking': product.ranking
+            })
+        return response
+
+    
+@products.get('/admin/obtenerProductosPaginacion', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener productos por paginacion')
 async def obtener_productos_paginacion(page:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener categorias
+        categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+        categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+        # Obtener estados de los productos
+        estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+        estados = [{'id': estado.id_table, 'description': estado.description} for estado in estados]
+        # Obtener marcas
+        brands = db.query(BrandModel).all()
+        # Obtener modelos
+        models = db.query(ModelModel).all()
+        # Obtener productos
         products = db.query(ProductModel).offset(page).limit(10).all()
-        return products
+        
+        # Crear el Json de respuesta
+        response = []
 
-@products.get('/obtenerProducto/{id}', status_code=status.HTTP_200_OK)
+        for product in products:
+            category = next((item for item in categories if item['id'] == product.category_id), None)
+            brand = next((item for item in brands if item.id == product.brand_id), None)
+            model = next((item for item in models if item.id == product.model_id), None)
+            estado = next((item for item in estados if item['id'] == product.status_id), None)
+            response.append({
+                'id': product.id,
+                'name': product.name,
+                'description': product.description,
+                'path_image': product.path_image,
+                'quantity': product.quantity,
+                'discount': product.discount,
+                'price': product.price,
+                'warranty': product.warranty,
+                'category': category,
+                'brand': brand,
+                'model': model,
+                'estado': estado,
+                'ranking': product.ranking
+            })
+        return response
+
+@products.get('/admin/obtenerProducto/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener producto')
 async def obtener_producto(id:int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener categorias
+        categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+        categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+        # Obtener estados de los productos
+        estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+        estados = [{'id': estado.id_table, 'description': estado.description} for estado in estados]
+        # Obtener marcas
+        brands = db.query(BrandModel).all()
+        # Obtener modelos
+        models = db.query(ModelModel).all()
+        # Obtener producto
         product = db.query(ProductModel).filter(ProductModel.id == id).first()
-        return product
+        
+        # Crear el Json de respuesta
+        category = next((item for item in categories if item['id'] == product.category_id), None)
+        brand = next((item for item in brands if item.id == product.brand_id), None)
+        model = next((item for item in models if item.id == product.model_id), None)
+        estado = next((item for item in estados if item['id'] == product.status_id), None)
+        response = {
+            'id': product.id,
+            'name': product.name,
+            'description': product.description,
+            'path_image': product.path_image,
+            'quantity': product.quantity,
+            'discount': product.discount,
+            'price': product.price,
+            'warranty': product.warranty,
+            'category': category,
+            'brand': brand,
+            'model': model,
+            'estado': estado,
+            'ranking': product.ranking
+        }
+        return response
     
-@products.post('/crearProducto', status_code=status.HTTP_201_CREATED)
+@products.post('/admin/crearProducto', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR|TRABAJADOR - Crear producto')
 async def crear_producto(product: ProductPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -69,7 +175,7 @@ async def crear_producto(product: ProductPost, db: Session = Depends(get_db), us
         db.refresh(product_db)
         return product_db
     
-@products.put('/actualizarProducto/{id}', status_code=status.HTTP_200_OK)
+@products.put('/admin/actualizarProducto/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar producto')
 async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -95,19 +201,42 @@ async def actualizar_producto(id:int, product: ProductPut, db: Session = Depends
             db.refresh(product_db)
             return product_db
         
-@products.get('/estadosSerialNumbers', status_code=status.HTTP_200_OK)
+@products.get('/estadosSerialNumbers', status_code=status.HTTP_200_OK, name='Obtener estados de los serial numbers')
 async def estados_serial_numbers(db: Session = Depends(get_db)):
     estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
     return [{'id': estado.id_table, 'description': estado.description} for estado in estados]
 
-@products.get('/obtenerSerialNumbers', status_code=status.HTTP_200_OK)
+@products.get('/admin/obtenerSerialNumbers', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener serial numbers')
 async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     User_type = list(user.keys())[0]
     if User_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener serial numbers
         serial_numbers = db.query(SerialNumberModel).all()
-        return serial_numbers
+        # Obtener categorias
+        categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+        categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+        # Obtener estados de los productos
+        estados = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+        estados = [{'id': estado.id_table, 'description': estado.description} for estado in estados]
+        # Obtener marcas
+        brands = db.query(BrandModel).all()
+        # Obtener modelos
+        models = db.query(ModelModel).all()
+        # Obtener productos
+        products = db.query(ProductModel).all()
+        # Obtener usuarios
+        users = db.query(UserModel).all()
+
+        # Crear el Json de respuesta
+        response = []
+
+        for serial_number in serial_numbers:
+            # Obtener el usuario del serial_number
+            user = db.query(UserModel).filter(UserModel.num_doc == serial_number.user_id).first()
+            # Obtener el traja
+            
 
 @products.post('/crearSerialNumber', status_code=status.HTTP_201_CREATED)
 async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):

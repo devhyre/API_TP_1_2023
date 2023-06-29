@@ -9,36 +9,119 @@ from app.security.token import get_current_active_user
 
 role_privileges = APIRouter()
 
-@role_privileges.get('/listarPrivilegiosRol', status_code=status.HTTP_200_OK)
+@role_privileges.get('/admin/listarPrivilegiosRol', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Listar privilegios de roles')
 async def listar_privilegios_rol(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener los roles
+        roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
+        roles =  [{'id': role.id_table, 'description': role.description} for role in roles]
+        # Obtener los privilegios
         role_privileges = db.query(RolePrivilegeModel).all()
-        return role_privileges
+        # Crear el Json de respuesta
+        response = []
+        # Recorrer los role_privileges y agregar los roles
+        for role_privilege in role_privileges:
+            # Obtener el role
+            role = next((role for role in roles if role['id'] == role_privilege.role_id), None)
+            # Crear el Json del role
+            role_json = {
+                'role': {
+                    'id': role['id'],
+                    'description': role['description']
+                },
+                'privileges': {
+                    'module_1': role_privilege.module_1,
+                    'module_2': role_privilege.module_2,
+                    'module_3': role_privilege.module_3,
+                    'module_4': role_privilege.module_4,
+                    'module_5': role_privilege.module_5,
+                    'module_6': role_privilege.module_6,
+                    'module_7': role_privilege.module_7,
+                    'module_8': role_privilege.module_8,
+                    'module_9': role_privilege.module_9,
+                    'module_10': role_privilege.module_10,
+                    'module_11': role_privilege.module_11,
+                    'module_12': role_privilege.module_12,
+                    'module_13': role_privilege.module_13,
+                    'module_14': role_privilege.module_14,
+                    'module_15': role_privilege.module_15,
+                    'module_16': role_privilege.module_16,
+                    'module_17': role_privilege.module_17,
+                    'module_18': role_privilege.module_18,
+                    'module_19': role_privilege.module_19,
+                    'module_20': role_privilege.module_20
+                }
+            }
+            # Agregar el role a la respuesta
+            response.append(role_json)
+        return response
     
-@role_privileges.get('/obtenerPrivilegiosRol/{id_role}', status_code=status.HTTP_200_OK)
+@role_privileges.get('/admin/obtenerPrivilegiosRol/{id_role}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener privilegios de un rol')
 async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Obtener los roles
+        roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
+        roles =  [{'id': role.id_table, 'description': role.description} for role in roles]
+        # Obtener el role
+        role = next((role for role in roles if role['id'] == id_role), None)
+        if not role:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_role} no existe")
+        # Obtener los privilegios
         role_privilege = db.query(RolePrivilegeModel).filter(RolePrivilegeModel.role_id == id_role).first()
-        if role_privilege:
-            return role_privilege
-        else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El rol no existe')
+        if not role_privilege:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_role} no tiene privilegios")
+        # Crear el Json de respuesta
+        response = {
+            'role': {
+                'id': role['id'],
+                'description': role['description']
+            },
+            'privileges': {
+                'module_1': role_privilege.module_1,
+                'module_2': role_privilege.module_2,
+                'module_3': role_privilege.module_3,
+                'module_4': role_privilege.module_4,
+                'module_5': role_privilege.module_5,
+                'module_6': role_privilege.module_6,
+                'module_7': role_privilege.module_7,
+                'module_8': role_privilege.module_8,
+                'module_9': role_privilege.module_9,
+                'module_10': role_privilege.module_10,
+                'module_11': role_privilege.module_11,
+                'module_12': role_privilege.module_12,
+                'module_13': role_privilege.module_13,
+                'module_14': role_privilege.module_14,
+                'module_15': role_privilege.module_15,
+                'module_16': role_privilege.module_16,
+                'module_17': role_privilege.module_17,
+                'module_18': role_privilege.module_18,
+                'module_19': role_privilege.module_19,
+                'module_20': role_privilege.module_20
+            }
+        }
+        return response
+        
     
-@role_privileges.post('/crearPrivilegioRol', status_code=status.HTTP_201_CREATED)
+@role_privileges.post('/admin/crearPrivilegioRol', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Crear privilegio de un rol')
 async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
-        role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == role_privileges.role_id).first()
+        # Obtener los roles
+        roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
+        roles =  [{'id': role.id_table, 'description': role.description} for role in roles]
+        # Obtener el role
+        role = next((role for role in roles if role['id'] == role_privileges.role_id), None)
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {role_privileges.role_id} no existe")
+        # Si existe el role, crear el privilegio
         new_role_privilege = RolePrivilegeModel(
             role_id = role_privilege.role_id,
             module_1 = False,
@@ -67,7 +150,7 @@ async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = 
         db.refresh(new_role_privilege)
         return new_role_privilege
     
-@role_privileges.put('/actualizarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK)
+@role_privileges.put('/admin/actualizarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Actualizar privilegio de un rol')
 async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegePut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -103,7 +186,7 @@ async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegeP
             db.refresh(role_privilege_db)
             return role_privilege_db
         
-@role_privileges.delete('/eliminarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK)
+@role_privileges.delete('/admin/eliminarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar privilegio de un rol')
 async def eliminar_privilegio_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
