@@ -7,13 +7,13 @@ from app.security.token import get_current_active_user
 
 categories_pu = APIRouter()
 
-@categories_pu.get('/listadoCategorias', status_code=status.HTTP_200_OK)
+@categories_pu.get('/listadoCategorias', status_code=status.HTTP_200_OK, name='Listado de categorias')
 async def listar_categorias(db: Session = Depends(get_db)):
     categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
     categories = sorted(categories, key=lambda x: x.id_table)
     return [{'id': category.id_table, 'description': category.description} for category in categories]
     
-@categories_pu.get('/obtenerCategoria/{id_table}')
+@categories_pu.get('/obtenerCategoria/{id_table}', status_code=status.HTTP_200_OK, name='Obtener categoria')
 async def obtener_categoria(id_table: int, db: Session = Depends(get_db)):
     category = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
     if not category:

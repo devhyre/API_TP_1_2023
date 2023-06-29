@@ -8,8 +8,8 @@ from app.scripts.supplier import create_supplier, update_supplier, update_status
 
 supplier = APIRouter()
 
-@supplier.get('/admin/listadoProveedores')
-async def listar_proveedores(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user), name='ADMINISTRADOR|TRABAJADOR - Obtener todos los proveedores', status_code=status.HTTP_200_OK):
+@supplier.get('/admin/listadoProveedores',name='ADMINISTRADOR|TRABAJADOR - Obtener todos los proveedores', status_code=status.HTTP_200_OK)
+async def listar_proveedores(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -35,8 +35,8 @@ async def listar_proveedores(db: Session = Depends(get_db), user: dict = Depends
         # Retornar el Json de respuesta
         return response
 
-@supplier.get('/admin/obtenerProveedor/{num_doc}', status_code=status.HTTP_200_OK)
-async def obtener_proveedor(id_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user), name='ADMINISTRADOR|TRABAJADOR - Obtener un proveedor por id'):
+@supplier.get('/admin/obtenerProveedor/{num_doc}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener un proveedor por id')
+async def obtener_proveedor(id_supplier: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
@@ -70,7 +70,7 @@ async def registrar_proveedor(supplier: SupplierPost, db: Session = Depends(get_
         return db_supplier
 
 @supplier.put('/admin/actualizarProveedor/{id_supplier}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar un proveedor')
-async def actualizar_proveedor(id_supplier: str, supplier: SupplierPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user), name='ADMINISTRADOR|TRABAJADOR - Actualizar un proveedor'):
+async def actualizar_proveedor(id_supplier: str, supplier: SupplierPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')

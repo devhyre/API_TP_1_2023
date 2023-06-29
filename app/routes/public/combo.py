@@ -13,7 +13,7 @@ combo_pu = APIRouter()
 
 #!COMBO
 #GET ALL
-@combo_pu.get('/combos')
+@combo_pu.get('/combos', status_code=status.HTTP_200_OK, name='Listado de combos')
 async def get_combos(db: Session = Depends(get_db)):
     Data = {
         'combo_id': [],

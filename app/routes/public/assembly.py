@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.assembly import Assembly as AssemblyModel
 from app.models.product import Product as ProductModel
+from app.models.table_of_tables import TableOfTables as TableOfTablesModel
+from app.models.model import Model as ModelModel
+from app.models.brand import Brand as BrandModel
 
 assemblies_pu = APIRouter()
 
@@ -18,15 +21,85 @@ assemblies_pu = APIRouter()
 #FUENTE(*)
 
 #Mejor producto segun producto
-@assemblies_pu.get('/obtenerMejorProducto', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorProducto/{producto_id}', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Productos segun Producto")
 async def obtener_mejor_producto(producto_id: int, db: Session = Depends(get_db)):
-    #!OBTENER TODOS LOS ASSEMBLIES RECOMENDADOS PARA EL PRODUCTO
-    assemblies = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == producto_id).all()
-    return assemblies
+    # Obtener todas las recomendaciones del producto
+    assemblies_db = db.query(AssemblyModel).filter(AssemblyModel.major_product_id == producto_id).all()
+    # Obtener el producto
+    producto_db = db.query(ProductModel).filter(ProductModel.id == producto_id).first()
+    # Obtener todas las categorias
+    categories_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+    categories_db = [{'id': category.id_table, 'description': category.description} for category in categories_db]
+    # Obtener todos los modelos
+    models_db = db.query(ModelModel).all()
+    # Obtener todas las marcas
+    brands_db = db.query(BrandModel).all()
+    # Obtener todos los estados de los productos
+    status_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+    status_db = [{'id': status.id_table, 'description': status.description} for status in status_db]
 
+    # Obtener la categoria del producto
+    category = [category for category in categories_db if category['id'] == producto_db.category_id]
+    # Obtener el modelo del producto
+    model = [model for model in models_db if model.id == producto_db.model_id]
+    # Obtener la marca del producto
+    brand = [brand for brand in brands_db if brand.id == producto_db.brand_id]
+    # Obtener el estado del producto
+    status = [status for status in status_db if status['id'] == producto_db.status_id]
+    
+    # Crear el Json de producto
+    producto_json = {
+        'id': producto_db.id,
+        'name': producto_db.name,
+        'description': producto_db.description,
+        'path_image': producto_db.path_image,
+        'quantity': producto_db.quantity,
+        'price': producto_db.price,
+        'discount': producto_db.discount,
+        'warranty': producto_db.warranty,
+        'category': category,
+        'brand': brand,
+        'model': model,
+        'status': status,
+        'ranking': producto_db.ranking,
+        'recommendations': []
+    }
+
+    # Recorrer todas las recomendaciones
+    for assembly in assemblies_db:
+        # Obtener el producto recomendado
+        recommended_product = db.query(ProductModel).filter(ProductModel.id == assembly.product_id).first()
+        # Obtener la categoria del producto recomendado
+        recommended_category = [category for category in categories_db if category['id'] == recommended_product.category_id]
+        # Obtener el modelo del producto recomendado
+        recommended_model = [model for model in models_db if model.id == recommended_product.model_id]
+        # Obtener la marca del producto recomendado
+        recommended_brand = [brand for brand in brands_db if brand.id == recommended_product.brand_id]
+        # Obtener el estado del producto recomendado
+        recommended_status = [status for status in status_db if status['id'] == recommended_product.status_id]
+        # Crear el Json del producto recomendado
+        recommended_product_json = {
+            'id': recommended_product.id,
+            'name': recommended_product.name,
+            'description': recommended_product.description,
+            'path_image': recommended_product.path_image,
+            'quantity': recommended_product.quantity,
+            'price': recommended_product.price,
+            'discount': recommended_product.discount,
+            'warranty': recommended_product.warranty,
+            'category': recommended_category,
+            'brand': recommended_brand,
+            'model': recommended_model,
+            'status': recommended_status,
+            'ranking': recommended_product.ranking,
+        }
+        # Agregar el producto recomendado al producto
+        producto_json['recommendations'].append(recommended_product_json)
+
+    return producto_json
 
 #Mejor placa segun case
-@assemblies_pu.get('/obtenerMejorPlaca', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorPlaca', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Placas")
 async def obtener_mejor_placa(case_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
@@ -57,7 +130,7 @@ async def obtener_mejor_placa(case_id: int, db: Session = Depends(get_db)):
     return data
 
 #Mejor procesador segun placa
-@assemblies_pu.get('/obtenerMejorProcesador', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorProcesador', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Procesadores")
 async def obtener_mejor_procesador(placa_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
@@ -88,7 +161,7 @@ async def obtener_mejor_procesador(placa_id: int, db: Session = Depends(get_db))
     return data
 
 #Mejor ram segun placa y procesador
-@assemblies_pu.get('/obtenerMejorRam', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorRam', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Ram")
 async def obtener_mejor_ram(placa_id: int, procesador_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
@@ -124,7 +197,7 @@ async def obtener_mejor_ram(placa_id: int, procesador_id: int, db: Session = Dep
     return data
 
 #Mejor almacenamiento segun placa
-@assemblies_pu.get('/obtenerMejorAlmacenamiento', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorAlmacenamiento', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Almacenamiento")
 async def obtener_mejor_almacenamiento(placa_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
@@ -157,7 +230,7 @@ async def obtener_mejor_almacenamiento(placa_id: int, db: Session = Depends(get_
 
 
 #Mejor Cooler segun placa, procesador y case, si hubiera gpu tambien
-@assemblies_pu.get('/obtenerMejorCooler', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorCooler', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Cooler")
 async def obtener_mejor_cooler(placa_id: int, procesador_id: int, case_id: int, gpu_id: int = None, db: Session = Depends(get_db)):
     # Obtener todos los productos
     productos = db.query(ProductModel).all()
@@ -208,7 +281,7 @@ async def obtener_mejor_cooler(placa_id: int, procesador_id: int, case_id: int, 
     return data
 
 #Mejor fuente segun placa, procesador y case, si hubiera gpu tambien
-@assemblies_pu.get('/obtenerMejorFuente', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorFuente', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Fuente")
 async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, gpu_id: int = None, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()
@@ -270,7 +343,7 @@ async def obtener_mejor_fuente(placa_id: int, procesador_id: int, case_id: int, 
     return data
 
 #Mejor gpu segun placa, procesador y case
-@assemblies_pu.get('/obtenerMejorGpu', status_code=status.HTTP_200_OK)
+@assemblies_pu.get('/obtenerMejorGpu', status_code=status.HTTP_200_OK, name="Listado de Mejores Recomendaciones de Gpu")
 async def obtener_mejor_gpu(placa_id: int, procesador_id: int, case_id: int, db: Session = Depends(get_db)):
     #!OBTENER TODOS LOS PRODUCTOS
     productos = db.query(ProductModel).all()

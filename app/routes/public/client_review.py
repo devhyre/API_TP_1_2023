@@ -9,8 +9,6 @@ from app.models.client import Client as ClientModel
 client_review_pu = APIRouter()
 
 # OBTENER TODAS LAS RESEÑAS DE UN PRODUCTO
-
-
 @client_review_pu.get('/obtenerReviewsProducto/{id}', status_code=status.HTTP_200_OK, name='Obtener reseñas de un producto por id')
 async def obtener_reseñas_producto(id: int, db: Session = Depends(get_db)):
     product = db.query(ProductModel).filter(ProductModel.id == id).first()
