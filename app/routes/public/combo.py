@@ -135,6 +135,8 @@ async def get_combos(db: Session = Depends(get_db)):
 async def get_combo(combo_id: str, db: Session = Depends(get_db)):
     # Obtener el combo
     combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
+    if not combo_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
     # Obtener el producto asociado al combo
     product = db.query(ProductModel).filter(ProductModel.id == combo_db.product_id).first()
     # Obtener todos los detalles asociados al combo
