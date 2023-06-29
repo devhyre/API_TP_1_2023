@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from app.core.db import Session, get_db
-from app.scripts.user import update_email, update_password
+from app.scripts.user import update_email, update_password, update_status
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
 from app.schemas.user import UserPutEmail, UserPutPassword
@@ -48,3 +48,9 @@ async def put_password(user_data: UserPutPassword, user: dict = Depends(get_curr
     user_type = list(user.keys())[0]
     update_password(db, user[user_type]['numeroDocumento'], user_data.password)
     return {'message': 'Contraseña actualizada'}
+
+@profile.put('/actualizarEstado', status_code=status.HTTP_200_OK, name='USUARIO - Actualizar estado del usuario logueado')
+async def put_state(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    user_type = list(user.keys())[0]
+    update_status(db, user[user_type]['numeroDocumento'])
+    return {'message': 'Estado actualizado'}

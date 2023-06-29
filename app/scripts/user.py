@@ -71,6 +71,19 @@ def change_password(db, num_doc: str, password: str):
     db.refresh(user)
     return user
 
+def update_status(db, num_doc: str):
+    user = change_status(db, num_doc)
+    return user
+
+def change_status(db, num_doc: str):
+    user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
+    if not user:
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no existe")
+    user.is_active = not user.is_active #! Invertir el estado
+    db.commit()
+    db.refresh(user)
+    return user
+
 def update_last_connection(db, num_doc: str):
     user = change_last_connection(db, num_doc, datetime.now())
     return user

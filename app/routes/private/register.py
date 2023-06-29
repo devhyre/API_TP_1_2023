@@ -23,7 +23,7 @@ async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(
         create_user_worker(db, worker, role_id, 0)
         return {'message': 'Trabajador creado'}
     
-@register.post('/registrarAdministrador', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar trabajador')
+@register.post('/admin/registrarAdministrador', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar trabajador')
 async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

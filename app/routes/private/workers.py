@@ -118,4 +118,45 @@ async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), u
         }
     }
     return worker_json
+
+@workers.put('/admin/actualizarEstadoTrabajador/{dni}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Actualizar el estado de un trabajador')
+async def update_worker(dni: str, is_active: bool, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type != 'admin':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
+    # Obtener el trabajador
+    worker = db.query(WorkerModel).filter(WorkerModel.user_id == dni).first()
+    if not worker:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Trabajador no encontrado')
+    # Obtener el usuario del trabajador
+    user = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
+    # Actualizar el estado del usuario
+    user.is_active = is_active
+    db.commit()
+    db.refresh(user)
+
+    # Obtener todos los roles
+    roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
+    roles = [{'id': role.id_table, 'description': role.description} for role in roles]
+
+    # Obtener el rol del trabajador
+    role = [role for role in roles if role['id'] == worker.role_id]
+
+    # Crear el Json del trabajador
+    worker_json = {
+        'id': worker.id,
+        'level': worker.level,
+        'user': {
+            'numeroDocumento': user.num_doc,
+            'nombreCompleto': user.full_name,
+            'email': user.email,
+            'estado': user.is_active,
+            'username': user.username
+        },
+        'role': {
+            'id': role['id'],
+            'descripcion': role['description'],
+        }
+    }
+    return worker_json
     
