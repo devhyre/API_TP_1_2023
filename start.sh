@@ -1,0 +1,1 @@
+export TZ="America/Lima"

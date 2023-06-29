@@ -53,8 +53,6 @@ def shutdown():
     Session.close_all()
     print("Desconectado de la base de datos")
 
-    
-
 @app.get("/", include_in_schema=False)
 async def root():
     return responses.RedirectResponse(url="/docs")
