@@ -79,11 +79,10 @@ class User(BaseModel):
             raise ValueError("La contraseña no puede contener espacios")
         return password
     
-class UserPost(User):
+class UserPost(BaseModel):
     num_doc: str
     type_doc: int
     username: str
-    full_name: Optional[str] = None
     email: str
     password: str
     repeat_password: str
