@@ -25,7 +25,7 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
         #!OBTENER TODOS LAS ORDENES DEL CLIENTE QUE TENGAN EL ESTADO 3
         orders = db.query(OrderModel).filter(
             OrderModel.user_id == user[user_type]['numeroDocumento']).all()
-        orders = [order for order in orders if order.state_id == 3]
+        orders = [order for order in orders if order.status_order == 3]
         #!BUSCAR EN LOS DETALLES DE LAS ORDENES SI EL PRODUCTO QUE SE QUIERE CALIFICAR ESTA EN ALGUNA DE LAS ORDENES
         #!SI ESTA EN ALGUNA DE LAS ORDENES, SE PUEDE CALIFICAR
         #!SI NO ESTA EN NINGUNA DE LAS ORDENES, NO SE PUEDE CALIFICAR

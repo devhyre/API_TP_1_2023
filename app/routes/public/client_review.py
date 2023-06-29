@@ -34,7 +34,7 @@ async def obtener_reseñas_producto(id: int, db: Session = Depends(get_db)):
                     ClientModel.id == client_review.client_id).first()
                 # Obtener el usuario del cliente
                 user = db.query(UserModel).filter(
-                    UserModel.id == client.user_id).first()
+                    UserModel.num_doc == client.user_id).first()
                 # Crear el Json de la reseña
                 review_json = {
                     'id': client_review.id,
