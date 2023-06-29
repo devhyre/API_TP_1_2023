@@ -10,7 +10,7 @@ from app.models.product import Product as ProductModel
 
 model_pr = APIRouter()
 
-@model_pr.post('/crearModelo', status_code=status.HTTP_201_CREATED)
+@model_pr.post('/admin/crearModelo', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Crear modelo')
 async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -25,7 +25,7 @@ async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: di
         db.refresh(new_model)
         return new_model
     
-@model_pr.put('/actualizarModelo/{id_model}', status_code=status.HTTP_202_ACCEPTED)
+@model_pr.put('/admin/actualizarModelo/{id_model}', status_code=status.HTTP_202_ACCEPTED , name='ADMINISTRADOR - Actualizar modelo')
 async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -40,7 +40,7 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
         db.refresh(model_db)
         return model_db
     
-@model_pr.delete('/eliminarModelo/{id_model}', status_code=status.HTTP_200_OK)
+@model_pr.delete('/admin/eliminarModelo/{id_model}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar modelo')
 async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

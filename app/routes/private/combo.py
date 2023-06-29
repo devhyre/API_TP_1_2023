@@ -15,7 +15,7 @@ from app.models.brand import Brand as BrandModel
 combo_pr = APIRouter()
 
 #!Combo
-@combo_pr.post('/crearCombo')
+@combo_pr.post('/admin/crearCombo', status_code=status.HTTP_201_CREATED, name='TRABAJADOR - Crear combo')
 async def create_combo(product: ProductSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -64,7 +64,7 @@ async def create_combo(product: ProductSchema, db: Session = Depends(get_db), us
     db.refresh(combo_db)
     return {'detail': 'Combo creado, su ID es: ' + combo_id + ' y su ID de producto es: ' + str(product_db.id)}
 
-@combo_pr.delete('/eliminarCombo/{product_id}')
+@combo_pr.delete('/admin/eliminarCombo/{product_id}', status_code=status.HTTP_204_NO_CONTENT, name='TRABAJADOR - Eliminar combo')
 async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -98,7 +98,7 @@ async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dic
     return {'detail': 'Combo eliminado'}
 
 #!COMBO DETAIL
-@combo_pr.post('/crearDetalleCombo/{combo_id}/Detalle')
+@combo_pr.post('/admin/crearDetalleCombo/{combo_id}/Detalle', status_code=status.HTTP_201_CREATED, name='TRABAJADOR - Crear detalle de combo')
 async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -136,7 +136,7 @@ async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db
     return detail_combo_db
 
 #PUT
-@combo_pr.put('/actualizarDetalleCombo/{combo_id}/{detail_id}')
+@combo_pr.put('/admin/actualizarDetalleCombo/{combo_id}/{detail_id}', status_code=status.HTTP_202_ACCEPTED, name='TRABAJADOR - Actualizar detalle de combo')
 async def update_combo_detail(combo_id: str, detail_id: int, detail_combo: DetailComboPutSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
@@ -163,7 +163,7 @@ async def update_combo_detail(combo_id: str, detail_id: int, detail_combo: Detai
     return detail_combo_db
 
 #DELETE
-@combo_pr.delete('/combo/{combo_id}/detail/{product_id}')
+@combo_pr.delete('/admin/combo/{combo_id}/detail/{product_id}', status_code=status.HTTP_202_ACCEPTED, name='TRABAJADOR - Eliminar detalle de combo')
 async def delete_combo_detail(combo_id: str, product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':

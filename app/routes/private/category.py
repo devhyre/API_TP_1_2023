@@ -7,7 +7,7 @@ from app.security.token import get_current_active_user
 
 categories_pr = APIRouter()
 
-@categories_pr.post('/registrarCategoria', status_code=status.HTTP_201_CREATED)
+@categories_pr.post('/admin/registrarCategoria', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR|TRABAJADOR - Registrar categoria')
 async def registrar_categoria(id_table:int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -22,7 +22,7 @@ async def registrar_categoria(id_table:int, description: str, db: Session = Depe
         db.refresh(category)
         return {'id': category.id_table, 'description': category.description}
     
-@categories_pr.put('/actualizarCategoria/{id_table}', status_code=status.HTTP_202_ACCEPTED)
+@categories_pr.put('/admin/actualizarCategoria/{id_table}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar categoria')
 async def actualizar_categoria(id_table: int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -36,7 +36,7 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         db.refresh(category)
         return {'id': category.id_table, 'description': category.description}
     
-@categories_pr.delete('/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK)
+@categories_pr.delete('/admin/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar categoria')
 async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':

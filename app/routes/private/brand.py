@@ -9,7 +9,7 @@ from app.models.model import Model as ModelModel
 
 brand_pr = APIRouter()
 
-@brand_pr.post('/crearMarca', status_code=status.HTTP_201_CREATED)
+@brand_pr.post('/admin/crearMarca', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Crear marca')
 async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -21,7 +21,7 @@ async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: dic
         db.refresh(new_brand)
         return new_brand
 
-@brand_pr.put('/actualizarMarca/{id}', status_code=status.HTTP_202_ACCEPTED)
+@brand_pr.put('/admin/actualizarMarca/{id}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar marca')
 async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
@@ -36,7 +36,7 @@ async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_d
         db.refresh(brand_db)
         return brand_db
 
-@brand_pr.delete('/eliminarMarca/{id}', status_code=status.HTTP_200_OK)
+@brand_pr.delete('/admin/eliminarMarca/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar marca')
 async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'admin':
