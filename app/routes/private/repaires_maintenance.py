@@ -11,27 +11,39 @@ from app.models.sn import SerialNumber as SerialNumberModel
 
 repairs_maintenance = APIRouter()
 
-@repairs_maintenance.get('/listadoTiposServicios', status_code=status.HTTP_200_OK)
-async def listar_tipos_servicios(db: Session = Depends(get_db)):
+@repairs_maintenance.get('/listadoTiposServicios', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Listar tipos de servicios')
+async def listar_tipos_servicios(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para este servicio')
     types_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 7).all()
     types_services = sorted(types_services, key=lambda x: x.id_table)
     return [{'id': type_service.id_table, 'description': type_service.description} for type_service in types_services]
 
-@repairs_maintenance.get('/obtenerTipoServicio/{id_table}')
-async def obtener_tipo_servicio(id_table: int, db: Session = Depends(get_db)):
+@repairs_maintenance.get('/obtenerTipoServicio/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener tipo de servicio')
+async def obtener_tipo_servicio(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para este servicio')
     type_service = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 7).filter(TableOfTablesModel.id_table == id_table).first()
     if not type_service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El tipo de servicio con id {id_table} no existe")
     return {'id': type_service.id_table, 'description': type_service.description}
 
-@repairs_maintenance.get('/listadoEstadosServicios', status_code=status.HTTP_200_OK)
-async def listar_estados_servicios(db: Session = Depends(get_db)):
+@repairs_maintenance.get('/listadoEstadosServicios', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Listar estados de servicios')
+async def listar_estados_servicios(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para este servicio')
     states_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 8).all()
     states_services = sorted(states_services, key=lambda x: x.id_table)
     return [{'id': state_service.id_table, 'description': state_service.description} for state_service in states_services]
 
-@repairs_maintenance.get('/obtenerEstadoServicio/{id_table}')
-async def obtener_estado_servicio(id_table: int, db: Session = Depends(get_db)):
+@repairs_maintenance.get('/obtenerEstadoServicio/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener estado de servicio')
+async def obtener_estado_servicio(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para este servicio')
     state_service = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 8).filter(TableOfTablesModel.id_table == id_table).first()
     if not state_service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El estado de servicio con id {id_table} no existe")
