@@ -25,7 +25,8 @@ async def get_workers(db: Session = Depends(get_db), user: dict = Depends(get_cu
         # Obtener el usuario del trabajador
         user = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
         # Obtener el rol del trabajador
-        role = [role for role in roles if role['id'] == worker.role_id][0]
+        role = [role for role in roles if role['id'] == worker.role_id]
+
         # Crear el Json del trabajador
         worker_json = {
             'id': worker.id,
@@ -37,10 +38,7 @@ async def get_workers(db: Session = Depends(get_db), user: dict = Depends(get_cu
                 'estado': user.is_active,
                 'username': user.username
             },
-            'role': {
-                'id': role['id'],
-                'descripcion': role['description'],
-            }
+            'role': role
         }
         # Agregar el Json del trabajador al Json de respuesta
         response.append(worker_json)
