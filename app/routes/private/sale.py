@@ -11,6 +11,11 @@ from datetime import datetime
 from app.models.order_guide import OrderGuide as OrderGuideModel
 from app.models.detail_order_guide import DetailOrderGuide as DetailOrderGuideModel
 from app.models.sn import SerialNumber as SerialNumberModel
+from app.models.user import User as UserModel
+from app.models.product import Product as ProductModel
+from app.models.brand import Brand as BrandModel
+from app.models.model import Model as ModelModel
+from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 
 sale = APIRouter()
 
@@ -20,8 +25,88 @@ async def get_sales(user: dict = Depends(get_current_active_user), db: Session =
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
+        # Crear el Json de respuesta
+        response = []
+        # Obtener todas las ventas
         sales = db.query(SaleModel).all()
-        return sales
+        # Recorrer las ventas
+        for sale in sales:
+            # Obtener las Marcas y Modelos
+            brands = db.query(BrandModel).all()
+            models = db.query(ModelModel).all()
+
+            # Obtener categorias de la tabla de tablas
+            categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+            categories = sorted(categories, key=lambda x: x.id_table)
+            categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+
+            # Obtener documentos de la tabla de tablas
+            documents = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 1).all()
+            documents = sorted(documents, key=lambda x: x.id_table)
+            documents = [{'id': document.id_table, 'description': document.description} for document in documents]
+
+            # Obtener el usuario
+            user_db = db.query(UserModel).filter(UserModel.num_doc == sale.user_id).first()
+            # Obtener la orden
+            order_db = db.query(OrderModel).filter(OrderModel.id == sale.order_id).first()
+            # Obtener los detalles de la orden
+            detail_orders = db.query(DetailOrderModel).filter(DetailOrderModel.order_id == order_db.id).all()
+            # Obtener los productos
+            products = []
+            for detail_order in detail_orders:
+                product = db.query(ProductModel).filter(ProductModel.id == detail_order.product_id).first()
+                products.append(product)
+
+
+            # Crear el Json de la venta
+            sale_json = {
+                'id': sale.id,
+                'order_id': {
+                    'id': order_db.id,
+                    'created_at': order_db.created_at,
+                    'discount': order_db.discount,
+                    'status_order': order_db.status_order,
+                    'detail_orders': [
+                        {
+                            'id': detail_order.id,
+                            'product_id': {
+                                'id': product.id,
+                                'name': product.name,
+                                'description': product.description,
+                                'model_id': {
+                                    'id': product.model_id,
+                                    'name': [model.name for model in models if model.id == product.model_id][0]
+                                },
+                                'brand_id': {
+                                    'id': product.brand_id,
+                                    'name': [brand.name for brand in brands if brand.id == product.brand_id][0]
+                                },
+                                'category_id': {
+                                    'id': product.category_id,
+                                    'description': [category['description'] for category in categories if category['id'] == product.category_id][0]
+                                },
+                            },
+                            'quantity': detail_order.quantity,
+                        } for detail_order, product in zip(detail_orders, products)
+                    ] if detail_orders else []
+                },
+                'user_id': {
+                    'num_doc': user_db.num_doc,
+                    'type_doc': {
+                        'id': user_db.type_doc,
+                        'description': [document['description'] for document in documents if document['id'] == user_db.type_doc][0]
+                    },
+                    'full_name': user_db.full_name,
+                    'email': user_db.email,
+                },
+                'code_payment': sale.code_payment,
+                'created_at': sale.created_at,
+                'total': sale.total
+            }
+            # Agregar la venta al Json de respuesta
+            response.append(sale_json)
+        return response
+    
     
 @sale.get('/listarVenta/{id}', status_code=status.HTTP_200_OK)
 async def get_sale(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
