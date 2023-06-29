@@ -46,7 +46,7 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
                 client_id=user[user_type]['id'],
                 product_id=review_data.product_id,
                 review=review_data.review,
-                create_at=datetime.now(),
+                created_at=datetime.now(),
                 punctuation=review_data.punctuation
             )
             db.add(client_review_db)
