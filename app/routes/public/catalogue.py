@@ -11,9 +11,7 @@ catalogue = APIRouter()
 @catalogue.get('/obtenerProductos', status_code=status.HTTP_200_OK, name='Obtener catalogo de productos')
 async def obtener_productos(db: Session = Depends(get_db)):
     # Obtener todos los productos con stock
-    products_db = db.query(ProductModel).filter(ProductModel.quantity > 0).all()
-    # Filtrar los productos con estado 4
-    products_db = list(filter(lambda product: product.status_id == 4, products_db))
+    products_db = db.query(ProductModel).all()
     # Obtener las marcas
     brands_db = db.query(BrandModel).all()
     # Obtener los modelos
@@ -61,9 +59,6 @@ async def obtener_producto(id:int, db: Session = Depends(get_db)):
     product_db = db.query(ProductModel).filter(ProductModel.id == id).first()
     if not product_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el producto')
-    # Verificar que el producto tenga stock y estado 4
-    if product_db.quantity <= 0 or product_db.status_id != 4:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no esta disponible')
     # Obtener la marca
     brand_db = db.query(BrandModel).filter(BrandModel.id == product_db.brand_id).first()
     # Obtener el modelo
