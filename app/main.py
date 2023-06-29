@@ -12,6 +12,7 @@ from app.routes.public.model import model_pu
 from app.routes.public.catalogue import catalogue
 from app.routes.public.assembly import assemblies_pu
 from app.routes.public.combo import combo_pu
+from app.routes.public.client_review import client_review_pu
 #!PRIVATE ROUTES
 from app.routes.private.profile import profile
 from app.routes.private.roles import roles
@@ -95,6 +96,7 @@ routes = [
     (brand_pr, "/private/brand", "Marcas"),
     (model_pr, "/private/model", "Modelos"),
     (client_review, "/private/client_review", "Reseñas de Clientes"),
+    (client_review_pu, "/public/client_review", "Reseñas de Clientes"),
     (products, "/private/products", "Inventario de Productos"),
     (assemblies_pr, "/private/assemblies", "Recomendaciones para Armar una Computadora"),
     (combo_pr, "/private/combo", "Combos de Productos"),

@@ -8,32 +8,54 @@ from app.models.client import Client as ClientModel
 
 client_review_pu = APIRouter()
 
-#OBTENER TODAS LAS RESEÑAS DE UN PRODUCTO
-@client_review_pu.get('/obtenerReviewsProducto/{id}', status_code=status.HTTP_200_OK)
-async def obtener_reseñas_producto(id:int, db: Session = Depends(get_db)):
+# OBTENER TODAS LAS RESEÑAS DE UN PRODUCTO
+
+
+@client_review_pu.get('/obtenerReviewsProducto/{id}', status_code=status.HTTP_200_OK, name='Obtener reseñas de un producto por id')
+async def obtener_reseñas_producto(id: int, db: Session = Depends(get_db)):
     product = db.query(ProductModel).filter(ProductModel.id == id).first()
     if product is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Producto no encontrado')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='Producto no encontrado')
     else:
-        client_reviews = db.query(ClientReviewModel).filter(ClientReviewModel.product_id == id).all()
-        Data = {
-            "id": [],
-            "client_id": [],
-            "product_id": [],
-            "review": [],
-            "created_at": [],
-            "punctuation": [],
-            "client_name": [],
-        }
-        #Obtener los datos del cliente y usar el user_id para obtener el nombre del cliente
-        client = db.query(ClientModel).filter(ClientModel.id == ClientReviewModel.client_id).first()
-        user = db.query(UserModel).filter(UserModel.id == client.user_id).first()
-        for client_review in client_reviews:
-            Data["id"].append(client_review.id)
-            Data["client_id"].append(client_review.client_id)
-            Data["product_id"].append(client_review.product_id)
-            Data["review"].append(client_review.review)
-            Data["created_at"].append(client_review.created_at)
-            Data["punctuation"].append(client_review.punctuation)
-            Data["client_name"].append(user.full_name)
-        return Data
+        client_reviews = db.query(ClientReviewModel).filter(
+            ClientReviewModel.product_id == id).all()
+
+        if len(client_reviews) == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail='No hay reseñas para este producto')
+        else:
+            # Crear el Json de respuesta
+            response = []
+            # Recorrer las reseñas
+            for client_review in client_reviews:
+                # Obtener el cliente de la reseña
+                client = db.query(ClientModel).filter(
+                    ClientModel.id == client_review.client_id).first()
+                # Obtener el usuario del cliente
+                user = db.query(UserModel).filter(
+                    UserModel.id == client.user_id).first()
+                # Crear el Json de la reseña
+                review_json = {
+                    'id': client_review.id,
+                    'review': client_review.review,
+                    'punctuation': client_review.punctuation,
+                    'createdAt': client_review.created_at,
+                    'client': {
+                        'id': client.id,
+                        'user': {
+                            'numeroDocumento': user.num_doc,
+                            'nombreCompleto': user.full_name,
+                        },
+                    },
+                    'product': {
+                        'id': product.id,
+                        'name': product.name,
+                        'description': product.description,
+                        'price': product.price,
+                    },
+                }
+                # Agregar el Json de la reseña al Json de respuesta
+                response.append(review_json)
+            # Retornar el Json de respuesta
+            return response

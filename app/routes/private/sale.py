@@ -5,12 +5,10 @@ from app.security.token import get_current_active_user
 from app.schemas.sale import SalePost
 from app.models.sale import Sale as SaleModel
 from app.models.order import Order as OrderModel
-from app.models.product import Product as ProductModel
 from app.models.detail_order import DetailOrder as DetailOrderModel
 from datetime import datetime
 from app.models.order_guide import OrderGuide as OrderGuideModel
 from app.models.detail_order_guide import DetailOrderGuide as DetailOrderGuideModel
-from app.models.sn import SerialNumber as SerialNumberModel
 from app.models.user import User as UserModel
 from app.models.product import Product as ProductModel
 from app.models.brand import Brand as BrandModel
@@ -20,7 +18,7 @@ from app.models.sn import SerialNumber as SerialNumberModel
 
 sale = APIRouter()
 
-@sale.get('/admin/listarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Lista todas las ventas')
+@sale.get('/admin/listarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Lista todas las ventas')
 async def get_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -108,7 +106,7 @@ async def get_sales(user: dict = Depends(get_current_active_user), db: Session =
         return response
     
     
-@sale.get('/admin/listarVenta/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Lista una venta por id')
+@sale.get('/admin/listarVenta/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Lista una venta por id')
 async def get_sale(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -196,7 +194,7 @@ async def get_sale(id:int, user: dict = Depends(get_current_active_user), db: Se
         response.append(sale_json)
         return response
     
-@sale.get('/listarVentasUsuario', status_code=status.HTTP_200_OK, name='Lista las ventas del usuario logueado')
+@sale.get('/listarVentasUsuario', status_code=status.HTTP_200_OK, name='USUARIO - Lista las ventas del usuario logueado')
 async def get_sales_user(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     # Crear el Json de respuesta
@@ -282,7 +280,7 @@ async def get_sales_user(user: dict = Depends(get_current_active_user), db: Sess
     return response
 
 #!NUEVA LOGICA DE REGISTRO DE VENTA
-@sale.post('/registrarVenta', status_code=status.HTTP_201_CREATED, name='Registrar una venta')
+@sale.post('/registrarVenta', status_code=status.HTTP_201_CREATED, name='USUARIO - Registrar una venta')
 async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     #!SELECCIONAR LA ORDEN Y VERIFICAR EL ESTADO QUE TENGA ESTADO 2
@@ -356,7 +354,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
 
 
     
-@sale.get('/admin/listarGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Obtener la guia de una orden por id')
+@sale.get('/admin/listarGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener la guia de una orden por id')
 async def get_order_guide(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -398,7 +396,7 @@ async def get_order_guide(id:int, user: dict = Depends(get_current_active_user),
             })
         return response
 
-@sale.get('/admin/listarGuiasOrden', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Obtener todas las guias de orden')
+@sale.get('/admin/listarGuiasOrden', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener todas las guias de orden')
 async def get_order_guides(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -465,7 +463,7 @@ async def get_order_guides(user: dict = Depends(get_current_active_user), db: Se
                 })
         return response
     
-@sale.get('/listarGuiasOrdenUsuario', status_code=status.HTTP_200_OK, name='Obtener todas las guias de orden del usuario logueado')
+@sale.get('/listarGuiasOrdenUsuario', status_code=status.HTTP_200_OK, name='USUARIO - Obtener todas las guias de orden del usuario logueado')
 async def get_order_guides_user(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     # Crear el Json de respuesta
@@ -531,7 +529,7 @@ async def get_order_guides_user(user: dict = Depends(get_current_active_user), d
                 })
     return response
 
-@sale.get('/admin//listarDetalleGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Obtener el detalle de una guia de orden')
+@sale.get('/admin/listarDetalleGuiaOrden/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener el detalle de una guia de orden')
 async def get_detail_order_guide(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -567,7 +565,7 @@ async def get_detail_order_guide(id:int, user: dict = Depends(get_current_active
         })
     return response
     
-@sale.get('/listarDetalleGuiasOrdenUsuario/{id}', status_code=status.HTTP_200_OK, name='Obtener el detalle de una guia de orden')
+@sale.get('/listarDetalleGuiasOrdenUsuario/{id}', status_code=status.HTTP_200_OK, name='USUARIO - Obtener el detalle de una guia de orden')
 async def get_order_guides_user(id:int, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     # Buscar la guia de orden
