@@ -91,4 +91,8 @@ async def eliminar_rol(id_table: int, db: Session = Depends(get_db), user: dict 
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         db.delete(role)
         db.commit()
+        # Eliminar privilegios
+        role_privilege = db.query(RolePrivilegeModel).filter(RolePrivilegeModel.role_id == id_table).first()
+        db.delete(role_privilege)
+        db.commit()
         return {'message': f"El rol con id {id_table} ha sido eliminado"}
