@@ -153,10 +153,7 @@ async def update_worker(dni: str, is_active: bool, db: Session = Depends(get_db)
             'estado': user.is_active,
             'username': user.username
         },
-        'role': {
-            'id': role['id'],
-            'descripcion': role['description'],
-        }
+        'role': role
     }
     return worker_json
     

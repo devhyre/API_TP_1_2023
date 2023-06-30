@@ -282,14 +282,15 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
             # Obtener el producto
             products_db = db.query(ProductModel).filter(
                 ProductModel.id == serial_number_db.product_id).first()
-            # Obtener la categoria
-            category = [category for category in categories_db if category['id'] == products_db.category_id][0]
             # Obtener la marca
-            brand = [brand for brand in brands_db if brand['id'] == products_db.brand_id][0]
-            # Obtener el modelo
-            model = [model for model in models_db if model['id'] == products_db.model_id][0]
-            # Obtener el estado del producto
-            estado_producto = [estado for estado in estados_productos if estado['id'] == products_db.status_id][0]
+            category = next(
+                (item for item in categories_db if item['id'] == products_db.category_id), None)
+            brand = next(
+                (item for item in brands_db if item.id == products_db.brand_id), None)
+            model = next(
+                (item for item in models_db if item.id == products_db.model_id), None)
+            estado = next(
+                (item for item in estados_productos if item['id'] == products_db.status_id), None)
             # Obtener el proveedor
             supplier_db = db.query(SupplierModel).filter(
                 SupplierModel.num_doc == serial_number_db.supplier_id).first()
@@ -297,7 +298,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
             user_db = db.query(UserModel).filter(
                 UserModel.num_doc == serial_number_db.user_id).first()
             # Obtener el estado
-            estado_sn = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id][0]
+            estado_sn = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
             # Crear el Json de respuesta
             serial_numer_json = {
                 'id': serial_number_db.sn_id,
@@ -308,7 +309,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
                     'category': category,
                     'brand': brand,
                     'model': model,
-                    'estado': estado_producto,
+                    'estado': estado,
                     'ranking': products_db.ranking,
                 },
                 'supplier': {

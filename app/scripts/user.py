@@ -52,6 +52,7 @@ def update_email(db, num_doc: str, email: str):
             return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El email ya le pertenece a otro usuario")
         
 def change_email(db, num_doc: str, email: str):
+    #Obtener el usuario
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
     send_email_user_updated_email(user.full_name, user.username, email)
     user.email = email

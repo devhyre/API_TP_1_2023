@@ -132,7 +132,7 @@ async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(g
                     # Recorrer los usuarios
                     for user in users:
                         # Verificar si el usuario del cliente es igual al usuario actual
-                        if client.user_id == user.id:
+                        if client.user_id == user.num_doc:
                             # Crear el Json del usuario
                             user_json = {
                                 'num_doc': user.num_doc,
