@@ -4,11 +4,11 @@ from typing import Any, Dict, List, Optional, Union
 
 class Settings(BaseSettings):
     #! Database
-    MYSQL_USER: str = "admin"
-    MYSQL_PASSWORD: str = "iRjlletk"
-    MYSQL_HOST: str = "mysql-133400-0.cloudclusters.net"
-    MYSQL_PORT: str = "12123"
-    MYSQL_DB: str = "Rayotec"
+    MYSQL_USER: str = "root"
+    MYSQL_PASSWORD: str = "2LP1x6uiKBpaBWCutwNL"
+    MYSQL_HOST: str = "containers-us-west-54.railway.app"
+    MYSQL_PORT: str = "7677"
+    MYSQL_DB: str = "railway"
     SQLALCHEMY_DATABASE_URI: Optional[AnyUrl] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
