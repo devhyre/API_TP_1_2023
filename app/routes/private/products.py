@@ -12,6 +12,7 @@ from app.models.brand import Brand as BrandModel
 from app.models.model import Model as ModelModel
 from app.models.user import User as UserModel
 from app.models.supplier import Supplier as SupplierModel
+from app.models.movement import Movement as MovementModel
 
 products = APIRouter()
 
@@ -406,6 +407,7 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
         supplier_id=serial_number.supplier_id,
         user_id=user[user_type]['numeroDocumento'],
         status_id=1,
+        oc_id=serial_number.oc_id,
         entrance_at=datetime.now()
     )
     #!ACTUALIZAR CANTIDAD DE PRODUCTOS
@@ -415,4 +417,14 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     db.add(serial_number_db)
     db.commit()
     db.refresh(serial_number_db)
+    #!CREAR MOVIMIENTO
+    movement_db = MovementModel(
+        sn_id=serial_number_db.sn_id,
+        user_id=user[user_type]['numeroDocumento'],
+        created_at=datetime.now(),
+        type_id=1,
+    )
+    db.add(movement_db)
+    db.commit()
+    db.refresh(movement_db)
     return serial_number_db

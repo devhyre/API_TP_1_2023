@@ -15,6 +15,7 @@ from app.models.brand import Brand as BrandModel
 from app.models.model import Model as ModelModel
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 from app.models.sn import SerialNumber as SerialNumberModel
+from app.models.movement import Movement as MovementModel
 
 sale = APIRouter()
 
@@ -350,6 +351,16 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         db.add(detail_order_guide_db)
         db.commit()
         db.refresh(detail_order_guide_db)
+        #!CREAR EL MOVIMIENTO DE SALIDA
+        movement_db = MovementModel(
+            sn_id = serial_number_db.sn_id,
+            user_id = user[user_type]['numeroDocumento'],
+            type_movement = 2,
+            created_at = datetime.now()
+        )
+        db.add(movement_db)
+        db.commit()
+        db.refresh(movement_db)
     return sale_db
 
 
@@ -381,7 +392,7 @@ async def get_order_guide(id:int, user: dict = Depends(get_current_active_user),
             # Buscar el producto
             product_db = db.query(ProductModel).filter(ProductModel.id == serial_number_db.product_id).first()
             # Buscar el estado del serial number
-            estado = [estado for estado in estados if estado['id'] == serial_number_db.status_id][0]
+            estado = [estado for estado in estados if estado['id'] == serial_number_db.status_id]
             # Crear el Json de respuesta
             response.append({
                 'id': serial_number_db.sn_id,

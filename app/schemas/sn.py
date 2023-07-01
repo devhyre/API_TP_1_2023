@@ -8,6 +8,7 @@ class SerialNumber(BaseModel):
     supplier_id: str
     user_id: str
     status_id: int
+    oc_id: int
     entrance_at: datetime
     departure_at: Optional[datetime] = None
 

@@ -9,7 +9,7 @@ class RepairsMaintenance(Base):
     service_id = Column(Integer)
     type_id = Column(Integer)
     entry_date = Column(DateTime)
-    departure_date = Column(DateTime)
+    departure_date = Column(DateTime, nullable=True)
     client_doc = Column(String(12))
     client_name = Column(String(150))
     client_email = Column(String(150))

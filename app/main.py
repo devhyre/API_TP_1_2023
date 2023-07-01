@@ -31,6 +31,8 @@ from app.routes.private.order import order
 from app.routes.private.workers import workers
 from app.routes.private.sale import sale
 from app.routes.private.repaires_maintenance import repairs_maintenance
+from app.routes.private.purchase_order import purchase_order_router
+from app.routes.private.movements import movement_router
 
 app = FastAPI(title=settings.PROJECT_NAME, description=settings.PROJECT_DESCRIPTION, docs_url=settings.DOCS_URL, redoc_url=settings.REDOC_URL, version=1.0)
 
@@ -95,7 +97,9 @@ routes = [
     (model_pr, "/private/model", "Modelos"),
     (client_review, "/private/client_review", "Reseñas de Clientes"),
     (client_review_pu, "/public/client_review", "Reseñas de Clientes"),
+    (purchase_order_router, "/private/purchase_order", "Ordenes de Compra"),
     (products, "/private/products", "Inventario de Productos"),
+    (movement_router, "/private/movements", "Movimientos de Inventario"),
     (assemblies_pr, "/private/assemblies", "Recomendaciones para Armar una Computadora"),
     (combo_pr, "/private/combo", "Combos de Productos"),
     (order, "/private/order", "Pedidos"),

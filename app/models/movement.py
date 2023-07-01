@@ -6,10 +6,10 @@ class Movement(Base):
     __tablename__ = "movements"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    sn_id = Column(String(255), ForeignKey("sn.id"), index=True)
-    worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
+    sn_id = Column(String(255), ForeignKey("sn.sn_id"), index=True)
+    user_id = Column(Integer, ForeignKey("users.num_doc"), index=True)
     created_at = Column(DateTime)
     type_id = Column(Integer)
 
     sn = relationship("SerialNumber", foreign_keys=[sn_id])
-    worker = relationship("Worker", foreign_keys=[worker_id])
+    user = relationship("User", foreign_keys=[user_id])

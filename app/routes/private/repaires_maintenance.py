@@ -687,7 +687,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             # Obtener categoria
             category = [category for category in categories if category['id'] == product.category_id]
             # Obtener estado de producto
-            state_product = [state_product for state_product in states_products if state_product['id'] == serial.state_product_id]
+            state_product = [state_product for state_product in states_products if state_product['id'] == product.status_id]
             # Obtener proveedor
             supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == serial.supplier_id).first()
             # Obtener usuario
@@ -793,6 +793,175 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
     }
     return response
 
+@repairs_maintenance.get('/admin/obtenerServicioMR/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener el servicio de mantenimiento o reparación por id')
+async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    # Obtener mantenimiento o reparación
+    serivicio = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.id == id).first()
+    if not serivicio:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El servicio: {id} no existe")
+    # Obtener servicio
+    services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 7).all()
+    services = [{'id': service.id_table, 'description': service.description} for service in services]
+    service = [service for service in services if service['id'] == serivicio.service_id]
+    # Obtener tipo de servicio
+    type_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 9).all()
+    type_services = [{'id': type_service.id_table, 'description': type_service.description} for type_service in type_services]
+    type_service = [type_service for type_service in type_services if type_service['id'] == serivicio.type_service_id]
+    # Estados de servicios
+    states_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 8).all()
+    states_services = [{'id': state_service.id_table, 'description': state_service.description} for state_service in states_services]
+    # Estados de series
+    states_series = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
+    states_series = [{'id': state_serie.id_table, 'description': state_serie.description} for state_serie in states_series]
+    # Obtener cliente
+    user_client = db.query(UserModel).filter(UserModel.num_doc == serivicio.client_doc).first()
+    if not user_client:
+        user_client = {
+            'client_doc': serivicio.client_doc,
+            'full_name': serivicio.client_name,
+            'email': serivicio.client_email
+        }
+    else:
+        user_client = {
+            'client_doc': user_client.num_doc,
+            'full_name': user_client.full_name,
+            'email': user_client.email
+        }
+    # Obtener estados de productos
+    states_products = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
+    states_products = [{'id': state_product.id_table, 'description': state_product.description} for state_product in states_products]
+    # Obtener categorias
+    categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
+    categories = [{'id': category.id_table, 'description': category.description} for category in categories]
+    # Obtener serial
+    serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == serivicio.serial_number).first()
+    if serial:
+        # Obtener producto
+        product = db.query(ProductModel).filter(ProductModel.id == serial.product_id).first()
+        # Obtener marca
+        brand = db.query(BrandModel).filter(BrandModel.id == product.brand_id).first()
+        # Obtener modelo
+        model = db.query(ModelModel).filter(ModelModel.id == product.model_id).first()
+        # Obtener categoria
+        category = [category for category in categories if category['id'] == product.category_id]
+        # Obtener estado de producto
+        state_product = [state_product for state_product in states_products if state_product['id'] == product.status_id]
+        # Obtener proveedor
+        supplier = db.query(SupplierModel).filter(SupplierModel.id == serial.supplier_id).first()
+        # Obtener usuario
+        user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
+        # Obtener estado de serie
+        state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+        # Buscar en combos el product_id
+        combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
+        if combo:
+            # Obtener detalles de combo
+            combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
+
+            serial_data = {
+                'sn_id': serial.sn_id,
+                'product': {
+                    'id': product.id,
+                    'name': product.name,
+                    'description': product.description,
+                    'brand': brand,
+                    'model': model,
+                    'category': category,
+                    'state_product': state_product,
+                    'combo_details': [
+                        {
+                            'id': detail_combo.id,
+                            'product': {
+                                'id': detail_combo.product_id,
+                                'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
+                            },
+                            'quantity': detail_combo.quantity,
+                        } for detail_combo in combo_details
+                    ],
+                },
+                'supplier': supplier,
+                'user': {
+                    'num_doc': user.num_doc,
+                    'full_name': user.full_name,
+                    'email': user.email,
+                    'is_active': user.is_active,
+                },
+                'state_serie': state_serie,
+                'entrance_at': serial.entrance_at,
+                'departure_at': serial.departure_at,
+            }
+        else:
+            serial_data = {
+                'sn_id': serial.sn_id,
+                'product': {
+                    'id': product.id,
+                    'name': product.name,
+                    'description': product.description,
+                    'brand': brand,
+                    'model': model,
+                    'category': category,
+                    'state_product': state_product,
+                },
+                'supplier': supplier,
+                'user': {
+                    'num_doc': user.num_doc,
+                    'full_name': user.full_name,
+                    'email': user.email,
+                    'is_active': user.is_active,
+                },
+                'state_serie': state_serie,
+                'entrance_at': serial.entrance_at,
+                'departure_at': serial.departure_at,
+            }
+    # Obtener historial de estados de servicio
+    history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == service.id).all()
+    history_states_service_json = []
+    for history_state_service in history_states_service:
+        # Obtener estado de servicio
+        state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+
+        history_state_service_json = {
+            'id': history_state_service.id,
+            'state': state_service,
+            'date': history_state_service.date,
+            'description': history_state_service.description,
+            'note_diagnostic': history_state_service.note_diagnostic,
+            'note_repair': history_state_service.note_repair,
+        }
+        history_states_service_json.append(history_state_service_json)
+    # Obtener trabajador
+    worker = db.query(WorkerModel).filter(WorkerModel.id == service.worker_id).first()
+    user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
+
+    # Crear Json de Servicio
+    service_json = {
+        'id': serivicio.id,
+        'service': service,
+        'type_service': type_service,
+        'entry_date': serivicio.entry_date,
+        'departure_date': serivicio.departure_date,
+        'client': user_client,
+        'serial_number': serial_data,
+        'description': serivicio.description,
+        'note_diagnostic': serivicio.note_diagnostic,
+        'note_repair': serivicio.note_repair,
+        'status': history_state_service_json,
+        'discount': serivicio.discount,
+        'price': serivicio.price,
+        'total': serivicio.total,
+        'worker': {
+            'num_doc': user_worker.num_doc,
+            'username': user_worker.username,
+            'full_name': user_worker.full_name,
+            'email': user_worker.email,
+            'is_active': user_worker.is_active,
+        }
+    }
+    return service_json
+
 @repairs_maintenance.get('/admin/validarGarantiaSerial/{serial}', status_code=status.HTTP_200_OK, name='TRABAJADOR - Validar serial')
 async def get_serial(serial: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -850,7 +1019,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
         service_id=repairs_maintenance.service_id,
         type_id=repairs_maintenance.type_id,
         entry_date=repairs_maintenance.entry_date,
-        departure_date=repairs_maintenance.departure_date,
+        departure_date=None,
         client_doc=repairs_maintenance.client_doc,
         client_name=repairs_maintenance.client_name,
         client_email=repairs_maintenance.client_email,

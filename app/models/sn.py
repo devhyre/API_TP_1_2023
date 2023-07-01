@@ -10,9 +10,11 @@ class SerialNumber(Base):
     supplier_id = Column(String(12), ForeignKey("suppliers.num_doc"), index=True, nullable=True)
     user_id = Column(String(12), ForeignKey("users.num_doc"), index=True)
     status_id = Column(Integer, index=True)
+    oc_id = Column(Integer, ForeignKey("purchase_orders.id"), index=True)
     entrance_at = Column(DateTime, index=True)
     departure_at = Column(DateTime, index=True)
 
     product = relationship("Product", foreign_keys=[product_id])
     supplier = relationship("Supplier", foreign_keys=[supplier_id])
     user = relationship("User", foreign_keys=[user_id])
+    oc = relationship("PurchaseOrder", foreign_keys=[oc_id])
