@@ -7,7 +7,7 @@ class Movement(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     sn_id = Column(String(255), ForeignKey("serial_numbers.sn_id"), index=True)
-    user_id = Column(Integer, ForeignKey("users.num_doc"), index=True)
+    user_id = Column(String(12), ForeignKey("users.num_doc"), index=True)
     created_at = Column(DateTime)
     type_id = Column(Integer)
 
