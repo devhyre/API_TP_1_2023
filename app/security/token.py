@@ -29,6 +29,41 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/public/login")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def generate_password_reset_token(email: str):
+    delta = timedelta(minutes=settings.EMAIL_RESET_TOKEN_EXPIRE_MINUTES)
+    now = datetime.utcnow()
+    expires = now + delta
+    data = {"email": email, "exp": expires}
+    token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return token
+
+def send_email_to_reset_password(full_name:str,email: str, token: str):
+    subject = "Recuperar contraseña"
+    body = f"""
+    Bievenido! Te saluda el equipo de desarrollo.
+
+    Hola {full_name}, has solicitado recuperar tu contraseña.
+
+    Para recuperar tu contraseña, te brindamos el siguiente token:
+    Token = {token}
+    """
+    send_email(
+        email,
+        subject,
+        body
+    )
+    return HTTPException(status_code=status.HTTP_200_OK, detail="Se ha enviado un correo electrónico con las instrucciones para recuperar tu contraseña")
+
+def verify_password_reset_token(token: str):
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        email = decoded_token.get("email")
+        if email is None:
+            return False
+    except JWTError:
+        return False
+    return email
+
 
 def get_password_hash(password: str):
     return pwd_context.hash(password)

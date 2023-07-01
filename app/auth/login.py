@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.scripts.user import get_user_by_username, update_last_connection
-from app.security.token import verify_password, create_access_token, get_current_active_user, blacklisted_tokens
+from app.security.token import verify_password, create_access_token, get_current_active_user, blacklisted_tokens, generate_password_reset_token, send_email_to_reset_password, verify_password_reset_token, get_password_hash
 from fastapi.security import OAuth2PasswordRequestForm
+from app.models.user import User as UserModel
+from app.schemas.user import UserPutPassword
 
 auth = APIRouter()
 
@@ -32,3 +34,30 @@ async def logout(response: Response, user: dict = Depends(get_current_active_use
     response.delete_cookie(key='username')
     response.delete_cookie(key='num_doc')
     return {'message': 'Logout exitoso'}
+
+@auth.post('/forgot-password', name='Olvidé mi contraseña', status_code=status.HTTP_200_OK)
+async def forgot_password(email: str, db: Session = Depends(get_db)):
+    # Validar que el email exista en la base de datos
+    user_db = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Email no registrado')
+    #! Generar un token de recuperación de contraseña
+    token = generate_password_reset_token(email)
+    #! Enviar un email con el token
+    send_email_to_reset_password(user_db.full_name, email, token)
+    return {'message': 'Email enviado'}
+
+@auth.post('/reset-password/{token}', name='Restablecer contraseña', status_code=status.HTTP_200_OK)
+async def reset_password(token: str, data: UserPutPassword, db: Session = Depends(get_db)):
+    # Validar que el token sea válido
+    email = verify_password_reset_token(token)
+    if not email:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Token inválido')
+    # Validar que el email exista en la base de datos
+    user_db = db.query(UserModel).filter(UserModel.email == email).first()
+    if not user_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Email no registrado')
+    # Actualizar la contraseña
+    user_db.password = get_password_hash(data.password)
+    db.commit()
+    return {'message': 'Contraseña actualizada'}
