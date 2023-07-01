@@ -14,6 +14,45 @@ from app.models.brand import Brand as BrandModel
 
 order = APIRouter()
 
+# Obtener contadores de ordenes
+@order.get('/obtenerContadoresOrdenes', status_code=status.HTTP_200_OK, name='Obtener contadores de ordenes')
+async def obtener_contadores_ordenes(db: Session = Depends(get_db)):
+    # Obtener todas las ordenes
+    orders_db = db.query(OrderModel).all()
+    # Contadores
+    count_orders = len(orders_db)
+    count_orders_pending = len(
+        [order for order in orders_db if order.status_order == 1])
+    count_orders_in_approved = len(
+        [order for order in orders_db if order.status_order == 2])
+    count_orders_in_delivered = len(
+        [order for order in orders_db if order.status_order == 3])
+    count_orders_in_refused = len(
+        [order for order in orders_db if order.status_order == 4])
+    count_orders_in_canceled = len(
+        [order for order in orders_db if order.status_order == 5])
+    count_orders_in_return = len(
+        [order for order in orders_db if order.status_order == 6])
+    count_orders_in_refund = len(
+        [order for order in orders_db if order.status_order == 7])
+    count_orders_in_paid = len(
+        [order for order in orders_db if order.status_order == 8])
+    count_orders_in_ready = len(
+        [order for order in orders_db if order.status_order == 9])
+    
+    response = {
+        'count_orders': count_orders,
+        'count_orders_pending': count_orders_pending,
+        'count_orders_in_approved': count_orders_in_approved,
+        'count_orders_in_delivered': count_orders_in_delivered,
+        'count_orders_in_refused': count_orders_in_refused,
+        'count_orders_in_canceled': count_orders_in_canceled,
+        'count_orders_in_return': count_orders_in_return,
+        'count_orders_in_refund': count_orders_in_refund,
+        'count_orders_in_paid': count_orders_in_paid,
+        'count_orders_in_ready': count_orders_in_ready,
+    }
+    return response
 
 @order.get('/listadoEstadosOrden', status_code=status.HTTP_200_OK, name='Listado de estados de orden')
 async def listar_estados_orden(db: Session = Depends(get_db)):
