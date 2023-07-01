@@ -31,7 +31,7 @@ async def get_all(db: Session = Depends(get_db), user: dict = Depends(get_curren
 
     for purchase_order in purchase_orders:
         # Obtener el proveedor de la orden de compra
-        supplier = db.query(SupplierModel).filter(SupplierModel.id == purchase_order.supplier_id).first()
+        supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
 
         # Obtener el trabajador de la orden de compra
         worker = db.query(WorkerModel).filter(WorkerModel.id == purchase_order.worker_id).first()
@@ -102,7 +102,7 @@ async def get_one(purchase_order_id: int, db: Session = Depends(get_db), user: d
     purchase_order = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == purchase_order_id).first()
 
     # Obtener el proveedor de la orden de compra
-    supplier = db.query(SupplierModel).filter(SupplierModel.id == purchase_order.supplier_id).first()
+    supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
 
     # Obtener el trabajador de la orden de compra
     worker = db.query(WorkerModel).filter(WorkerModel.id == purchase_order.worker_id).first()
@@ -174,7 +174,7 @@ async def get_one(worker_id: int, db: Session = Depends(get_db), user: dict = De
 
     for purchase_order in purchase_orders:
         # Obtener el proveedor de la orden de compra
-        supplier = db.query(SupplierModel).filter(SupplierModel.id == purchase_order.supplier_id).first()
+        supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
 
         # Obtener el trabajador de la orden de compra
         worker = db.query(WorkerModel).filter(WorkerModel.id == purchase_order.worker_id).first()
@@ -249,7 +249,7 @@ async def get_one(supplier_id: int, db: Session = Depends(get_db), user: dict = 
 
     for purchase_order in purchase_orders:
         # Obtener el proveedor de la orden de compra
-        supplier = db.query(SupplierModel).filter(SupplierModel.id == purchase_order.supplier_id).first()
+        supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
 
         # Obtener el trabajador de la orden de compra
         worker = db.query(WorkerModel).filter(WorkerModel.id == purchase_order.worker_id).first()
