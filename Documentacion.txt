@@ -35,16 +35,17 @@ ID | ID_TABLA | DESCRIPCION
 6  | 1        | DISPONIBLE          -> El producto está disponible para su venta.
 6  | 2        | NO_DISPONIBLE       -> El producto no está disponible para su venta.
 ---|----------|----------------
-7  | 1        | MANTENIMIENTO_INTERNO
-7  | 2        | MANTENIMIENTO_EXTERNO
-7  | 3        | REPARACION_INTERNA
-7  | 4        | REPARACION_EXTERNA
+7  | 1        | MANTENIMIENTO
+7  | 2        | REPARACION
 ---|----------|----------------
 8  | 1        | REGISTRADO
 8  | 2        | EN_PROCESO
 8  | 3        | TERMINADO
 8  | 4        | ENVIADO_RECOJO
----------------------------
+---|----------|----------------
+9  | 1        | EXTERNO
+9  | 2        | INTERNO
+-------------------------------
 
 NIVELES DE ACCESO PARA USUARIOS ADMINISTRATIVOS
 0: GET

@@ -7,7 +7,7 @@ class SerialNumber(Base):
 
     sn_id = Column(String(255), primary_key=True, index=True, unique=True)
     product_id = Column(Integer, ForeignKey("products.id"), index=True)
-    supplier_id = Column(String(12), ForeignKey("suppliers.num_doc"), index=True)
+    supplier_id = Column(String(12), ForeignKey("suppliers.num_doc"), index=True, nullable=True)
     user_id = Column(String(12), ForeignKey("users.num_doc"), index=True)
     status_id = Column(Integer, index=True)
     entrance_at = Column(DateTime, index=True)

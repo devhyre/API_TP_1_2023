@@ -52,6 +52,20 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
             db.add(client_review_db)
             db.commit()
             db.refresh(client_review_db)
+            #!ACTUALIZAR EL RANKING DEL PRODUCTO
+            product_db = db.query(ProductModel).filter(
+                ProductModel.id == review_data.product_id).first()
+            #!OBTENER TODAS LAS RESEÑAS DEL PRODUCTO
+            client_reviews = db.query(ClientReviewModel).filter(
+                ClientReviewModel.product_id == review_data.product_id).all()
+            #!OBTENER EL PROMEDIO DE LAS RESEÑAS
+            average = 0
+            for client_review in client_reviews:
+                average += client_review.punctuation
+            average = average / len(client_reviews)
+            product_db.ranking = average
+            db.commit()
+            db.refresh(product_db)
             return client_review_db
 
 
@@ -247,13 +261,55 @@ async def eliminar_reseña(id: int, db: Session = Depends(get_db), user: dict = 
         if client_review.client_id != user[user_type]['id']:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail='No tiene permisos para realizar esta acción')
+        producto_id = client_review.product_id
         # Eliminar la reseña
         db.delete(client_review)
         db.commit()
-        return {'message': 'Reseña eliminada satisfactoriamente'}
+        # Actualizar ranking del producto
+        product = db.query(ProductModel).filter(
+            ProductModel.id == producto_id).first()
+        # Obtener las puntuaciones de las reseñas del producto
+        client_reviews = db.query(ClientReviewModel).filter(
+            ClientReviewModel.product_id == producto_id).all()
+        # Obtener la cantidad de reseñas del producto
+        cantidad_client_reviews = len(client_reviews)
+        # Obtener la suma de las puntuaciones de las reseñas del producto
+        suma_puntuaciones = 0
+        for client_review in client_reviews:
+            suma_puntuaciones += client_review.punctuation
+        # Calcular el nuevo ranking del producto en decimal
+        nuevo_ranking = suma_puntuaciones / cantidad_client_reviews
+        # Calcular el nuevo ranking del producto en porcentaje
+        nuevo_ranking = nuevo_ranking * 100 / 5
+        # Actualizar el ranking del producto
+        product.ranking = nuevo_ranking
+        db.commit()
+        db.refresh(product)
+        return {'message': f'Reseña eliminada satisfactoriamente y ranking del producto actualizado a {nuevo_ranking}'}
     else:
         client_review = db.query(ClientReviewModel).filter(
             ClientReviewModel.id == id).first()
+        # Eliminar la reseña
         db.delete(client_review)
         db.commit()
-        return {'message': 'Reseña eliminada satisfactoriamente'}
+        # Actualizar ranking del producto
+        product = db.query(ProductModel).filter(
+            ProductModel.id == producto_id).first()
+        # Obtener las puntuaciones de las reseñas del producto
+        client_reviews = db.query(ClientReviewModel).filter(
+            ClientReviewModel.product_id == producto_id).all()
+        # Obtener la cantidad de reseñas del producto
+        cantidad_client_reviews = len(client_reviews)
+        # Obtener la suma de las puntuaciones de las reseñas del producto
+        suma_puntuaciones = 0
+        for client_review in client_reviews:
+            suma_puntuaciones += client_review.punctuation
+        # Calcular el nuevo ranking del producto en decimal
+        nuevo_ranking = suma_puntuaciones / cantidad_client_reviews
+        # Calcular el nuevo ranking del producto en porcentaje
+        nuevo_ranking = nuevo_ranking * 100 / 5
+        # Actualizar el ranking del producto
+        product.ranking = nuevo_ranking
+        db.commit()
+        db.refresh(product)
+        return {'message': f'Reseña eliminada satisfactoriamente y ranking del producto actualizado a {nuevo_ranking}'}

@@ -11,6 +11,7 @@ from app.schemas.detail_combo import DetailComboPut as DetailComboPutSchema
 from datetime import datetime
 from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
+from app.models.sn import SerialNumber as SerialNumberModel
 
 combo_pr = APIRouter()
 

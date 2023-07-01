@@ -6,14 +6,24 @@ class RepairsMaintenance(Base):
     __tablename__ = "repairs_maintenance"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    type_service_id = Column(Integer)
-    serial_number_id = Column(String(255), index=True)
-    created_at = Column(DateTime)
-    worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
+    service_id = Column(Integer)
+    type_id = Column(Integer)
+    entry_date = Column(DateTime)
+    departure_date = Column(DateTime)
+    client_doc = Column(String(12))
+    client_name = Column(String(150))
+    client_email = Column(String(150))
+    serial_number = Column(String(255))
     description = Column(String(255))
-    note = Column(String(255))
-    status_id = Column(Integer)
+    note_diagnostic = Column(String(255))
+    note_repair = Column(String(255))
     discount = Column(Integer)
+    price = Column(Float)
     total = Column(Float)
+    worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
 
     worker = relationship("Worker", foreign_keys=[worker_id])
+
+    @property
+    def total(self):
+        return self.price * (1 - self.discount / 100)

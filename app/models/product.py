@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.orm import relationship
 from app.core.db import Base
 
@@ -17,7 +17,7 @@ class Product(Base):
     brand_id = Column(Integer, ForeignKey("brands.id"))
     model_id = Column(Integer, ForeignKey("models.id"))
     status_id = Column(Integer)
-    ranking = Column(Integer)
+    ranking = Column(Float)
 
     brand = relationship("Brand", foreign_keys=[brand_id])
     model = relationship("Model", foreign_keys=[model_id])
