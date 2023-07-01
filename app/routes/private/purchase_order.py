@@ -318,7 +318,7 @@ async def create(purchase_order: PurchaseOrderPost, db: Session = Depends(get_db
                             detail='No tiene permisos para realizar esta acción')
 
     # Obtener el proveedor de la orden de compra
-    supplier = db.query(SupplierModel).filter(SupplierModel.id == purchase_order.supplier_id).first()
+    supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
 
     # Obtener el trabajador de la orden de compra
     worker = db.query(WorkerModel).filter(WorkerModel.id == purchase_order.worker_id).first()
