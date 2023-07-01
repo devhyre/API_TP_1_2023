@@ -49,7 +49,7 @@ def update_email(db, num_doc: str, email: str):
             user = change_email(db, num_doc, email)
             return user
         else:
-            return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El email ya le pertenece a otro usuario")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El email ya le pertenece a otro usuario")
         
 def change_email(db, num_doc: str, email: str):
     #Obtener el usuario
