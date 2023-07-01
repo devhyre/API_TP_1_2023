@@ -35,7 +35,7 @@ async def logout(response: Response, user: dict = Depends(get_current_active_use
     response.delete_cookie(key='num_doc')
     return {'message': 'Logout exitoso'}
 
-@auth.post('/forgot-password', name='Olvidé mi contraseña', status_code=status.HTTP_200_OK)
+@auth.post('/forgot-password', status_code=status.HTTP_200_OK, name='Obtener token para restablecer contraseña')
 async def forgot_password(email: str, db: Session = Depends(get_db)):
     # Validar que el email exista en la base de datos
     user_db = db.query(UserModel).filter(UserModel.email == email).first()
@@ -47,7 +47,7 @@ async def forgot_password(email: str, db: Session = Depends(get_db)):
     send_email_to_reset_password(user_db.full_name, email, token)
     return {'message': 'Email enviado'}
 
-@auth.post('/reset-password/{token}', name='Restablecer contraseña', status_code=status.HTTP_200_OK)
+@auth.post('/reset-password/{token}', status_code=status.HTTP_200_OK, name='Validar token y actualizar contraseña')
 async def reset_password(token: str, data: UserPutPassword, db: Session = Depends(get_db)):
     # Validar que el token sea válido
     email = verify_password_reset_token(token)
