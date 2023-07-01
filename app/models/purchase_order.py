@@ -6,7 +6,7 @@ class PurchaseOrder(Base):
     __tablename__ = "purchase_orders"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    supplier_id = Column(Integer, ForeignKey("suppliers.id"), index=True)
+    supplier_id = Column(Integer, ForeignKey("suppliers.num_doc"), index=True)
     worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
     created_at = Column(DateTime, index=True)
 
