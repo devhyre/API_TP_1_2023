@@ -1078,12 +1078,6 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
     db_service = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.id == id).first()
     if not db_service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El servicio: {id} no existe")
-    # Actualizar servicio
-    db_service.status_id = repairs_maintenance.status_id
-    if repairs_maintenance.status_id == 3:
-        db_service.departure_date = datetime.now()
-    db.commit()
-    db.refresh(db_service)
     # Crear Historial de Servicio
     db_service_history = HistoryRMModel(
         status_id=repairs_maintenance.status_id,
@@ -1096,4 +1090,5 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
     db.add(db_service_history)
     db.commit()
     db.refresh(db_service_history)
-    return db_service
+    
+    return db_service_history
