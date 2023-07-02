@@ -30,8 +30,13 @@ class SerialNumber(BaseModel):
             raise ValueError("El estado debe ser válido")
         return status_id
     
-class SerialNumberPost(SerialNumber):
-    pass
+class SerialNumberPost(BaseModel):
+    sn_id: str
+    product_id: int
+    supplier_id: str
+    user_id: str
+    oc_id: int
+    entrance_at: datetime
 
 class SerialNumberPut(SerialNumber):
     status_id: int

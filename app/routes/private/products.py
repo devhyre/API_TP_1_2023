@@ -431,7 +431,7 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     db.refresh(serial_number_db)
     #!ACTUALIZAR CANTIDAD DE PRODUCTOS
     product_db = db.query(ProductModel).filter(
-        ProductModel.id == serial_number.product_id).first()
+        ProductModel.id == serial_number_db.product_id).first()
     product_db.quantity = product_db.quantity + 1
     db.commit()
     db.refresh(product_db)
