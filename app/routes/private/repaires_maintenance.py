@@ -934,7 +934,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
         }
         history_states_service_json.append(history_state_service_json)
     # Obtener trabajador
-    worker = db.query(WorkerModel).filter(WorkerModel.id == service.worker_id).first()
+    worker = db.query(WorkerModel).filter(WorkerModel.id == serivicio.worker_id).first()
     user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
 
     # Crear Json de Servicio
