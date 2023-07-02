@@ -98,8 +98,13 @@ async def get_one(purchase_order_id: int, db: Session = Depends(get_db), user: d
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
+
     # Obtener orden de compra
     purchase_order = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == purchase_order_id).first()
+
+    if purchase_order is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='La orden de compra no existe')
 
     # Obtener el proveedor de la orden de compra
     supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == purchase_order.supplier_id).first()
@@ -166,6 +171,12 @@ async def get_one(worker_id: int, db: Session = Depends(get_db), user: dict = De
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
+    # Validar que el trabajador exista
+    worker = db.query(WorkerModel).filter(WorkerModel.id == worker_id).first()
+    if not worker:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='El trabajador no existe')
+    
     # Obtener ordenes de compra
     purchase_orders = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.worker_id == worker_id).all()
 
@@ -241,6 +252,12 @@ async def get_one(supplier_id: int, db: Session = Depends(get_db), user: dict = 
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
+    # Validar que el proveedor exista
+    supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == supplier_id).first()
+    if not supplier:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='El proveedor no existe')
+
     # Obtener ordenes de compra
     purchase_orders = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.supplier_id == supplier_id).all()
 
