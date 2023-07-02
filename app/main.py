@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI, status, HTTPException, responses
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.db import Session, engine, Base
+from app.core.db import SessionLocal as Session, engine, Base
 #!PUBLIC ROUTES
 from app.auth.login import auth
 from app.routes.public.documents import documents
