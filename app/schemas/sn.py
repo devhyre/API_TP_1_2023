@@ -35,7 +35,6 @@ class SerialNumberPost(BaseModel):
     product_id: int
     supplier_id: str
     oc_id: int
-    entrance_at: datetime
 
 class SerialNumberPut(SerialNumber):
     status_id: int
