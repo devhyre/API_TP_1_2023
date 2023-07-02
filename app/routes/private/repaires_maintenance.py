@@ -111,7 +111,7 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
             # Obtener servicio
             service = [service for service in services if service['id'] == reparation.service_id]
             # Obtener tipo de servicio
-            type_service = [type_service for type_service in types_services if type_service['id'] == reparation.type_service_id]
+            type_service = [type_service for type_service in types_services if type_service['id'] == reparation.type_id]
             # Obtener historial de estados de servicio
             history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == reparation.id).all()
             history_states_service_json = []
@@ -292,7 +292,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
             # Obtener servicio
             service = [service for service in services if service['id'] == maintenance.service_id]
             # Obtener tipo de servicio
-            type_service = [type_service for type_service in types_services if type_service['id'] == maintenance.type_service_id]
+            type_service = [type_service for type_service in types_services if type_service['id'] == maintenance.type_id]
             # Obtener historial de estados de servicio
             history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == maintenance.id).all()
             history_states_service_json = []
@@ -448,9 +448,9 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
     if not servicios_asignados:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No tiene servicios asignados')
     # Mantenimientos
-    maintenances_db = [mantenimiento for mantenimiento in servicios_asignados if mantenimiento.type_service_id == 1]
+    maintenances_db = [mantenimiento for mantenimiento in servicios_asignados if mantenimiento.type_id == 1]
     # Reparaciones
-    reparations_db = [reparacion for reparacion in servicios_asignados if reparacion.type_service_id == 2]
+    reparations_db = [reparacion for reparacion in servicios_asignados if reparacion.type_id == 2]
     # Servicios
     services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 7).all()
     services = [{'id': service.id_table, 'description': service.description} for service in services]
@@ -481,7 +481,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         # Obtener servicio
         service = [service for service in services if service['id'] == maintenance.service_id]
         # Obtener tipo de servicio
-        type_service = [type_service for type_service in types_services if type_service['id'] == maintenance.type_service_id]
+        type_service = [type_service for type_service in types_services if type_service['id'] == maintenance.type_id]
         # Obtener historial de estados de servicio
         history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == maintenance.id).all()
         history_states_service_json = []
@@ -639,7 +639,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         # Obtener servicio
         service = [service for service in services if service['id'] == reparation.service_id]
         # Obtener tipo de servicio
-        type_service = [type_service for type_service in types_services if type_service['id'] == reparation.type_service_id]
+        type_service = [type_service for type_service in types_services if type_service['id'] == reparation.type_id]
         # Obtener historial de estados de servicio
         history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == reparation.id).all()
         history_states_service_json = []
@@ -810,7 +810,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
     # Obtener tipo de servicio
     type_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 9).all()
     type_services = [{'id': type_service.id_table, 'description': type_service.description} for type_service in type_services]
-    type_service = [type_service for type_service in type_services if type_service['id'] == serivicio.type_service_id]
+    type_service = [type_service for type_service in type_services if type_service['id'] == serivicio.type_id]
     # Estados de servicios
     states_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 8).all()
     states_services = [{'id': state_service.id_table, 'description': state_service.description} for state_service in states_services]

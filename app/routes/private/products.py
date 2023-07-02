@@ -13,6 +13,7 @@ from app.models.model import Model as ModelModel
 from app.models.user import User as UserModel
 from app.models.supplier import Supplier as SupplierModel
 from app.models.movement import Movement as MovementModel
+from app.models.purchase_order import PurchaseOrder as PurchaseOrderModel
 
 products = APIRouter()
 
@@ -300,6 +301,10 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
                 UserModel.num_doc == serial_number_db.user_id).first()
             # Obtener el estado
             estado_sn = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
+            # Obtener Orden de Compra
+            purchase_order_db = db.query(PurchaseOrderModel).filter(
+                PurchaseOrderModel.id == serial_number_db.oc_id).first()
+            
             # Crear el Json de respuesta
             serial_numer_json = {
                 'id': serial_number_db.sn_id,
@@ -330,6 +335,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
                     'is_active': user_db.is_active
                 },
                 'status': estado_sn,
+                'oc': purchase_order_db,
                 'entrance_at': serial_number_db.entrance_at,
                 'departure_at': serial_number_db.departure_at,
             }
@@ -368,7 +374,10 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
             user_db = db.query(UserModel).filter(
                 UserModel.num_doc == serial_number_db.user_id).first()
             # Obtener el estado
-            estado_db = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id][0]
+            estado_db = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
+            # Obtener Orden de Compra
+            purchase_order_db = db.query(PurchaseOrderModel).filter(
+                PurchaseOrderModel.id == serial_number_db.oc_id).first()
 
             # Crear el Json de respuesta
             serial_numer_json = {
@@ -390,6 +399,7 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
                     'is_active': user_db.is_active
                 },
                 'status': estado_db,
+                'oc': purchase_order_db,
                 'entrance_at': serial_number_db.entrance_at,
                 'departure_at': serial_number_db.departure_at,
             }

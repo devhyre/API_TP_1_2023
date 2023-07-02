@@ -10,6 +10,7 @@ from app.models.product import Product as ProductModel
 from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
+from app.models.purchase_order import PurchaseOrder as PurchaseOrderModel
 
 movement_router = APIRouter()
 
@@ -40,6 +41,8 @@ async def get_all_movements(db: Session = Depends(get_db), user: dict = Depends(
         user = db.query(UserModel).filter(UserModel.num_doc == movement.user_id).first()
         # Obtener el tipo de movimiento
         type_movement = [type_movement for type_movement in types_movement if type_movement['id'] == movement.type_id]
+        # Obtener la orden de compra
+        oc = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == sn.oc_id).first()
 
         movement_json = {
             'id': movement.id,
@@ -56,7 +59,8 @@ async def get_all_movements(db: Session = Depends(get_db), user: dict = Depends(
                         'id': model.id,
                         'name': model.name
                     }
-                }
+                },
+                'oc': oc,
             },
             'user': {
                 'num_doc': user.num_doc,
@@ -96,6 +100,8 @@ async def get_movement_by_id(movement_id: int, db: Session = Depends(get_db), us
     user = db.query(UserModel).filter(UserModel.num_doc == movement.user_id).first()
     # Obtener el tipo de movimiento
     type_movement = [type_movement for type_movement in types_movement if type_movement['id'] == movement.type_id]
+    # Obtener la orden de compra
+    oc = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == sn.oc_id).first()
 
     movement_json = {
         'id': movement.id,
@@ -112,7 +118,8 @@ async def get_movement_by_id(movement_id: int, db: Session = Depends(get_db), us
                     'id': model.id,
                     'name': model.name
                 }
-            }
+            },
+            'oc': oc,
         },
         'user': {
             'num_doc': user.num_doc,
@@ -154,6 +161,8 @@ async def get_movements_by_sn(sn_id: str, db: Session = Depends(get_db), user: d
         user = db.query(UserModel).filter(UserModel.num_doc == movement.user_id).first()
         # Obtener el tipo de movimiento
         type_movement = [type_movement for type_movement in types_movement if type_movement['id'] == movement.type_id]
+        # Obtener la orden de compra
+        oc = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == sn.oc_id).first()
 
         movement_json = {
             'id': movement.id,
@@ -170,7 +179,8 @@ async def get_movements_by_sn(sn_id: str, db: Session = Depends(get_db), user: d
                         'id': model.id,
                         'name': model.name
                     }
-                }
+                },
+                'oc': oc,
             },
             'user': {
                 'num_doc': user.num_doc,
@@ -213,6 +223,8 @@ async def get_movements_by_user(user_id: int, db: Session = Depends(get_db), use
         user = db.query(UserModel).filter(UserModel.num_doc == movement.user_id).first()
         # Obtener el tipo de movimiento
         type_movement = [type_movement for type_movement in types_movement if type_movement['id'] == movement.type_id]
+        # Obtener la orden de compra
+        oc = db.query(PurchaseOrderModel).filter(PurchaseOrderModel.id == sn.oc_id).first()
 
         movement_json = {
             'id': movement.id,
@@ -229,7 +241,8 @@ async def get_movements_by_user(user_id: int, db: Session = Depends(get_db), use
                         'id': model.id,
                         'name': model.name
                     }
-                }
+                },
+                'oc': oc,
             },
             'user': {
                 'num_doc': user.num_doc,
