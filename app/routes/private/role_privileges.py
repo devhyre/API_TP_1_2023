@@ -24,10 +24,8 @@ async def listar_privilegios_rol(db: Session = Depends(get_db), user: dict = Dep
         response = []
         # Recorrer los role_privileges y agregar los roles
         for role_privilege in role_privileges:
-            print(role_privilege.role_id)
             # Obtener el role
             role = next((role for role in roles if role['id'] == role_privilege.role_id), None)
-            print(role['id'])
             # Crear el Json del role
             role_json = {
                 'role': role,
