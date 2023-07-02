@@ -34,7 +34,6 @@ class SerialNumberPost(BaseModel):
     sn_id: str
     product_id: int
     supplier_id: str
-    user_id: str
     oc_id: int
     entrance_at: datetime
 

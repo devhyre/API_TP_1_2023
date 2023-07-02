@@ -417,6 +417,26 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     if serial_number_exist:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail='El numero de serie ya fue registrado')
+    # Comprobar si existe el producto
+    product_exist = db.query(ProductModel).filter(
+        ProductModel.id == serial_number.product_id).first()
+    if not product_exist:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='No existe el producto')
+    # Comprobar si existe el proveedor
+    supplier_exist = db.query(SupplierModel).filter(
+        SupplierModel.num_doc == serial_number.supplier_id).first()
+    if not supplier_exist:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='No existe el proveedor')
+    # Comprobar si la orden de compra existe
+    purchase_order_exist = db.query(PurchaseOrderModel).filter(
+        PurchaseOrderModel.id == serial_number.oc_id).first()
+    if not purchase_order_exist:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail='No existe la orden de compra')
+    
+    #!CREAR SERIAL NUMBER
     serial_number_db = SerialNumberModel(
         sn_id=serial_number.sn_id,
         product_id=serial_number.product_id,
@@ -424,7 +444,8 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
         user_id=user[user_type]['numeroDocumento'],
         status_id=1,
         oc_id=serial_number.oc_id,
-        entrance_at=datetime.now()
+        entrance_at=datetime.now(),
+        departure_at=None
     )
     db.add(serial_number_db)
     db.commit()
