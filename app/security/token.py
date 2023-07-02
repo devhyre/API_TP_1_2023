@@ -37,6 +37,8 @@ def generate_password_reset_token(email: str):
     token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return token
 
+
+
 def send_email_to_reset_password(full_name:str,email: str, token: str):
     subject = "Recuperar contraseña"
     body = f"""
@@ -143,7 +145,6 @@ def send_email(email: str, subject: str, body: str):
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_USER, email, text)
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al enviar el correo")
 
@@ -151,15 +152,33 @@ def send_email(email: str, subject: str, body: str):
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+token_registry = {}
 
 def create_access_token(username: str):
+    existing_token = token_registry.get(username)
+    if existing_token and is_token_active(existing_token):
+        # El token existente aún es válido, devolverlo
+        return {"access_token": existing_token, "token_type": "bearer"}
     expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode = {"sub": username, "exp": expire}
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    print('Token generado: ' + encoded_jwt + '\n' + 'Expira: ' + str(expire) + '\n' + 'Usuario: ' + username)
+    save_token(username, encoded_jwt)
     return {"access_token": encoded_jwt, "token_type": "bearer"}
 
+def is_token_active(token: str) -> bool:
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        expire = datetime.fromtimestamp(decoded_token.get('exp'))
+        if datetime.utcnow() < expire:
+            # El token no ha expirado
+            return True
+    except (jwt.DecodeError, jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        # El token es inválido o ha expirado
+        return False
+
+def save_token(username: str, token: str):
+    token_registry[username] = token
 
 def decode_access_token(token: str):
     try:
@@ -173,24 +192,7 @@ blacklisted_tokens: Set[str] = set()
 def token_not_blacklisted(token: str):
     return token not in blacklisted_tokens
 
-"""
 def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
-    print(token)
-    data = decode_access_token(token)
-    if data:
-        
-        if token in blacklisted_tokens:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
-                                
-        return db.query(UserModel).filter(UserModel.username == data["sub"]).first()
-    else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
-""" 
-
-def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
-    print(token)
     data = decode_access_token(token)
     if data:
         if not token_not_blacklisted(token):
