@@ -788,9 +788,9 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
     # Obtener todos los servicios
     response = {
         'reparaciones': response_reparaciones,
-        'total_reparacion': response_reparaciones.count(),
+        'total_reparacion': len(response_reparaciones),
         'mantenimientos': response_mantenimientos,
-        'total_mantenimiento': response_mantenimientos.count(),
+        'total_mantenimiento': len(response_mantenimientos),
     }
     return response
 
