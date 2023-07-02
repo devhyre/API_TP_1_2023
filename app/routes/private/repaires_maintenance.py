@@ -1088,9 +1088,9 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
     db_service_history = HistoryRMModel(
         status_id=repairs_maintenance.status_id,
         date = datetime.now(),
-        description = repairs_maintenance.description,
-        note_diagnostic = repairs_maintenance.note_diagnostic,
-        note_repair = repairs_maintenance.note_repair,
+        description = db_service.description,
+        note_diagnostic = db_service.note_diagnostic,
+        note_repair = db_service.note_repair,
         repairs_maintenance_id = db_service.id
     )
     db.add(db_service_history)
