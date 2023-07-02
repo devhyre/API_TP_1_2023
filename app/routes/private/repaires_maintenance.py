@@ -918,7 +918,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
                 'departure_at': serial.departure_at,
             }
     # Obtener historial de estados de servicio
-    history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == service.id).all()
+    history_states_service = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == serivicio.id).all()
     history_states_service_json = []
     for history_state_service in history_states_service:
         # Obtener estado de servicio
