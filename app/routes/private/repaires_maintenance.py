@@ -1035,7 +1035,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
         note_repair=repairs_maintenance.note_repair,
         discount=repairs_maintenance.discount,
         price=repairs_maintenance.price,
-        total=repairs_maintenance.total,
+        total= repairs_maintenance.price - (repairs_maintenance.price * (repairs_maintenance.discount / 100)),
         worker_id=user[user_type]['id']
     )
     db.add(db_service)
@@ -1096,5 +1096,9 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
     db.add(db_service_history)
     db.commit()
     db.refresh(db_service_history)
-    
+    # Si el estado es 4 actualiza departure_date
+    if repairs_maintenance.status_id == 4:
+        db_service.departure_date = datetime.now()
+        db.commit()
+        db.refresh(db_service)
     return db_service_history

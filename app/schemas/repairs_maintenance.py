@@ -16,7 +16,6 @@ class RepairsMaintenance(BaseModel):
     status_id: int
     discount: int
     price: float
-    total: float
     
 class RepairsMaintenancePost(RepairsMaintenance):
     pass
