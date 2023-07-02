@@ -10,16 +10,26 @@ engine = create_engine(
     pool_pre_ping=True,
 )
 
-Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+class Database:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.session = SessionLocal()
+        return cls._instance
+
 def get_db():
-    db = Session()
+    db = Database().session
     try:
         yield db
     finally:
         db.close()
+        
 
 def get_db_session():
-    return Session()
+    return Database().session
