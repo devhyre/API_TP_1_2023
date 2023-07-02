@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
@@ -962,17 +963,19 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
     }
     return service_json
 
-@repairs_maintenance.get('/admin/validarGarantiaSerial/{serial}', status_code=status.HTTP_200_OK, name='TRABAJADOR - Validar serial')
-async def get_serial(serial: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+@repairs_maintenance.get('/admin/validarGarantiaSerial/{numero_serie}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Validar serial')
+async def get_serial(numero_serie: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     # Obtener serial
-    serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == serial).first()
+    serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == numero_serie).first()
     if not serial:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El serial: {serial} no existe")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El serial: {numero_serie} no existe en la base de datos")
     # Obtener producto
     product = db.query(ProductModel).filter(ProductModel.id == serial.product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El producto: {serial.product_id} no existe en la base de datos")
     # Tipos de servicios
     types_services = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 9).all()
     types_services = [{'id': type_service.id_table, 'description': type_service.description} for type_service in types_services]
@@ -981,7 +984,10 @@ async def get_serial(serial: str, db: Session = Depends(get_db), user: dict = De
     # Validar garantía
     fecha_actual = datetime.now()
     fecha_compra = serial.departure_at
-    fecha_garantia = fecha_compra + timedelta(days=product.warranty)
+    if fecha_compra is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El serial: {numero_serie} no tiene fecha de compra")
+    # Agregarle los meses de garantia a la fecha de compra
+    fecha_garantia = fecha_compra + relativedelta(months=+product.warranty)
     if fecha_actual >= fecha_garantia:
         # Obtener servicio
         service = [service for service in types_services if service['id'] == 1]
@@ -1051,7 +1057,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
     return db_service
 
 
-@repairs_maintenance.put('/admin/actualizarContenidoServicio/{id}', status_code=status.HTTP_200_OK, name='TRABAJADOR - Actualizar contenido de reparación o mantenimiento')
+@repairs_maintenance.put('/admin/actualizarContenidoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar contenido de reparación o mantenimiento')
 async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenancePut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -1069,7 +1075,7 @@ async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenan
     db.refresh(db_service)
     return db_service
 
-@repairs_maintenance.put('/admin/actualizarEstadoServicio/{id}', status_code=status.HTTP_200_OK, name='TRABAJADOR - Actualizar estado de reparación o mantenimiento')
+@repairs_maintenance.put('/admin/actualizarEstadoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar estado de reparación o mantenimiento')
 async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenanceStatusPut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
