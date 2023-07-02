@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.core.db import Session, get_db
+from app.core.db import SessionLocal as Session, get_db
 from app.scripts.user import update_email, update_password, update_status
 from app.security.schemas.profile_response import ProfileResponse
 from app.security.token import get_current_active_user
