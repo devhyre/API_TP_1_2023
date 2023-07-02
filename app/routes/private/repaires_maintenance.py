@@ -330,7 +330,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                     'email': maintenance.client_email,
                 }
             # Obtener serie
-            serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == maintenance.serial_number_id).first()
+            serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == maintenance.serial_number).first()
             if serial:
                 # Obtener producto
                 product = db.query(ProductModel).filter(ProductModel.id == serial.product_id).first()
@@ -519,7 +519,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
                 'email': maintenance.client_email,
             }
         # Obtener serie
-        serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == maintenance.serial_number_id).first()
+        serial = db.query(SerialNumberModel).filter(SerialNumberModel.sn_id == maintenance.serial_number).first()
         if serial:
             # Obtener producto
             product = db.query(ProductModel).filter(ProductModel.id == serial.product_id).first()
