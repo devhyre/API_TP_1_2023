@@ -1,4 +1,4 @@
-from app.core.db import Session
+from app.core.db import SessionLocal as Session
 
 def startup():
     Session()
