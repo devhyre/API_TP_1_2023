@@ -311,7 +311,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                 history_states_service_json.append(history_state_service_json)
 
             # Obtener trabajador
-            worker = db.query(UserModel).filter(UserModel.id == maintenance.worker_id).first()
+            worker = db.query(WorkerModel).filter(WorkerModel.id == maintenance.worker_id).first()
             user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
             # Obtener cliente
             user_client = db.query(UserModel).filter(UserModel.num_doc == maintenance.client_doc).first()
@@ -500,7 +500,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             history_states_service_json.append(history_state_service_json)
 
         # Obtener trabajador
-        worker = db.query(UserModel).filter(UserModel.id == maintenance.worker_id).first()
+        worker = db.query(WorkerModel).filter(WorkerModel.id == maintenance.worker_id).first()
         user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
         # Obtener cliente
         user_client = db.query(UserModel).filter(UserModel.num_doc == maintenance.client_doc).first()
