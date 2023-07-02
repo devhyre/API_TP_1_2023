@@ -343,6 +343,12 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
     else:
+        # Comprobar si existe el producto
+        product_db = db.query(ProductModel).filter(
+            ProductModel.id == product_id).first()
+        if not product_db:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail='No existe el producto')
         # Obtener serial numbers de un producto
         serial_numbers_db = db.query(SerialNumberModel).filter(
             SerialNumberModel.product_id == product_id).all()
