@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.scripts.user import get_user_by_username, update_last_connection
-from app.security.token import verify_password, create_access_token, get_current_active_user, blacklisted_tokens, generate_password_reset_token, send_email_to_reset_password, verify_password_reset_token, get_password_hash
+from app.security.token import verify_password, create_access_token, get_current_active_user, generate_password_reset_token, send_email_to_reset_password, verify_password_reset_token, get_password_hash,move_token_to_blacklist
 from fastapi.security import OAuth2PasswordRequestForm
 from app.models.user import User as UserModel
 from app.schemas.user import UserPutPassword
@@ -29,7 +29,7 @@ async def login(user: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 @auth.get('/logout', name='Cerrar sesión', status_code=status.HTTP_200_OK)
 async def logout(response: Response, user: dict = Depends(get_current_active_user)):
     access_token = user.get("access_token")
-    blacklisted_tokens.add(access_token)  # Agregar el token a la lista negra 
+    move_token_to_blacklist(access_token)  # Mover el token a la lista negra
     response.delete_cookie(key='access_token')
     response.delete_cookie(key='username')
     response.delete_cookie(key='num_doc')

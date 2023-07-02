@@ -153,6 +153,7 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 token_registry = {}
+blacklisted_tokens = set()
 
 def create_access_token(username: str):
     existing_token = token_registry.get(username)
@@ -170,11 +171,9 @@ def is_token_active(token: str) -> bool:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         expire = datetime.fromtimestamp(decoded_token.get('exp'))
-        if datetime.utcnow() < expire:
-            # El token no ha expirado
+        if datetime.utcnow() < expire and token_not_blacklisted(token):
             return True
     except (jwt.DecodeError, jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        # El token es inválido o ha expirado
         return False
 
 def save_token(username: str, token: str):
@@ -186,29 +185,36 @@ def decode_access_token(token: str):
     except JWTError:
         return None
 
-
-blacklisted_tokens: Set[str] = set()
-
 def token_not_blacklisted(token: str):
     return token not in blacklisted_tokens
 
 def get_current_user(db, token: str = Depends(oauth2_schema)) -> UserModel:
     data = decode_access_token(token)
     if data:
-        if not token_not_blacklisted(token):
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
-
         current_time = time.time()
         if "exp" in data and current_time > data["exp"]:
             blacklisted_tokens.add(token)
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Token expirado", headers={"WWW-Authenticate": "Bearer"})
-
+        if not token_not_blacklisted(token):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
         return db.query(UserModel).filter(UserModel.username == data["sub"]).first()
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Token inválido", headers={"WWW-Authenticate": "Bearer"})
+    
+def move_token_to_blacklist(token: str):
+    blacklisted_tokens.add(token)
+    username = get_username_from_token(token)
+    if username in token_registry:
+        del token_registry[username]
+
+def get_username_from_token(token: str):
+    data = decode_access_token(token)
+    if data:
+        return data.get("sub")
+    return None
 
 
 def get_current_active_user(token: str = Depends(oauth2_schema)):
