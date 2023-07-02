@@ -117,7 +117,7 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
             history_states_service_json = []
             for history_state_service in history_states_service:
                 # Obtener estado de servicio
-                state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+                state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
 
                 history_state_service_json = {
                     'id': history_state_service.id,
@@ -298,7 +298,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
             history_states_service_json = []
             for history_state_service in history_states_service:
                 # Obtener estado de servicio
-                state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+                state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
 
                 history_state_service_json = {
                     'id': history_state_service.id,
@@ -487,7 +487,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         history_states_service_json = []
         for history_state_service in history_states_service:
             # Obtener estado de servicio
-            state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+            state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
 
             history_state_service_json = {
                 'id': history_state_service.id,
@@ -645,7 +645,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         history_states_service_json = []
         for history_state_service in history_states_service:
             # Obtener estado de servicio
-            state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+            state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
 
             history_state_service_json = {
                 'id': history_state_service.id,
@@ -922,7 +922,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
     history_states_service_json = []
     for history_state_service in history_states_service:
         # Obtener estado de servicio
-        state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.state_service_id]
+        state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
 
         history_state_service_json = {
             'id': history_state_service.id,

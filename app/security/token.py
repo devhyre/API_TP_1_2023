@@ -30,7 +30,7 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/public/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def generate_password_reset_token(email: str):
-    delta = timedelta(minutes=settings.EMAIL_RESET_TOKEN_EXPIRE_MINUTES)
+    delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     now = datetime.utcnow()
     expires = now + delta
     data = {"email": email, "exp": expires}
