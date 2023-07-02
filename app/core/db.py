@@ -27,6 +27,11 @@ def get_db():
     db = Database().session
     try:
         yield db
+
+    except Exception as e:
+        print(e)
+        db.rollback()
+        raise
     finally:
         db.close()
         
