@@ -2,6 +2,7 @@ from fastapi import APIRouter, FastAPI, status, HTTPException, responses
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.db import SessionLocal as Session, engine, Base
+from app.core.main import startup, shutdown
 #!PUBLIC ROUTES
 from app.auth.login import auth
 from app.routes.public.documents import documents
@@ -34,7 +35,13 @@ from app.routes.private.repaires_maintenance import repairs_maintenance
 from app.routes.private.purchase_order import purchase_order_router
 from app.routes.private.movements import movement_router
 
-app = FastAPI(title=settings.PROJECT_NAME, description=settings.PROJECT_DESCRIPTION, docs_url=settings.DOCS_URL, redoc_url=settings.REDOC_URL, version=1.0)
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description=settings.PROJECT_DESCRIPTION,
+    docs_url=settings.DOCS_URL,
+    redoc_url=settings.REDOC_URL,
+    version="1.0"
+)
 
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
@@ -45,15 +52,8 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-@app.on_event("startup")
-def startup():
-    Session()
-    print("Conectado a la base de datos")
-
-@app.on_event("shutdown")
-def shutdown():
-    Session.close_all()
-    print("Desconectado de la base de datos")
+app.on_event("startup")(startup)
+app.on_event("shutdown")(shutdown)
 
 @app.get("/", include_in_schema=False)
 async def root():
