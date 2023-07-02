@@ -173,8 +173,9 @@ def is_token_active(token: str) -> bool:
         expire = datetime.fromtimestamp(decoded_token.get('exp'))
         if datetime.utcnow() < expire and token_not_blacklisted(token):
             return True
-    except (jwt.DecodeError, jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-        return False
+        #return False
+    except JWTError:
+        return None
 
 def save_token(username: str, token: str):
     token_registry[username] = token
