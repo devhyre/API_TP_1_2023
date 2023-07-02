@@ -412,6 +412,11 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
+    # Validar que serial_number sea un objeto y no un array
+    if isinstance(serial_number, list):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='El objeto serial_number no puede ser un array')
+    # Comprobar si existe el numero de serie
     serial_number_exist = db.query(SerialNumberModel).filter(
         SerialNumberModel.sn_id == serial_number.sn_id).first()
     if serial_number_exist:
