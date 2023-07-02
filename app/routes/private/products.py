@@ -410,13 +410,15 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
         oc_id=serial_number.oc_id,
         entrance_at=datetime.now()
     )
+    db.add(serial_number_db)
+    db.commit()
+    db.refresh(serial_number_db)
     #!ACTUALIZAR CANTIDAD DE PRODUCTOS
     product_db = db.query(ProductModel).filter(
         ProductModel.id == serial_number.product_id).first()
     product_db.quantity = product_db.quantity + 1
-    db.add(serial_number_db)
     db.commit()
-    db.refresh(serial_number_db)
+    db.refresh(product_db)
     #!CREAR MOVIMIENTO
     movement_db = MovementModel(
         sn_id=serial_number_db.sn_id,
