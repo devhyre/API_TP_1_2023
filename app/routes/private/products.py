@@ -496,6 +496,13 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     product_db = db.query(ProductModel).filter(
         ProductModel.id == serial_number_db.product_id).first()
     product_db.quantity = cantidad_productos
+    #!VALIDAR EL ESTADO DEL PRODUCTO SI ES 4 (STOCK) O 3 (AGOTADO)
+    #Cambiar el estado del producto a agotado si la cantidad es 0
+    if cantidad_productos == 0:
+        product_db.status_id = 3
+    #Cambiar el estado del producto a stock si la cantidad es mayor a 0
+    elif cantidad_productos > 0:
+        product_db.status_id = 4
     db.commit()
     db.refresh(product_db)
     return serial_number_db
