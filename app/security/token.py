@@ -12,7 +12,7 @@ from email.mime.multipart import MIMEMultipart
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
-from app.core.db import get_db_session
+from app.core.db import get_db
 #!USER
 from app.models.user import User as UserModel
 #!CLIENT
@@ -141,7 +141,8 @@ def send_email(email: str, subject: str, body: str):
     try:
         with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
             server.ehlo()
-            server.starttls()
+            if settings.SMTP_TLS:
+                server.starttls()
             server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             server.sendmail(settings.SMTP_USER, email, text)
     except Exception as e:
@@ -219,7 +220,7 @@ def get_username_from_token(token: str):
 
 
 def get_current_active_user(token: str = Depends(oauth2_schema)):
-    db: Session = get_db_session()
+    db: Session = get_db()
     user_data = get_current_user(db, token)
     if user_data.is_active:
         user_type = get_type_user_by_num_doc(db, user_data.num_doc)

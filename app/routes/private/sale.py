@@ -339,7 +339,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         #!OBTENER 1 SERIAL NUMBER POR CADA PRODUCTO UNITARIAMENTE
         serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id).first()
         #!actualizar estado a 2 y el departure_at
-        serial_number_db.state_id = 2
+        serial_number_db.status_id = 2
         serial_number_db.departure_at = datetime.now()
         db.add(serial_number_db)
         db.commit()

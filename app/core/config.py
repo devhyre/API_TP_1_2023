@@ -46,9 +46,16 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
     
-    #! Email
+    #! Configuracion SMTP
+    """
+    Nombre de servidor: smtp.office365.com
+    Puerto: 587
+    Método de cifrado: STARTTLS
+    """
+    #SMTP_HOST: str = "smtp-mail.outlook.com"
+    SMTP_HOST: str = "smtp.office365.com"
     SMTP_PORT: int = 587
-    SMTP_HOST: str = "smtp-mail.outlook.com"
+    SMTP_TLS: bool = True
     SMTP_USER: str = "rayotec.store@hotmail.com"
     SMTP_PASSWORD: str = "qwer123er"
     
