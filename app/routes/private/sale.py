@@ -20,6 +20,14 @@ from app.models.movement import Movement as MovementModel
 
 sale = APIRouter()
 
+@sale.get('/admin/contarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Contar ventas')
+async def count_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    sales = db.query(SaleModel).all()
+    return len(sales) + 1
+
 @sale.get('/admin/listarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Lista todas las ventas')
 async def get_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
@@ -303,6 +311,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     #Lista de almacenamiento del id y cantidad de los productos
     id_cantidad = []
     #Lista de series del combo
+    series_combo = []
     for detail_order in detail_orders:
         product_db = db.query(ProductModel).filter(ProductModel.id == detail_order.product_id).first()
         descuento_decimal = product_db.discount / 100
