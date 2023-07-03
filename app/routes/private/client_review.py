@@ -68,8 +68,11 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
         client_reviews = db.query(ClientReviewModel).filter(
             ClientReviewModel.product_id == review_data.product_id).all()
         # OBTENER EL PROMEDIO DE LAS RESEÑAS
-        average = sum(
-            review.punctuation for review in client_reviews) / len(client_reviews)
+        if len(client_reviews) > 0:
+            average = sum(
+                review.punctuation for review in client_reviews) / len(client_reviews)
+        else:
+            average = 0
         # average = 0
         # for client_review in client_reviews:
         #    average += client_review.punctuation
