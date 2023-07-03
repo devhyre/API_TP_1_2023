@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models.combo import Combo as ComboModel
-from app.models.detail_combo import DetailCombo as DetailComboModel
 from app.models.product import Product as ProductModel
 from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 from app.models.model import Model as ModelModel
@@ -213,6 +212,9 @@ async def get_combos(db: Session = Depends(get_db)):
 async def get_combo(combo_id: str, db: Session = Depends(get_db)):
     # Obtener el combo
     combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
+    # Existe el combo?
+    if combo_db is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
     # Obtener todas las categorias
     categories_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
     categories_db = [{'id': category.id_table, 'description': category.description} for category in categories_db]
