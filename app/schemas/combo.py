@@ -6,23 +6,23 @@ class Combo(BaseModel):
     description: str
     path_image: str
     case_id: int
-    case_quantity: int
+    quantity_case: int
     motherboard_id: int
-    motherboard_quantity: int
+    quantity_motherboard: int
     procesador_id: int
-    procesador_quantity: int
+    quantity_procesador: int
     ram_id: int
-    ram_quantity: int
+    quantity_ram: int
     almacenamiento_id: int
-    almacenamiento_quantity: int
+    quantity_almacenamiento: int
     cooler_id: int = None
-    cooler_quantity: int = None
+    quantity_cooler: int = None
     gpu_id: int = None
-    gpu_quantity: int = None
+    quantity_gpu: int = None
     fan_id: int = None
-    fan_quantity: int = None
+    quantity_fan: int = None
     fuente_id: int = None
-    fuente_quantity: int = None
+    quantity_fuente: int = None
     worker_id: int
     
 class ComboPost(Combo):
