@@ -62,14 +62,14 @@ async def get_combos(db: Session = Depends(get_db)):
             'status': [statusdb for statusdb in status_db if statusdb['id'] == motherboard_db.status_id]
         }
         # Obtener el procesador
-        procesador_db = db.query(ProductModel).filter(ProductModel.id == combo.processor_id).first()
+        procesador_db = db.query(ProductModel).filter(ProductModel.id == combo.procesador_id).first()
         procesador_db_json = {
             'id': procesador_db.id,
             'name': procesador_db.name,
             'description': procesador_db.description,
             'path_image': procesador_db.path_image,
             'price': procesador_db.price,
-            'quantity': combo.quantity_processor,
+            'quantity': combo.quantity_procesador,
             'category': [category for category in categories_db if category['id'] == procesador_db.category_id],
             'brand': [brand for brand in brands_db if brand.id == procesador_db.brand_id],
             'model': [model for model in models_db if model.id == procesador_db.model_id],
@@ -172,9 +172,9 @@ async def get_combos(db: Session = Depends(get_db)):
         else:
             fuente_db_json = None
         # Obtener el trabajador
-        worker_db = db.query(WorkerModel).filter(WorkerModel.user_id == combo.worker_id).first()
+        worker_db = db.query(WorkerModel).filter(WorkerModel.id == combo.worker_id).first()
         # Obtener el usuario
-        user_db = db.query(UserModel).filter(UserModel.id == worker_db.user_id).first()
+        user_db = db.query(UserModel).filter(UserModel.num_doc == worker_db.user_id).first()
         worker_db_json = {
             'id': worker_db.id,
             'user': {
@@ -234,10 +234,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': case_db.path_image,
         'price': case_db.price,
         'quantity': combo_db.quantity_case,
-        'category': [category for category in categories_db if category.id == case_db.category_id],
+        'category': [category for category in categories_db if category['id'] == case_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == case_db.brand_id],
         'model': [model for model in models_db if model.id == case_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == case_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == case_db.status_id]
     }
     motherboard_db = db.query(ProductModel).filter(ProductModel.id == combo_db.motherboard_id).first()
     motherboard_db_json = {
@@ -247,10 +247,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': motherboard_db.path_image,
         'price': motherboard_db.price,
         'quantity': combo_db.quantity_motherboard,
-        'category': [category for category in categories_db if category.id == motherboard_db.category_id],
+        'category': [category for category in categories_db if category['id']== motherboard_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == motherboard_db.brand_id],
         'model': [model for model in models_db if model.id == motherboard_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == motherboard_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == motherboard_db.status_id]
     }
     procesador_db = db.query(ProductModel).filter(ProductModel.id == combo_db.procesador_id).first()
     procesador_db_json = {
@@ -260,10 +260,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': procesador_db.path_image,
         'price': procesador_db.price,
         'quantity': combo_db.quantity_procesador,
-        'category': [category for category in categories_db if category.id == procesador_db.category_id],
+        'category': [category for category in categories_db if category['id'] == procesador_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == procesador_db.brand_id],
         'model': [model for model in models_db if model.id == procesador_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == procesador_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == procesador_db.status_id]
     }
     ram_db = db.query(ProductModel).filter(ProductModel.id == combo_db.ram_id).first()
     ram_db_json = {
@@ -273,10 +273,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': ram_db.path_image,
         'price': ram_db.price,
         'quantity': combo_db.quantity_ram,
-        'category': [category for category in categories_db if category.id == ram_db.category_id],
+        'category': [category for category in categories_db if category['id'] == ram_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == ram_db.brand_id],
         'model': [model for model in models_db if model.id == ram_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == ram_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == ram_db.status_id]
     }
     almacenamiento_db = db.query(ProductModel).filter(ProductModel.id == combo_db.almacenamiento_id).first()
     almacenamiento_db_json = {
@@ -286,10 +286,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': almacenamiento_db.path_image,
         'price': almacenamiento_db.price,
         'quantity': combo_db.quantity_almacenamiento,
-        'category': [category for category in categories_db if category.id == almacenamiento_db.category_id],
+        'category': [category for category in categories_db if category['id'] == almacenamiento_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == almacenamiento_db.brand_id],
         'model': [model for model in models_db if model.id == almacenamiento_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == almacenamiento_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == almacenamiento_db.status_id]
     }
     cooler_db = db.query(ProductModel).filter(ProductModel.id == combo_db.cooler_id).first()
     cooler_db_json = {
@@ -298,11 +298,11 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'description': cooler_db.description,
         'path_image': cooler_db.path_image,
         'price': cooler_db.price,
-        'quantity': combo_db.quantity_tarjeta_video,
-        'category': [category for category in categories_db if category.id == cooler_db.category_id],
+        'quantity': combo_db.quantity_cooler,
+        'category': [category for category in categories_db if category['id'] == cooler_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == cooler_db.brand_id],
         'model': [model for model in models_db if model.id == cooler_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == cooler_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == cooler_db.status_id]
     }
     gpu_db = db.query(ProductModel).filter(ProductModel.id == combo_db.gpu_id).first()
     gpu_db_json = {
@@ -311,11 +311,11 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'description': gpu_db.description,
         'path_image': gpu_db.path_image,
         'price': gpu_db.price,
-        'quantity': combo_db.quantity_cooler,
-        'category': [category for category in categories_db if category.id == gpu_db.category_id],
+        'quantity': combo_db.quantity_gpu,
+        'category': [category for category in categories_db if category['id'] == gpu_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == gpu_db.brand_id],
         'model': [model for model in models_db if model.id == gpu_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == gpu_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == gpu_db.status_id]
     }
     fan_db = db.query(ProductModel).filter(ProductModel.id == combo_db.fan_id).first()
     fan_db_json = {
@@ -325,10 +325,10 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': fan_db.path_image,
         'price': fan_db.price,
         'quantity': combo_db.quantity_fan,
-        'category': [category for category in categories_db if category.id == fan_db.category_id],
+        'category': [category for category in categories_db if category['id'] == fan_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == fan_db.brand_id],
         'model': [model for model in models_db if model.id == fan_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == fan_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == fan_db.status_id]
     }
     fuente_db = db.query(ProductModel).filter(ProductModel.id == combo_db.fuente_id).first()
     fuente_db_json = {
@@ -338,13 +338,13 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'path_image': fuente_db.path_image,
         'price': fuente_db.price,
         'quantity': combo_db.quantity_fuente,
-        'category': [category for category in categories_db if category.id == fuente_db.category_id],
+        'category': [category for category in categories_db if category['id'] == fuente_db.category_id],
         'brand': [brand for brand in brands_db if brand.id == fuente_db.brand_id],
         'model': [model for model in models_db if model.id == fuente_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb.id == fuente_db.status_id]
+        'status': [statusdb for statusdb in status_db if statusdb['id'] == fuente_db.status_id]
     }
     worker_db = db.query(WorkerModel).filter(WorkerModel.id == combo_db.worker_id).first()
-    user_db = db.query(UserModel).filter(UserModel.id == worker_db.user_id).first()
+    user_db = db.query(UserModel).filter(UserModel.num_doc == worker_db.user_id).first()
     worker_json = {
         'id': worker_db.id,
         'user': {
