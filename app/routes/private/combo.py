@@ -3,14 +3,9 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.security.token import get_current_active_user
 from app.models.combo import Combo as ComboModel
-from app.models.detail_combo import DetailCombo as DetailComboModel
 from app.models.product import Product as ProductModel
-from app.schemas.combo import ComboPost, ComboPut
-from app.schemas.detail_combo import DetailCombo as DetailComboSchema
-from app.schemas.detail_combo import DetailComboPut as DetailComboPutSchema
+from app.schemas.combo import ComboPost
 from datetime import datetime
-from app.models.model import Model as ModelModel
-from app.models.brand import Brand as BrandModel
 
 combo_pr = APIRouter()
 

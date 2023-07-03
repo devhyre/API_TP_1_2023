@@ -23,7 +23,6 @@ class Combo(BaseModel):
     fan_quantity: int = None
     fuente_id: int = None
     fuente_quantity: int = None
-    created_at: datetime
     worker_id: int
     
 class ComboPost(Combo):
