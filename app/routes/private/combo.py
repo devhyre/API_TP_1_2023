@@ -66,7 +66,7 @@ async def create_combo(combo: ComboPost, db: Session = Depends(get_db), user: di
     return {'detail': 'Combo creado, su ID es: ' + combo_id}
 
 @combo_pr.delete('/admin/eliminarCombo/{combo_id}', status_code=status.HTTP_204_NO_CONTENT, name='TRABAJADOR - Eliminar combo')
-async def delete_combo(combo_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def delete_combo(combo_id: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
