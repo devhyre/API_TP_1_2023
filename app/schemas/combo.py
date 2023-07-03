@@ -23,7 +23,6 @@ class Combo(BaseModel):
     quantity_fan: int = None
     fuente_id: int = None
     quantity_fuente: int = None
-    worker_id: int
     
 class ComboPost(Combo):
     pass
