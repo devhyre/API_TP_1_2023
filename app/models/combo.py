@@ -30,5 +30,5 @@ class Combo(Base):
     created_at = Column(DateTime, index=True)
     worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
 
-    product = relationship("Product", foreign_keys=[case_id, motherboard_id, procesador_id, ram_id, almacenamiento_id, cooler_id, gpu_id, fan_id, fuente_id])
+    product = relationship("Product", foreign_keys=[case_id, motherboard_id, procesador_id, ram_id, almacenamiento_id, cooler_id, gpu_id, fan_id, fuente_id], backref="combos")
     worker = relationship("Worker", foreign_keys=[worker_id])
