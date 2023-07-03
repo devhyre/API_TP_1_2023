@@ -15,8 +15,6 @@ from app.models.user import User as UserModel
 from app.models.supplier import Supplier as SupplierModel
 from app.models.brand import Brand as BrandModel
 from app.models.model import Model as ModelModel
-from app.models.combo import Combo as ComboModel
-from app.models.detail_combo import DetailCombo as DetailComboModel
 
 repairs_maintenance = APIRouter()
 
@@ -97,10 +95,8 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
         # Estados de series
         states_series = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
         states_series = [{'id': state_serie.id_table, 'description': state_serie.description} for state_serie in states_series]
-
         # Crear Json de respuesta
         response = []
-
         for reparation in reparations_db:
             # Obtener estados de productos
             states_products = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
@@ -166,47 +162,7 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
                 user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
                 # Obtener estado de serie
                 state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
-                # Buscar en combos el product_id
-                combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
-
-                if combo:
-                    # Obtener detalles de combo
-                    combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
-
-                    serial_data = {
-                        'sn_id': serial.sn_id,
-                        'product': {
-                            'id': product.id,
-                            'name': product.name,
-                            'description': product.description,
-                            'brand': brand,
-                            'model': model,
-                            'category': category,
-                            'state_product': state_product,
-                            'combo_details': [
-                                {
-                                    'id': detail_combo.id,
-                                    'product': {
-                                        'id': detail_combo.product_id,
-                                        'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
-                                    },
-                                    'quantity': detail_combo.quantity,
-                                } for detail_combo in combo_details
-                            ],
-                        },
-                        'supplier': supplier,
-                        'user': {
-                            'num_doc': user.num_doc,
-                            'full_name': user.full_name,
-                            'email': user.email,
-                            'is_active': user.is_active,
-                        },
-                        'state_serie': state_serie,
-                        'entrance_at': serial.entrance_at,
-                        'departure_at': serial.departure_at,
-                    }
-                else:
-                    serial_data = {
+                serial_data = {
                         'sn_id': serial.sn_id,
                         'product': {
                             'id': product.id,
@@ -227,10 +183,9 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
                         'state_serie': state_serie,
                         'entrance_at': serial.entrance_at,
                         'departure_at': serial.departure_at,
-                    }
+                    }      
             else:
                 serial_data = reparation.serial_number
-
             # Crear Json de reparación
             reparation_json = {
                 'id': reparation.id,
@@ -278,10 +233,8 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
         # Estados de series
         states_series = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
         states_series = [{'id': state_serie.id_table, 'description': state_serie.description} for state_serie in states_series]
-
         # Crear Json de respuesta
         response = []
-
         for maintenance in maintenances_db:
             # Obtener estados de productos
             states_products = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
@@ -299,7 +252,6 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
             for history_state_service in history_states_service:
                 # Obtener estado de servicio
                 state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
-
                 history_state_service_json = {
                     'id': history_state_service.id,
                     'state': state_service,
@@ -309,7 +261,6 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                     'note_repair': history_state_service.note_repair,
                 }
                 history_states_service_json.append(history_state_service_json)
-
             # Obtener trabajador
             worker = db.query(WorkerModel).filter(WorkerModel.id == maintenance.worker_id).first()
             user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
@@ -348,47 +299,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                 user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
                 # Obtener estado de serie
                 state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
-                # Buscar en combos el product_id
-                combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
-
-                if combo:
-                    # Obtener detalles de combo
-                    combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
-
-                    serial_data = {
-                        'sn_id': serial.sn_id,
-                        'product': {
-                            'id': product.id,
-                            'name': product.name,
-                            'description': product.description,
-                            'brand': brand,
-                            'model': model,
-                            'category': category,
-                            'state_product': state_product,
-                            'combo_details': [
-                                {
-                                    'id': detail_combo.id,
-                                    'product': {
-                                        'id': detail_combo.product_id,
-                                        'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
-                                    },
-                                    'quantity': detail_combo.quantity,
-                                } for detail_combo in combo_details
-                            ],
-                        },
-                        'supplier': supplier,
-                        'user': {
-                            'num_doc': user.num_doc,
-                            'full_name': user.full_name,
-                            'email': user.email,
-                            'is_active': user.is_active,
-                        },
-                        'state_serie': state_serie,
-                        'entrance_at': serial.entrance_at,
-                        'departure_at': serial.departure_at,
-                    }
-                else:
-                    serial_data = {
+                serial_data = {
                         'sn_id': serial.sn_id,
                         'product': {
                             'id': product.id,
@@ -412,7 +323,6 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                     }
             else:
                 serial_data = maintenance.serial_number
-
             # Crear Json de mantenimiento
             maintenance_json = {
                 'id': maintenance.id,
@@ -463,14 +373,12 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
     # Estados de series
     states_series = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 6).all()
     states_series = [{'id': state_serie.id_table, 'description': state_serie.description} for state_serie in states_series]
-
     # Crear Json de respuesta
     response = []
     # Crear Json de mantenimientos
     response_mantenimientos = []
     # Crear Json de reparaciones
     response_reparaciones = []
-
     for maintenance in maintenances_db:
         # Obtener estados de productos
         states_products = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
@@ -488,7 +396,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         for history_state_service in history_states_service:
             # Obtener estado de servicio
             state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
-
             history_state_service_json = {
                 'id': history_state_service.id,
                 'state': state_service,
@@ -498,7 +405,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
                 'note_repair': history_state_service.note_repair,
             }
             history_states_service_json.append(history_state_service_json)
-
         # Obtener trabajador
         worker = db.query(WorkerModel).filter(WorkerModel.id == maintenance.worker_id).first()
         user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
@@ -537,47 +443,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
             # Obtener estado de serie
             state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
-            # Buscar en combos el product_id
-            combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
-
-            if combo:
-                # Obtener detalles de combo
-                combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
-
-                serial_data = {
-                    'sn_id': serial.sn_id,
-                    'product': {
-                        'id': product.id,
-                        'name': product.name,
-                        'description': product.description,
-                        'brand': brand,
-                        'model': model,
-                        'category': category,
-                        'state_product': state_product,
-                        'combo_details': [
-                            {
-                                'id': detail_combo.id,
-                                'product': {
-                                    'id': detail_combo.product_id,
-                                    'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
-                                },
-                                'quantity': detail_combo.quantity,
-                            } for detail_combo in combo_details
-                        ],
-                    },
-                    'supplier': supplier,
-                    'user': {
-                        'num_doc': user.num_doc,
-                        'full_name': user.full_name,
-                        'email': user.email,
-                        'is_active': user.is_active,
-                    },
-                    'state_serie': state_serie,
-                    'entrance_at': serial.entrance_at,
-                    'departure_at': serial.departure_at,
-                }
-            else:
-                serial_data = {
+            serial_data = {
                     'sn_id': serial.sn_id,
                     'product': {
                         'id': product.id,
@@ -601,7 +467,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
                 }
         else:
             serial_data = maintenance.serial_number
-
         # Crear Json de mantenimiento
         maintenance_json = {
             'id': maintenance.id,
@@ -628,7 +493,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         }
         # Agregar mantenimiento a la lista
         response_mantenimientos.append(maintenance_json)
-    
     for reparation in reparations_db:
         # Obtener estados de productos
         states_products = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
@@ -646,7 +510,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
         for history_state_service in history_states_service:
             # Obtener estado de servicio
             state_service = [state_service for state_service in states_services if state_service['id'] == history_state_service.status_id]
-
             history_state_service_json = {
                 'id': history_state_service.id,
                 'state': state_service,
@@ -656,7 +519,6 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
                 'note_repair': history_state_service.note_repair,
             }
             history_states_service_json.append(history_state_service_json)
-
         # Obtener trabajador
         worker = db.query(WorkerModel).filter(WorkerModel.id == reparation.worker_id).first()
         user_worker = db.query(UserModel).filter(UserModel.num_doc == worker.user_id).first()
@@ -695,47 +557,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
             # Obtener estado de serie
             state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
-               # Buscar en combos el product_id
-            combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
-
-            if combo:
-                # Obtener detalles de combo
-                combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
-
-                serial_data = {
-                    'sn_id': serial.sn_id,
-                    'product': {
-                        'id': product.id,
-                        'name': product.name,
-                        'description': product.description,
-                        'brand': brand,
-                        'model': model,
-                        'category': category,
-                        'state_product': state_product,
-                        'combo_details': [
-                            {
-                                'id': detail_combo.id,
-                                'product': {
-                                    'id': detail_combo.product_id,
-                                    'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
-                                },
-                                'quantity': detail_combo.quantity,
-                            } for detail_combo in combo_details
-                        ],
-                    },
-                    'supplier': supplier,
-                    'user': {
-                        'num_doc': user.num_doc,
-                        'full_name': user.full_name,
-                        'email': user.email,
-                        'is_active': user.is_active,
-                    },
-                    'state_serie': state_serie,
-                    'entrance_at': serial.entrance_at,
-                    'departure_at': serial.departure_at,
-                }
-            else:
-                serial_data = {
+            serial_data = {
                     'sn_id': serial.sn_id,
                     'product': {
                         'id': product.id,
@@ -856,46 +678,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
         user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
         # Obtener estado de serie
         state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
-        # Buscar en combos el product_id
-        combo = db.query(ComboModel).filter(ComboModel.id == serial.product_id).first()
-        if combo:
-            # Obtener detalles de combo
-            combo_details = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo.id).all()
-
-            serial_data = {
-                'sn_id': serial.sn_id,
-                'product': {
-                    'id': product.id,
-                    'name': product.name,
-                    'description': product.description,
-                    'brand': brand,
-                    'model': model,
-                    'category': category,
-                    'state_product': state_product,
-                    'combo_details': [
-                        {
-                            'id': detail_combo.id,
-                            'product': {
-                                'id': detail_combo.product_id,
-                                'name': db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first().name,
-                            },
-                            'quantity': detail_combo.quantity,
-                        } for detail_combo in combo_details
-                    ],
-                },
-                'supplier': supplier,
-                'user': {
-                    'num_doc': user.num_doc,
-                    'full_name': user.full_name,
-                    'email': user.email,
-                    'is_active': user.is_active,
-                },
-                'state_serie': state_serie,
-                'entrance_at': serial.entrance_at,
-                'departure_at': serial.departure_at,
-            }
-        else:
-            serial_data = {
+        serial_data = {
                 'sn_id': serial.sn_id,
                 'product': {
                     'id': product.id,
@@ -1048,7 +831,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
     db.refresh(db_service)
     # Crear Historial de Servicio
     db_service_history = HistoryRMModel(
-        status_id=repairs_maintenance.status_id,
+        status_id=1,
         date = datetime.now(),
         description = repairs_maintenance.description,
         note_diagnostic = repairs_maintenance.note_diagnostic,
@@ -1080,7 +863,7 @@ async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenan
     db.refresh(db_service)
     return db_service
 
-@repairs_maintenance.put('/admin/actualizarEstadoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar estado de reparación o mantenimiento')
+@repairs_maintenance.put('/admin/actualizarEstadoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar estado de reparación o mantenimiento\nUsar siempre después de actualizar el contenido del servicio')
 async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenanceStatusPut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
@@ -1089,21 +872,93 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
     db_service = db.query(RepairsMaintenanceModel).filter(RepairsMaintenanceModel.id == id).first()
     if not db_service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El servicio: {id} no existe")
-    # Crear Historial de Servicio
-    db_service_history = HistoryRMModel(
-        status_id=repairs_maintenance.status_id,
-        date = datetime.now(),
-        description = db_service.description,
-        note_diagnostic = db_service.note_diagnostic,
-        note_repair = db_service.note_repair,
-        repairs_maintenance_id = db_service.id
-    )
-    db.add(db_service_history)
-    db.commit()
-    db.refresh(db_service_history)
-    # Si el estado es 4 actualiza departure_date
-    if repairs_maintenance.status_id == 4:
-        db_service.departure_date = datetime.now()
-        db.commit()
-        db.refresh(db_service)
-    return db_service_history
+    
+    # Obtener historial de servicio
+    db_service_history = db.query(HistoryRMModel).filter(HistoryRMModel.repairs_maintenance_id == id).all()
+    # Si ya hay un estado con el repairs_maintenance.status_id, no se puede actualizar
+    for service_history in db_service_history:
+        if service_history.status_id == repairs_maintenance.status_id:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"El servicio ya tiene el estado: {repairs_maintenance.status_id}")
+        
+    #Obtener el último estado
+    last_status = db_service_history[-1].status_id
+    # Si el estado es 1
+    if last_status == 1:
+        # El nuevo estado debe ser 2
+        if repairs_maintenance.status_id != 2:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"El servicio debe tener el estado: EN PROCESO")
+        else:
+            #Crear Historial de Servicio
+            db_service_history = HistoryRMModel(
+                status_id=repairs_maintenance.status_id,
+                date = datetime.now(),
+                description = db_service.description,
+                note_diagnostic = db_service.note_diagnostic,
+                note_repair = db_service.note_repair,
+                repairs_maintenance_id = db_service.id
+            )
+            db.add(db_service_history)
+            db.commit()
+            db.refresh(db_service_history)
+            return db_service_history
+    # Si el estado es 2
+    if last_status == 2:
+        # El nuevo estado debe ser 3
+        if repairs_maintenance.status_id != 3:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"El servicio debe tener el estado: TERMINADO")
+        else:
+            #Crear Historial de Servicio
+            db_service_history = HistoryRMModel(
+                status_id=repairs_maintenance.status_id,
+                date = datetime.now(),
+                description = db_service.description,
+                note_diagnostic = db_service.note_diagnostic,
+                note_repair = db_service.note_repair,
+                repairs_maintenance_id = db_service.id
+            )
+            db.add(db_service_history)
+            db.commit()
+            db.refresh(db_service_history)
+            return db_service_history
+    # Si el estado es 3
+    if last_status == 3:
+        # El nuevo estado debe ser 4
+        if repairs_maintenance.status_id != 4:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"El servicio debe tener el estado: ENVIADO/RECOJO")
+        else:
+            #Crear Historial de Servicio
+            db_service_history = HistoryRMModel(
+                status_id=repairs_maintenance.status_id,
+                date = datetime.now(),
+                description = db_service.description,
+                note_diagnostic = db_service.note_diagnostic,
+                note_repair = db_service.note_repair,
+                repairs_maintenance_id = db_service.id
+            )
+            db.add(db_service_history)
+            db.commit()
+            db.refresh(db_service_history)
+            return db_service_history
+    # Si el estado es 4
+    if last_status == 4:
+        # El nuevo estado debe ser 3 o 5
+        if repairs_maintenance.status_id != 3 or repairs_maintenance.status_id != 5:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"El servicio debe tener el estado: ENVIADO/RECOJO o EN PROCESO")
+        else:
+            #Crear Historial de Servicio
+            db_service_history = HistoryRMModel(
+                status_id=repairs_maintenance.status_id,
+                date = datetime.now(),
+                description = db_service.description,
+                note_diagnostic = db_service.note_diagnostic,
+                note_repair = db_service.note_repair,
+                repairs_maintenance_id = db_service.id
+            )
+            db.add(db_service_history)
+            db.commit()
+            db.refresh(db_service_history)
+            if repairs_maintenance.status_id == 5:
+                db_service.departure_date = datetime.now()
+                db.commit()
+                db.refresh(db_service)
+            return db_service_history

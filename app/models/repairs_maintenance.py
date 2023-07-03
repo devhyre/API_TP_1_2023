@@ -23,8 +23,3 @@ class RepairsMaintenance(Base):
     worker_id = Column(Integer, ForeignKey("workers.id"), index=True)
 
     worker = relationship("Worker", foreign_keys=[worker_id])
-    """
-    @property
-    def total(self):
-        return self.price * (1 - self.discount / 100)
-    """

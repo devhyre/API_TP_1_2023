@@ -5,7 +5,7 @@ from app.security.token import get_current_active_user
 from app.models.combo import Combo as ComboModel
 from app.models.detail_combo import DetailCombo as DetailComboModel
 from app.models.product import Product as ProductModel
-from app.schemas.product import Product as ProductSchema
+from app.schemas.combo import ComboPost, ComboPut
 from app.schemas.detail_combo import DetailCombo as DetailComboSchema
 from app.schemas.detail_combo import DetailComboPut as DetailComboPutSchema
 from datetime import datetime
@@ -16,181 +16,72 @@ combo_pr = APIRouter()
 
 #!Combo
 @combo_pr.post('/admin/crearCombo', status_code=status.HTTP_201_CREATED, name='TRABAJADOR - Crear combo')
-async def create_combo(product: ProductSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def create_combo(combo: ComboPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
-    product_db = db.query(ProductModel).filter(ProductModel.id == product.name).first()
-    #Si el producto existe
-    if product_db:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El producto ya existe')
-    #Si la marca no existe
-    brand_db = db.query(BrandModel).filter(BrandModel.id == product.brand_id).first()
-    if not brand_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La marca no existe')
-    #Si el modelo no existe
-    model_db = db.query(ModelModel).filter(ModelModel.id == product.model_id).first()
-    if not model_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El modelo no existe')
-    #Si el producto no existe
-    product_db = ProductModel(
-            name = product.name,
-            description = product.description,
-            path_image = product.path_image,
-            quantity = 0,
-            price = product.price,
-            discount = product.discount,
-            warranty = product.warranty,
-            category_id = product.category_id,
-            brand_id = product.brand_id,
-            model_id = product.model_id,
-            status_id = 1,
-            ranking = 0
-        )
-    db.add(product_db)
-    db.commit()
-    db.refresh(product_db)
+    #Verificar si los productos existen
+    lista_productos = [combo.case_id, combo.motherboard_id, combo.procesador_id, combo.ram_id, combo.almacenamiento_id, combo.cooler_id, combo.gpu_id, combo.fan_id, combo.fuente_id]
+    for product_id in lista_productos:
+        if product_id is None:
+            continue
+        product_db = db.query(ProductModel).filter(ProductModel.id == product_id).first()
+        if product_db is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Producto no encontrado')
+    #Verificar si el id del producto no es nulo, entonces la cantidad debe ser mayor a 0
+    lista_cantidades = [combo.quantity_case, combo.quantity_motherboard, combo.quantity_procesador, combo.quantity_ram, combo.quantity_almacenamiento, combo.quantity_cooler, combo.quantity_gpu, combo.quantity_fan, combo.quantity_fuente]
+    for i in range(len(lista_productos)):
+        if lista_productos[i] is None:
+            continue
+        if lista_cantidades[i] is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='La cantidad de productos debe ser mayor a 0')
     #Crear ID de combo que sera compuesto por COM+CATEGORIA+ID
     number_random = str(datetime.now().year) + str(datetime.now().month) + str(datetime.now().day) + str(datetime.now().hour) + str(datetime.now().minute) + str(datetime.now().second)
-    combo_id = 'COM' + str(product.category_id) + str(product_db.id) + number_random
+    combo_id = 'COM' + number_random
     #Crear combo
     combo_db = ComboModel(
         id = combo_id,
-        product_id = product_db.id,
+        name = combo.name,
+        description = combo.description,
+        path_image = combo.path_image,
+        case_id = combo.case_id,
+        case_quantity = combo.quantity_case,
+        motherboard_id = combo.motherboard_id,
+        motherboard_quantity = combo.quantity_motherboard,
+        procesador_id = combo.procesador_id,
+        processor_quantity = combo.quantity_processor,
+        ram_id = combo.ram_id,
+        ram_quantity = combo.quantity_ram,
+        almacenamiento_id = combo.almacenamiento_id,
+        almacenamiento_quantity = combo.quantity_almacenamiento,
+        cooler_id = combo.cooler_id,
+        cooler_quantity = combo.quantity_cooler,
+        gpu_id = combo.gpu_id,
+        gpu_quantity = combo.quantity_gpu,
+        fan_id = combo.fan_id,
+        fan_quantity = combo.quantity_fan,
+        fuente_id = combo.fuente_id,
+        fuente_quantity = combo.quantity_fuente,
         created_at = datetime.now(),
         worker_id = user[user_type]['id']
     )
     db.add(combo_db)
     db.commit()
     db.refresh(combo_db)
-    return {'detail': 'Combo creado, su ID es: ' + combo_id + ' y su ID de producto es: ' + str(product_db.id)}
+    return {'detail': 'Combo creado, su ID es: ' + combo_id}
 
-@combo_pr.delete('/admin/eliminarCombo/{product_id}', status_code=status.HTTP_204_NO_CONTENT, name='TRABAJADOR - Eliminar combo')
-async def delete_combo(product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+@combo_pr.delete('/admin/eliminarCombo/{combo_id}', status_code=status.HTTP_204_NO_CONTENT, name='TRABAJADOR - Eliminar combo')
+async def delete_combo(combo_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'worker':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
 
-    # Verificar si el producto existe
-    product_db = db.query(ProductModel).filter(ProductModel.id == product_id).first()
-    if not product_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
-    
-    # Verificar si el producto es un combo
-    combo_db = db.query(ComboModel).filter(ComboModel.product_id == product_id).first()
+    # Verificar si el combo existe
+    combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
     if not combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no es un combo')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Combo no encontrado')
     
-    # Verificar si el producto tiene detalles
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_db.id).first()
-    if detail_combo_db:
-        # Eliminar los detalles del combo
-        db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_db.id).delete()
-        db.commit()
-
-    # Eliminar el combo
-    db.query(ComboModel).filter(ComboModel.product_id == product_id).delete()
+    # Eliminar combo
+    db.delete(combo_db)
     db.commit()
-
-    # Eliminar el producto
-    db.query(ProductModel).filter(ProductModel.id == product_id).delete()
-    db.commit()
-
     return {'detail': 'Combo eliminado'}
-
-#!COMBO DETAIL
-@combo_pr.post('/admin/crearDetalleCombo/{combo_id}/Detalle', status_code=status.HTTP_201_CREATED, name='TRABAJADOR - Crear detalle de combo')
-async def create_combo_detail(combo_id: str, detail_combo: DetailComboSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type != 'worker':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
-
-    # Verificar si el combo existe
-    combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
-    if not combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
-    
-    # Verificar si el producto existe
-    product_db = db.query(ProductModel).filter(ProductModel.id == detail_combo.product_id).first()
-    if not product_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
-    
-    # Verificar si el producto es un combo
-    combo_db = db.query(ComboModel).filter(ComboModel.id == detail_combo.product_id).first()
-    if combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto es un combo')
-    
-    # Verificar si el producto ya esta en el combo
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id).all()
-    for detail in detail_combo_db:
-        if detail.product_id == detail_combo.product_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto ya esta en el combo')
-    #Si no esta en el combo se crea
-    detail_combo_db = DetailComboModel(
-        product_id = detail_combo.product_id,
-        quantity = detail_combo.quantity,
-        combo_id = combo_id
-    )
-    db.add(detail_combo_db)
-    db.commit()
-    db.refresh(detail_combo_db)
-    return detail_combo_db
-
-#PUT
-@combo_pr.put('/admin/actualizarDetalleCombo/{combo_id}/{detail_id}', status_code=status.HTTP_202_ACCEPTED, name='TRABAJADOR - Actualizar detalle de combo')
-async def update_combo_detail(combo_id: str, detail_id: int, detail_combo: DetailComboPutSchema, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type != 'worker':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
-
-    # Verificar si el combo existe
-    combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
-    if not combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
-    
-    # Verificar si el detalle existe
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.id == detail_id).first()
-    if not detail_combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El detalle no existe')
-    
-    # Verificar si el detalle le pertenece al combo
-    if detail_combo_db.combo_id != combo_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El detalle no pertenece al combo')
-    
-    # Actualizar el detalle
-    detail_combo_db.quantity = detail_combo.quantity
-    db.commit()
-    db.refresh(detail_combo_db)
-    return detail_combo_db
-
-#DELETE
-@combo_pr.delete('/admin/combo/{combo_id}/detail/{product_id}', status_code=status.HTTP_202_ACCEPTED, name='TRABAJADOR - Eliminar detalle de combo')
-async def delete_combo_detail(combo_id: str, product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type != 'worker':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No autorizado')
-
-    # Verificar si el combo existe
-    combo_db = db.query(ComboModel).filter(ComboModel.id == combo_id).first()
-    if not combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El combo no existe')
-    
-    # Verificar si el producto existe
-    product_db = db.query(ProductModel).filter(ProductModel.id == product_id).first()
-    if not product_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no existe')
-    
-    # Verificar si el producto es un combo
-    combo_db = db.query(ComboModel).filter(ComboModel.product_id == product_id).first()
-    if combo_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto es un combo')
-    
-    # Verificar si el producto ya esta en el combo
-    detail_combo_db = db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id, DetailComboModel.product_id == product_id).first()
-    #Si ya esta en en el combo se elimina
-    if detail_combo_db:
-        db.query(DetailComboModel).filter(DetailComboModel.combo_id == combo_id, DetailComboModel.product_id == product_id).delete()
-        db.commit()
-        return {'detail': 'Detalle eliminado'}
-    #Si no esta en el combo se crea
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El producto no esta en el combo')

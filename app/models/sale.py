@@ -8,7 +8,7 @@ class Sale(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     order_id = Column(Integer, ForeignKey("orders.id"), index=True)
     user_id = Column(String(12), ForeignKey("users.num_doc"), index=True)
-    code_payment = Column(String(255))
+    code_payment = Column(String(255), nullable=True)
     created_at = Column(DateTime, index=True)
     total = Column(Float)
 

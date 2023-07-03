@@ -2,24 +2,34 @@ from pydantic import BaseModel, validator
 from datetime import datetime
 
 class Combo(BaseModel):
-    product_id: int
+    name: str
+    description: str
+    path_image: str
+    case_id: int
+    case_quantity: int
+    motherboard_id: int
+    motherboard_quantity: int
+    procesador_id: int
+    procesador_quantity: int
+    ram_id: int
+    ram_quantity: int
+    almacenamiento_id: int
+    almacenamiento_quantity: int
+    cooler_id: int = None
+    cooler_quantity: int = None
+    gpu_id: int = None
+    gpu_quantity: int = None
+    fan_id: int = None
+    fan_quantity: int = None
+    fuente_id: int = None
+    fuente_quantity: int = None
     created_at: datetime
     worker_id: int
-
-    @validator('product_id')
-    def product_id_must_be_valid(cls, product_id):
-        if product_id < 0:
-            raise ValueError("El producto debe ser válido")
-        return product_id
-    
-    @validator('worker_id')
-    def worker_id_must_be_valid(cls, worker_id):
-        if worker_id < 0:
-            raise ValueError("El trabajador debe ser válido")
-        return worker_id
     
 class ComboPost(Combo):
     pass
 
-class ComboPut(Combo):
-    pass
+class ComboPut(BaseModel):
+    name: str
+    description: str
+    path_image: str

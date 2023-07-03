@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.security.token import get_current_active_user
-from app.schemas.sale import SalePost
+from app.schemas.sale import SalePost, SalePut
 from app.models.sale import Sale as SaleModel
 from app.models.order import Order as OrderModel
 from app.models.detail_order import DetailOrder as DetailOrderModel
@@ -19,6 +19,19 @@ from app.models.movement import Movement as MovementModel
 
 
 sale = APIRouter()
+
+@sale.put('/admin/actualizarVenta/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar venta')
+async def update_sale(id: str, sale: SalePut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+    user_type = list(user.keys())[0]
+    if user_type == 'client':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
+    sale_db = db.query(SaleModel).filter(SaleModel.id == id).first()
+    if not sale_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='La venta no existe')
+    sale_db.code_payment = sale.code_payment
+    db.commit()
+    db.refresh(sale_db)
+    return sale_db
 
 @sale.get('/admin/contarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Contar ventas')
 async def count_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
@@ -310,8 +323,6 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     total = 0.0
     #Lista de almacenamiento del id y cantidad de los productos
     id_cantidad = []
-    #Lista de series del combo
-    series_combo = []
     for detail_order in detail_orders:
         product_db = db.query(ProductModel).filter(ProductModel.id == detail_order.product_id).first()
         descuento_decimal = product_db.discount / 100
@@ -337,6 +348,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     descuento_decimal_order = order_db.discount / 100
     precio_descuento_order = total * (1 - descuento_decimal_order)
     total = precio_descuento_order
+    #!REGISTRAR LA VENTA
     sale_db = SaleModel(
         order_id = sale.order_id,
         user_id = user[user_type]['numeroDocumento'],

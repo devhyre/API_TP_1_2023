@@ -31,12 +31,5 @@ class SalePost(Sale):
     created_at: datetime
     total: float
 
-class SalePut(Sale):
+class SalePut(BaseModel):
     code_payment: str
-    total: float
-
-    @validator('total')
-    def total_must_be_valid(cls, total):
-        if total < 0.0:
-            raise ValueError("El total debe ser válido")
-        return total

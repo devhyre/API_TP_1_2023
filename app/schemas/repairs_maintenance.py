@@ -13,7 +13,6 @@ class RepairsMaintenance(BaseModel):
     description: str
     note_diagnostic: str
     note_repair: str
-    status_id: int
     discount: int
     price: float
     
