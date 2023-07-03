@@ -30,9 +30,9 @@ async def obtener_productos(db: Session = Depends(get_db)):
         # Obtener el modelo
         model = next(filter(lambda model: model.id == product.model_id, models_db))
         # Obtener la categoria
-        category = next(filter(lambda category: category['id'] == product.category_id, categories_db))
+        category = [category for category in categories_db if category['id'] == product.category_id]
         # Obtener el estado
-        status = next(filter(lambda status: status['id'] == product.status_id, status_db))
+        status = [statusdb for statusdb in status_db if statusdb['id'] == product.status_id]
 
         # Crear el Json
         product_json = {
@@ -66,11 +66,11 @@ async def obtener_producto(id:int, db: Session = Depends(get_db)):
     # Obtener las categorias
     categories_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
     categories_db = [{'id': category.id_table, 'description': category.description} for category in categories_db]
-    categoria_db = next(filter(lambda category: category['id'] == product_db.category_id, categories_db))
+    categoria_db = [category for category in categories_db if category['id'] == product_db.category_id]
     # Obtener los estados de los productos
     status_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
     status_db = [{'id': status.id_table, 'description': status.description} for status in status_db]
-    status_db = next(filter(lambda status: status['id'] == product_db.status_id, status_db))
+    status_db = [statusdb for statusdb in status_db if statusdb['id'] == product_db.status_id]
     # Crear el Json de respuesta
     response = {
         'id': product_db.id,
