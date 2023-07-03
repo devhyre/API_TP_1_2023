@@ -292,57 +292,69 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         'status': [statusdb for statusdb in status_db if statusdb['id'] == almacenamiento_db.status_id]
     }
     cooler_db = db.query(ProductModel).filter(ProductModel.id == combo_db.cooler_id).first()
-    cooler_db_json = {
-        'id': cooler_db.id,
-        'name': cooler_db.name,
-        'description': cooler_db.description,
-        'path_image': cooler_db.path_image,
-        'price': cooler_db.price,
-        'quantity': combo_db.quantity_cooler,
-        'category': [category for category in categories_db if category['id'] == cooler_db.category_id],
-        'brand': [brand for brand in brands_db if brand.id == cooler_db.brand_id],
-        'model': [model for model in models_db if model.id == cooler_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb['id'] == cooler_db.status_id]
-    }
+    if cooler_db is None:
+        cooler_db_json = None
+    else:
+        cooler_db_json = {
+            'id': cooler_db.id,
+            'name': cooler_db.name,
+            'description': cooler_db.description,
+            'path_image': cooler_db.path_image,
+            'price': cooler_db.price,
+            'quantity': combo_db.quantity_cooler,
+            'category': [category for category in categories_db if category['id'] == cooler_db.category_id],
+            'brand': [brand for brand in brands_db if brand.id == cooler_db.brand_id],
+            'model': [model for model in models_db if model.id == cooler_db.model_id],
+            'status': [statusdb for statusdb in status_db if statusdb['id'] == cooler_db.status_id]
+        }
     gpu_db = db.query(ProductModel).filter(ProductModel.id == combo_db.gpu_id).first()
-    gpu_db_json = {
-        'id': gpu_db.id,
-        'name': gpu_db.name,
-        'description': gpu_db.description,
-        'path_image': gpu_db.path_image,
-        'price': gpu_db.price,
-        'quantity': combo_db.quantity_gpu,
-        'category': [category for category in categories_db if category['id'] == gpu_db.category_id],
-        'brand': [brand for brand in brands_db if brand.id == gpu_db.brand_id],
-        'model': [model for model in models_db if model.id == gpu_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb['id'] == gpu_db.status_id]
-    }
+    if gpu_db is None:
+        gpu_db_json = None
+    else:
+        gpu_db_json = {
+            'id': gpu_db.id,
+            'name': gpu_db.name,
+            'description': gpu_db.description,
+            'path_image': gpu_db.path_image,
+            'price': gpu_db.price,
+            'quantity': combo_db.quantity_gpu,
+            'category': [category for category in categories_db if category['id'] == gpu_db.category_id],
+            'brand': [brand for brand in brands_db if brand.id == gpu_db.brand_id],
+            'model': [model for model in models_db if model.id == gpu_db.model_id],
+            'status': [statusdb for statusdb in status_db if statusdb['id'] == gpu_db.status_id]
+        }
     fan_db = db.query(ProductModel).filter(ProductModel.id == combo_db.fan_id).first()
-    fan_db_json = {
-        'id': fan_db.id,
-        'name': fan_db.name,
-        'description': fan_db.description,
-        'path_image': fan_db.path_image,
-        'price': fan_db.price,
-        'quantity': combo_db.quantity_fan,
-        'category': [category for category in categories_db if category['id'] == fan_db.category_id],
-        'brand': [brand for brand in brands_db if brand.id == fan_db.brand_id],
-        'model': [model for model in models_db if model.id == fan_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb['id'] == fan_db.status_id]
-    }
+    if fan_db is None:
+        fan_db_json = None
+    else:
+        fan_db_json = {
+            'id': fan_db.id,
+            'name': fan_db.name,
+            'description': fan_db.description,
+            'path_image': fan_db.path_image,
+            'price': fan_db.price,
+            'quantity': combo_db.quantity_fan,
+            'category': [category for category in categories_db if category['id'] == fan_db.category_id],
+            'brand': [brand for brand in brands_db if brand.id == fan_db.brand_id],
+            'model': [model for model in models_db if model.id == fan_db.model_id],
+            'status': [statusdb for statusdb in status_db if statusdb['id'] == fan_db.status_id]
+        }
     fuente_db = db.query(ProductModel).filter(ProductModel.id == combo_db.fuente_id).first()
-    fuente_db_json = {
-        'id': fuente_db.id,
-        'name': fuente_db.name,
-        'description': fuente_db.description,
-        'path_image': fuente_db.path_image,
-        'price': fuente_db.price,
-        'quantity': combo_db.quantity_fuente,
-        'category': [category for category in categories_db if category['id'] == fuente_db.category_id],
-        'brand': [brand for brand in brands_db if brand.id == fuente_db.brand_id],
-        'model': [model for model in models_db if model.id == fuente_db.model_id],
-        'status': [statusdb for statusdb in status_db if statusdb['id'] == fuente_db.status_id]
-    }
+    if fuente_db is None:
+        fuente_db_json = None
+    else:
+        fuente_db_json = {
+            'id': fuente_db.id,
+            'name': fuente_db.name,
+            'description': fuente_db.description,
+            'path_image': fuente_db.path_image,
+            'price': fuente_db.price,
+            'quantity': combo_db.quantity_fuente,
+            'category': [category for category in categories_db if category['id'] == fuente_db.category_id],
+            'brand': [brand for brand in brands_db if brand.id == fuente_db.brand_id],
+            'model': [model for model in models_db if model.id == fuente_db.model_id],
+            'status': [statusdb for statusdb in status_db if statusdb['id'] == fuente_db.status_id]
+        }
     worker_db = db.query(WorkerModel).filter(WorkerModel.id == combo_db.worker_id).first()
     user_db = db.query(UserModel).filter(UserModel.num_doc == worker_db.user_id).first()
     worker_json = {
