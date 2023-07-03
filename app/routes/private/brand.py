@@ -17,8 +17,6 @@ async def crear_marca(brand: BrandPost, db: Session = Depends(get_db), user: dic
     else:
         new_brand = BrandModel(name=brand.name, description=brand.description)
         db.add(new_brand)
-        db.commit()
-        db.refresh(new_brand)
         return new_brand
 
 @brand_pr.put('/admin/actualizarMarca/{id}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar marca')
@@ -32,9 +30,7 @@ async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_d
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
         brand_db.name = brand.name
         brand_db.description = brand.description
-        db.commit()
-        db.refresh(brand_db)
-        return brand_db
+        return {'message': 'Se actualizó la marca'}
 
 @brand_pr.delete('/admin/eliminarMarca/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar marca')
 async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -49,5 +45,4 @@ async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = De
         if models:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Existen modelos asociados a esta marca')
         db.delete(brand_db)
-        db.commit()
         return {'message': 'Se eliminó la marca'}

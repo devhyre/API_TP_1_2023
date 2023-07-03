@@ -393,8 +393,8 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         movement_db = MovementModel(
             sn_id = serial_number_db.sn_id,
             user_id = user[user_type]['numeroDocumento'],
-            type_movement = 2,
-            created_at = datetime.now()
+            created_at = datetime.now(),
+            type_id = 2
         )
         db.add(movement_db)
         db.commit()

@@ -14,6 +14,14 @@ from app.models.brand import Brand as BrandModel
 
 order = APIRouter()
 
+# Obtener orden por id
+@order.get('/obtenerOrden/{id}', status_code=status.HTTP_200_OK, name='Obtener orden por id')
+async def obtener_orden(id: int, db: Session = Depends(get_db)):
+    order_db = db.query(OrderModel).filter(OrderModel.id == id).first()
+    if not order_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la orden')
+    return order_db
+
 # Obtener contadores de ordenes
 @order.get('/obtenerContadoresOrdenes', status_code=status.HTTP_200_OK, name='Obtener contadores de ordenes')
 async def obtener_contadores_ordenes(db: Session = Depends(get_db)):

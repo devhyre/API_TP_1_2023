@@ -22,51 +22,63 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
     else:
-        #!OBTENER TODOS LAS ORDENES DEL CLIENTE QUE TENGAN EL ESTADO 3
+        # OBTENER TODOS LAS ORDENES DEL CLIENTE QUE TENGAN EL ESTADO 3
         orders = db.query(OrderModel).filter(
-            OrderModel.user_id == user[user_type]['numeroDocumento']).all()
-        orders = [order for order in orders if order.status_order == 3]
-        #!BUSCAR EN LOS DETALLES DE LAS ORDENES SI EL PRODUCTO QUE SE QUIERE CALIFICAR ESTA EN ALGUNA DE LAS ORDENES
-        #!SI ESTA EN ALGUNA DE LAS ORDENES, SE PUEDE CALIFICAR
-        #!SI NO ESTA EN NINGUNA DE LAS ORDENES, NO SE PUEDE CALIFICAR
-        count = 0
-        for order in orders:
-            detail_orders = db.query(DetailOrderModel).filter(
-                DetailOrderModel.order_id == order.id).all()
-            detail_orders = [
-                detail_order for detail_order in detail_orders if detail_order.product_id == review_data.product_id]
-            if len(detail_orders) > 0:
-                count += 1
+            OrderModel.user_id == user[user_type]['numeroDocumento'], OrderModel.status_order == 3).all()
+
+        if not orders:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail='Debe haber realizado al menos una compra para poder realizar una reseña')
+
+        # Verifica si el producto está en alguna de las órdenes
+        count = db.query(DetailOrderModel).filter(DetailOrderModel.order_id.in_(
+            [order.id for order in orders]), DetailOrderModel.product_id == review_data.product_id).count()
+
         if count == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail='Debe haber realizado al menos una compra de este producto para poder realizar una reseña')
-        else:
-            #!CREAR LA RESEÑA
-            client_review_db = ClientReviewModel(
-                client_id=user[user_type]['id'],
-                product_id=review_data.product_id,
-                review=review_data.review,
-                created_at=datetime.now(),
-                punctuation=review_data.punctuation
-            )
-            db.add(client_review_db)
-            db.commit()
-            db.refresh(client_review_db)
-            #!ACTUALIZAR EL RANKING DEL PRODUCTO
-            product_db = db.query(ProductModel).filter(
-                ProductModel.id == review_data.product_id).first()
-            #!OBTENER TODAS LAS RESEÑAS DEL PRODUCTO
-            client_reviews = db.query(ClientReviewModel).filter(
-                ClientReviewModel.product_id == review_data.product_id).all()
-            #!OBTENER EL PROMEDIO DE LAS RESEÑAS
-            average = 0
-            for client_review in client_reviews:
-                average += client_review.punctuation
-            average = average / len(client_reviews)
-            product_db.ranking = average
-            db.commit()
-            db.refresh(product_db)
-            return client_review_db
+
+        # orders = [order for order in orders if order.status_order == 3]
+        #!BUSCAR EN LOS DETALLES DE LAS ORDENES SI EL PRODUCTO QUE SE QUIERE CALIFICAR ESTA EN ALGUNA DE LAS ORDENES
+        #!SI ESTA EN ALGUNA DE LAS ORDENES, SE PUEDE CALIFICAR
+        #!SI NO ESTA EN NINGUNA DE LAS ORDENES, NO SE PUEDE CALIFICAR
+        # count = 0
+        # for order in orders:
+        #    detail_orders = db.query(DetailOrderModel).filter(
+        #        DetailOrderModel.order_id == order.id).all()
+        #    detail_orders = [
+        #        detail_order for detail_order in detail_orders if detail_order.product_id == review_data.product_id]
+        #    if len(detail_orders) > 0:
+        #        count += 1
+        # if count == 0:
+        #    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+        #                        detail='Debe haber realizado al menos una compra de este producto para poder realizar una reseña')
+
+        # Crear la reseña
+        client_review_db = ClientReviewModel(
+            client_id=user[user_type]['id'],
+            product_id=review_data.product_id,
+            review=review_data.review,
+            created_at=datetime.now(),
+            punctuation=review_data.punctuation
+        )
+        db.add(client_review_db)
+
+        # OBTENER TODAS LAS RESEÑAS DEL PRODUCTO
+        client_reviews = db.query(ClientReviewModel).filter(
+            ClientReviewModel.product_id == review_data.product_id).all()
+        # OBTENER EL PROMEDIO DE LAS RESEÑAS
+        average = sum(
+            review.punctuation for review in client_reviews) / len(client_reviews)
+        # average = 0
+        # for client_review in client_reviews:
+        #    average += client_review.punctuation
+        # average = average + client_review_db.punctuation
+        # average = average / len(client_reviews)
+        # ACTUALIZAR EL RANKING DEL PRODUCTO
+        db.query(ProductModel).filter(ProductModel.id ==
+                                      review_data.product_id).update({ProductModel.ranking: average})
+        return client_review_db
 
 
 @client_review.put('/actualizarReviewCliente/{id}', status_code=status.HTTP_202_ACCEPTED, name='CLIENTE - Actualizar la reseña de un Producto que le pertenece al Cliente')
@@ -94,7 +106,7 @@ async def actualizar_reseña_cliente(id: int, review_data: ClientReviewPut, db: 
 
 
 @client_review.get('/admin/obtenerReviews', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener todas las reseñas hechas a los productos')
-async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def obtener_reseñas (db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -162,14 +174,15 @@ async def obtener_reseñas(db: Session = Depends(get_db), user: dict = Depends(g
 
 
 @client_review.get('/obtenerReviewsCliente', status_code=status.HTTP_200_OK, name='CLIENTE - Obtener todas las reseñas hechas a los productos por el cliente que esta logueado')
-async def obtener_reseñas_cliente (db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
+async def obtener_reseñas_cliente(db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
     if user_type != 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
     else:
         client_reviews = db.query(ClientReviewModel).all()
-        client_reviews = list(filter(lambda client_review: client_review.client_id == user[user_type]['id'], client_reviews))
+        client_reviews = list(filter(
+            lambda client_review: client_review.client_id == user[user_type]['id'], client_reviews))
 
         if len(client_reviews) == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,

@@ -11,8 +11,6 @@ engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
 ScopedSession = scoped_session(SessionLocal)
 
 Base = declarative_base()

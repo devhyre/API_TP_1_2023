@@ -18,8 +18,6 @@ async def registrar_categoria(id_table:int, description: str, db: Session = Depe
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"La categoria con id {id_table} ya existe")
         category = TableOfTablesModel(id=3, id_table=id_table, description=description)
         db.add(category)
-        db.commit()
-        db.refresh(category)
         return {'id': category.id_table, 'description': category.description}
     
 @categories_pr.put('/admin/actualizarCategoria/{id_table}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar categoria')
@@ -32,8 +30,6 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         category.description = description
-        db.commit()
-        db.refresh(category)
         return {'id': category.id_table, 'description': category.description}
     
 @categories_pr.delete('/admin/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar categoria')
@@ -46,6 +42,5 @@ async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user:
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         db.delete(category)
-        db.commit()
         return {'message': f"La categoria con id {id_table} ha sido eliminada"}
     
