@@ -17,6 +17,7 @@ from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 from app.models.sn import SerialNumber as SerialNumberModel
 from app.models.movement import Movement as MovementModel
 
+
 sale = APIRouter()
 
 @sale.get('/admin/listarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Lista todas las ventas')
@@ -301,6 +302,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     total = 0.0
     #Lista de almacenamiento del id y cantidad de los productos
     id_cantidad = []
+    #Lista de series del combo
     for detail_order in detail_orders:
         product_db = db.query(ProductModel).filter(ProductModel.id == detail_order.product_id).first()
         descuento_decimal = product_db.discount / 100

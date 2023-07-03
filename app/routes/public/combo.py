@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.db import get_db
-from app.security.token import get_current_active_user
 from app.models.combo import Combo as ComboModel
 from app.models.detail_combo import DetailCombo as DetailComboModel
 from app.models.product import Product as ProductModel
@@ -10,9 +9,6 @@ from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
 from app.models.worker import Worker as WorkerModel
 from app.models.user import User as UserModel
-from app.schemas.product import Product as ProductSchema
-from app.schemas.detail_combo import DetailCombo as DetailComboSchema
-from datetime import datetime
 
 combo_pu = APIRouter()
 
@@ -31,7 +27,7 @@ async def get_combos(db: Session = Depends(get_db)):
     models_db = db.query(ModelModel).all()
     # Obtener todos los estados de los productos
     status_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
-    status_db = [{'id': status.id_table, 'description': status.description} for status in status_db]
+    status_db = [{'id': statusdb.id_table, 'description': statusdb.description} for statusdb in status_db]
 
     # Crear el Json de respuesta
     reponse = []
@@ -49,7 +45,7 @@ async def get_combos(db: Session = Depends(get_db)):
         # Obtener el modelo del producto
         model = [model for model in models_db if model.id == product.model_id]
         # Obtener el estado del producto
-        status = [status for status in status_db if status['id'] == product.status_id]
+        statusdb = [statusdb for statusdb in status_db if statusdb['id'] == product.status_id]
         # Obtener el usuario que creo el combo
         worker = db.query(WorkerModel).filter(WorkerModel.id == combo.worker_id).first()
         # Obtener el usuario que creo el combo
@@ -70,7 +66,7 @@ async def get_combos(db: Session = Depends(get_db)):
                 'category': category,
                 'brand': brand,
                 'model': model,
-                'status': status,
+                'status': statusdb,
                 'ranking': product.ranking
             },
             'created_at': combo.created_at,
@@ -98,7 +94,7 @@ async def get_combos(db: Session = Depends(get_db)):
             # Obtener el modelo del producto
             model = [model for model in models_db if model.id == product.model_id]
             # Obtener el estado del producto
-            status = [status for status in status_db if status['id'] == product.status_id]
+            statusdb = [statusdb for statusdb in status_db if statusdb['id'] == product.status_id]
 
             # Crear el Json del detalle
             detail_json = {
@@ -115,7 +111,7 @@ async def get_combos(db: Session = Depends(get_db)):
                     'category': category,
                     'brand': brand,
                     'model': model,
-                    'status': status,
+                    'status': statusdb,
                     'ranking': product.ranking
                 },
                 'quantity': detail.quantity
@@ -150,7 +146,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
     models_db = db.query(ModelModel).all()
     # Obtener todos los estados de los productos
     status_db = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 5).all()
-    status_db = [{'id': status.id_table, 'description': status.description} for status in status_db]
+    status_db = [{'id': statusdb.id_table, 'description': statusdb.description} for statusdb in status_db]
     # Obtener el usuario que creo el combo
     worker = db.query(WorkerModel).filter(WorkerModel.id == combo_db.worker_id).first()
     # Obtener el usuario que creo el combo
@@ -171,7 +167,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
             'category': [category for category in categories_db if category['id'] == product.category_id],
             'brand': [brand for brand in brands_db if brand.id == product.brand_id],
             'model': [model for model in models_db if model.id == product.model_id],
-            'status': [status for status in status_db if status['id'] == product.status_id],
+            'status': [statusdb for statusdb in status_db if statusdb['id'] == product.status_id],
             'ranking': product.ranking
         },
         'created_at': combo_db.created_at,
@@ -199,7 +195,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
         # Obtener el modelo del producto
         model = [model for model in models_db if model.id == product.model_id]
         # Obtener el estado del producto
-        status = [status for status in status_db if status['id'] == product.status_id]
+        statusdb = [statusdb for statusdb in status_db if statusdb['id'] == product.status_id]
 
         # Crear el Json del detalle
         detail_json = {
@@ -216,7 +212,7 @@ async def get_combo(combo_id: str, db: Session = Depends(get_db)):
                 'category': category,
                 'brand': brand,
                 'model': model,
-                'status': status,
+                'status': statusdb,
                 'ranking': product.ranking
             },
             'quantity': detail.quantity

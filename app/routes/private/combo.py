@@ -11,7 +11,6 @@ from app.schemas.detail_combo import DetailComboPut as DetailComboPutSchema
 from datetime import datetime
 from app.models.model import Model as ModelModel
 from app.models.brand import Brand as BrandModel
-from app.models.sn import SerialNumber as SerialNumberModel
 
 combo_pr = APIRouter()
 
@@ -52,7 +51,8 @@ async def create_combo(product: ProductSchema, db: Session = Depends(get_db), us
     db.commit()
     db.refresh(product_db)
     #Crear ID de combo que sera compuesto por COM+CATEGORIA+ID
-    combo_id = 'COM' + str(product.category_id) + str(product_db.id)
+    number_random = str(datetime.now().year) + str(datetime.now().month) + str(datetime.now().day) + str(datetime.now().hour) + str(datetime.now().minute) + str(datetime.now().second)
+    combo_id = 'COM' + str(product.category_id) + str(product_db.id) + number_random
     #Crear combo
     combo_db = ComboModel(
         id = combo_id,
