@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     #! Security
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 45
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 200
 
     #! API
     SERVER_NAME: str = "Railway"
@@ -52,7 +52,6 @@ class Settings(BaseSettings):
     Puerto: 587
     Método de cifrado: STARTTLS
     """
-    #SMTP_HOST: str = "smtp-mail.outlook.com"
     SMTP_HOST: str = "smtp.office365.com"
     SMTP_PORT: int = 587
     SMTP_TLS: bool = True

@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import time
-from typing import Set
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.config import settings
@@ -21,8 +20,6 @@ from app.models.client import Client as ClientModel
 from app.models.worker import Worker as WorkerModel
 #!ADMIN
 from app.models.admin import Admin as AdminModel
-#!TABLE OF TABLES
-from app.models.table_of_tables import TableOfTables as TableOfTablesModel
 
 #!Poner la ruta desde donde se puede obtener el token en este caso /api/v1/public/login
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/public/login")
@@ -219,8 +216,8 @@ def get_username_from_token(token: str):
     return None
 
 
-def get_current_active_user(token: str = Depends(oauth2_schema)):
-    db: Session = get_db()
+def get_current_active_user(token: str = Depends(oauth2_schema), db: Session = Depends(get_db)):
+    #db = get_db()
     user_data = get_current_user(db, token)
     if user_data.is_active:
         user_type = get_type_user_by_num_doc(db, user_data.num_doc)

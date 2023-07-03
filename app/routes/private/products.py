@@ -455,12 +455,6 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     db.add(serial_number_db)
     db.commit()
     db.refresh(serial_number_db)
-    #!ACTUALIZAR CANTIDAD DE PRODUCTOS
-    product_db = db.query(ProductModel).filter(
-        ProductModel.id == serial_number_db.product_id).first()
-    product_db.quantity = product_db.quantity + 1
-    db.commit()
-    db.refresh(product_db)
     #!CREAR MOVIMIENTO
     movement_db = MovementModel(
         sn_id=serial_number_db.sn_id,
@@ -471,4 +465,37 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     db.add(movement_db)
     db.commit()
     db.refresh(movement_db)
+    #!OBTENER LA CANTIDAD DEL PRODUCTO MEDIANTE EL TOTAL DE MOVIMIENTOS DE ENTRADA Y SALIDA
+    #Obtener todos los movimientos
+    movements_db = db.query(MovementModel).all()
+    #Obtener la cantidad de entradas y salidas del producto mediante el id del producto que se encuentra con el serial number del movimiento
+    ns_list_product = []
+    for movement in movements_db:
+        serie_db = db.query(SerialNumberModel).filter(
+            SerialNumberModel.sn_id == movement.sn_id).first()
+        if serie_db.product_id == serial_number_db.product_id:
+            #Agregar el numero de serie a la lista
+            ns_list_product.append(serie_db.sn_id)
+        else:
+            continue
+    movements_list = []
+    #Obtener el type_id de los movimientos
+    for ns in ns_list_product:
+        movement_db = db.query(MovementModel).filter(
+            MovementModel.sn_id == ns).all()
+        for movement in movement_db:
+            movements_list.append(movement.type_id)
+        else:
+            continue
+    #Obtener la cantidad de entradas y salidas
+    entradas = movements_list.count(1)
+    salidas = movements_list.count(2)
+    #Obtener la cantidad de productos
+    cantidad_productos = entradas - salidas
+    #!ACTUALIZAR LA CANTIDAD DEL PRODUCTO
+    product_db = db.query(ProductModel).filter(
+        ProductModel.id == serial_number_db.product_id).first()
+    product_db.quantity = cantidad_productos
+    db.commit()
+    db.refresh(product_db)
     return serial_number_db

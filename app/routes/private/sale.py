@@ -299,18 +299,33 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     #!OBTENER EL TOTAL DE LA ORDEN
     detail_orders = db.query(DetailOrderModel).filter(DetailOrderModel.order_id == sale.order_id).all()
     total = 0.0
+    #Lista de almacenamiento del id y cantidad de los productos
+    id_cantidad = []
     for detail_order in detail_orders:
         product_db = db.query(ProductModel).filter(ProductModel.id == detail_order.product_id).first()
-        total += product_db.price * detail_order.quantity
+        descuento_decimal = product_db.discount / 100
+        precio_descuento = product_db.price * (1 - descuento_decimal)
+        precio_total = precio_descuento * detail_order.quantity
+        total += precio_total
         #!ACTUALIZAR EL STOCK DE LOS PRODUCTOS
-        product_db.quantity = product_db.quantity - detail_order.quantity
-        if product_db.quantity < 0:
+        cantidadActual = product_db.quantity
+        cantidadActual = cantidadActual - detail_order.quantity
+        # Almacenar el id y cantidad de los productos
+        id_cantidad.append({'id': product_db.id, 'quantity': cantidadActual})
+        #!VERIFICAR QUE LA CANTIDAD ACTUAL NO SEA MENOR A 0
+        if cantidadActual < 0:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail= f'No se cuenta con los productos requeridos en el stock\nPodroducto faltante {product_db.name}.')
+    #!ACTUALIZAR EL STOCK DE LOS PRODUCTOS
+    for id_cant in id_cantidad:
+        product_db = db.query(ProductModel).filter(ProductModel.id == id_cant['id']).first()
+        product_db.quantity = id_cant['quantity']
         db.add(product_db)
         db.commit()
         db.refresh(product_db)
     #!APLICAR DESCUENTO
-    total = total - (total * order_db.discount)
+    descuento_decimal_order = order_db.discount / 100
+    precio_descuento_order = total * (1 - descuento_decimal_order)
+    total = precio_descuento_order
     sale_db = SaleModel(
         order_id = sale.order_id,
         user_id = user[user_type]['numeroDocumento'],
