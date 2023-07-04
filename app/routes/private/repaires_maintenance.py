@@ -138,7 +138,7 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
                 }
             else:
                 user_client = {
-                    'num_doc': reparation.clint_doc,
+                    'num_doc': reparation.client_doc,
                     'username': '',
                     'full_name': reparation.client_name,
                     'email': reparation.client_email,
@@ -155,13 +155,13 @@ async def get_repairs(user: dict = Depends(get_current_active_user), db: Session
                 # Obtener categoria
                 category = [category for category in categories if category['id'] == product.category_id]
                 # Obtener estado de producto
-                state_product = [state_product for state_product in states_products if state_product['id'] == serial.state_product_id]
+                state_product = [state_product for state_product in states_products if state_product['id'] == serial.status_id]
                 # Obtener proveedor
                 supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == serial.supplier_id).first()
                 # Obtener usuario
                 user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
                 # Obtener estado de serie
-                state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+                state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.status_id]
                 serial_data = {
                         'sn_id': serial.sn_id,
                         'product': {
@@ -298,7 +298,7 @@ async def get_maintenance(user: dict = Depends(get_current_active_user), db: Ses
                 # Obtener usuario
                 user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
                 # Obtener estado de serie
-                state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+                state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.status_id]
                 serial_data = {
                         'sn_id': serial.sn_id,
                         'product': {
@@ -442,7 +442,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             # Obtener usuario
             user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
             # Obtener estado de serie
-            state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+            state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.status_id]
             serial_data = {
                     'sn_id': serial.sn_id,
                     'product': {
@@ -556,7 +556,7 @@ async def get_servicios_asignados(user: dict = Depends(get_current_active_user),
             # Obtener usuario
             user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
             # Obtener estado de serie
-            state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+            state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.status_id]
             serial_data = {
                     'sn_id': serial.sn_id,
                     'product': {
@@ -677,7 +677,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
         # Obtener usuario
         user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
         # Obtener estado de serie
-        state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.state_serie_id]
+        state_serie = [state_serie for state_serie in states_series if state_serie['id'] == serial.status_id]
         serial_data = {
                 'sn_id': serial.sn_id,
                 'product': {
