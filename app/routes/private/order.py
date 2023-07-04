@@ -280,9 +280,7 @@ async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: dic
         status_order=1,
     )
     db.add(order_db)
-    db.commit()
-    db.refresh(order_db)
-    return order_db
+    return {'message': 'Orden creada satisfactoriamente'}
 
 
 @order.get('/obtenerDetalleOrdenUsuario/{id}', status_code=status.HTTP_200_OK, name='USUARIO - Obtener detalle de orden por id de orden')
@@ -372,9 +370,8 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
     detail_order_db = db.query(DetailOrderModel).filter(
         DetailOrderModel.order_id == detail_order.order_id).filter(DetailOrderModel.product_id == detail_order.product_id).first()
     if detail_order_db is not None:
-        detail_order_db.quantity += detail_order.quantity
-        db.commit()
-        db.refresh(detail_order_db)
+        db.query(DetailOrderModel).filter(DetailOrderModel.order_id == detail_order.order_id, DetailOrderModel.product_id == detail_order.product_id).update(
+            {DetailOrderModel.quantity: DetailOrderModel.quantity + detail_order.quantity})
         return detail_order_db
     else:
         # Si la orden no tiene un detalle con el mismo producto, se crea el detalle
@@ -384,9 +381,7 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
             order_id=detail_order.order_id,
         )
         db.add(detail_order_db)
-        db.commit()
-        db.refresh(detail_order_db)
-        return detail_order_db
+        return {'message': 'Detalle de orden creado exitosamente'}
 
 @order.put('/aprobarOrden/{id}', status_code=status.HTTP_202_ACCEPTED, name='USUARIO - Aprobar orden')
 async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -415,10 +410,9 @@ async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Dep
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No hay stock suficiente de los siguientes productos: {}'.format(
                         products_without_stock).replace('[', '').replace(']', ''))
                 #!SI HAY STOCK SUFICIENTE DE TODOS LOS PRODUCTOS, SE ACTUALIZA EL ESTADO DE LA ORDEN A APROBADA
-                order_db.status_order = 2
-                db.commit()
-                db.refresh(order_db)
-                return order_db
+                db.query(OrderModel).filter(OrderModel.id == id).update(
+                    {OrderModel.status_order: 2})
+                return {'message': 'Orden aprobada exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -437,10 +431,11 @@ async def anular_orden_cliente(id: int, db: Session = Depends(get_db), user: dic
                 status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
         else:
             if order_db.status_order == 1 or order_db.status_order == 2:
-                order_db.status_order = 5
+                db.query(OrderModel).filter(OrderModel.id == id).update(
+                    {OrderModel.status_order: 5})
                 db.commit()
                 db.refresh(order_db)
-                return order_db
+                return {'message': 'Orden anulada exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -459,18 +454,15 @@ async def rechazar_orden(id: int, db: Session = Depends(get_db), user: dict = De
                 status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
         else:
             if order_db.status_order == 1 or order_db.status_order == 2:
-                order_db.status_order = 4
-                db.commit()
-                db.refresh(order_db)
-                return order_db
+                db.query(OrderModel).filter(OrderModel.id == id).update(
+                    {OrderModel.status_order: 4})
+                return {'message': 'Orden rechazada exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
 
 #! AL CREAR LA VENTA, SE ACTUALIZA EL ESTADO DE LA ORDEN PAGADO
 #! AHORA ACA TENEMOS QUE TENER LISTO Y ENTREGADO
-
-
 @order.put('/admin/listoOrden/{id}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR|TRABAJADOR - Listo orden')
 async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -484,10 +476,9 @@ async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depen
                 status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
         else:
             if order_db.status_order == 8:
-                order_db.status_order = 9
-                db.commit()
-                db.refresh(order_db)
-                return order_db
+                db.query(OrderModel).filter(OrderModel.id == id).update(
+                    {OrderModel.status_order: 9})
+                return {'message': 'Orden lista exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -506,10 +497,9 @@ async def entregado_orden(id: int, db: Session = Depends(get_db), user: dict = D
                 status_code=status.HTTP_404_NOT_FOUND, detail='La orden no existe')
         else:
             if order_db.status_order == 9:
-                order_db.status_order = 3
-                db.commit()
-                db.refresh(order_db)
-                return order_db
+                db.query(OrderModel).filter(OrderModel.id == id).update(
+                    {OrderModel.status_order: 10})
+                return {'message': 'Orden entregada exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')

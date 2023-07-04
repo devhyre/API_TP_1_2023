@@ -206,8 +206,6 @@ async def crear_producto(product: ProductPost, db: Session = Depends(get_db), us
             ranking=0
         )
         db.add(product_db)
-        db.commit()
-        db.refresh(product_db)
         return product_db
 
 
@@ -217,28 +215,20 @@ async def actualizar_producto(id: int, product: ProductPut, db: Session = Depend
     if user_type == 'client':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='No tiene permisos para realizar esta acción')
-    else:
-        product_db = db.query(ProductModel).filter(
-            ProductModel.id == id).first()
-        if product_db is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail='No existe el producto')
-        else:
-            product_db.name = product.name
-            product_db.description = product.description
-            product_db.path_image = product.path_image
-            product_db.quantity = product.quantity
-            product_db.discount = product.discount
-            product_db.price = product.price
-            product_db.warranty = product.warranty
-            product_db.category_id = product.category_id
-            product_db.brand_id = product.brand_id
-            product_db.model_id = product.model_id
-            product_db.status_id = product.status_id
-            product_db.ranking = product.ranking
-            db.commit()
-            db.refresh(product_db)
-            return product_db
+    product_db = db.query(ProductModel).filter(ProductModel.id == id).first()
+    if product_db is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='No existe el producto')
+    db.query(ProductModel).filter(ProductModel.id == id).update({
+        ProductModel.name: product.name,
+        ProductModel.description: product.description,
+        ProductModel.path_image: product.path_image,
+        ProductModel.price: product.price,
+        ProductModel.discount: product.discount,
+        ProductModel.warranty: product.warranty,
+        ProductModel.status_id: product.status_id
+    })
+    return {'message': 'Producto actualizado'}
 
 
 @products.get('/estadosSerialNumbers', status_code=status.HTTP_200_OK, name='Obtener estados de los serial numbers')
@@ -275,7 +265,7 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
         estados_productos = db.query(TableOfTablesModel).filter(
             TableOfTablesModel.id == 5).all()
         estados_productos = [{'id': estado.id_table, 'description': estado.description}
-                              for estado in estados_productos]
+                             for estado in estados_productos]
 
         # Crear el Json de respuesta
         response = []
@@ -300,11 +290,12 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
             user_db = db.query(UserModel).filter(
                 UserModel.num_doc == serial_number_db.user_id).first()
             # Obtener el estado
-            estado_sn = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
+            estado_sn = [
+                estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
             # Obtener Orden de Compra
             purchase_order_db = db.query(PurchaseOrderModel).filter(
                 PurchaseOrderModel.id == serial_number_db.oc_id).first()
-            
+
             # Crear el Json de respuesta
             serial_numer_json = {
                 'id': serial_number_db.sn_id,
@@ -341,7 +332,8 @@ async def obtener_serial_numbers(db: Session = Depends(get_db), user: dict = Dep
             }
             response.append(serial_numer_json)
         return response
-    
+
+
 @products.get('/admin/obtenerSerialNumbersProduct/{product_id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener los numeros de serie de un producto')
 async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -362,7 +354,7 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
         estados_db = db.query(TableOfTablesModel).filter(
             TableOfTablesModel.id == 6).all()
         estados_db = [{'id': estado.id_table, 'description': estado.description}
-                        for estado in estados_db]
+                      for estado in estados_db]
         # Crear el Json de respuesta
         response = []
 
@@ -374,7 +366,8 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
             user_db = db.query(UserModel).filter(
                 UserModel.num_doc == serial_number_db.user_id).first()
             # Obtener el estado
-            estado_db = [estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
+            estado_db = [
+                estado for estado in estados_db if estado['id'] == serial_number_db.status_id]
             # Obtener Orden de Compra
             purchase_order_db = db.query(PurchaseOrderModel).filter(
                 PurchaseOrderModel.id == serial_number_db.oc_id).first()
@@ -406,6 +399,7 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
             response.append(serial_numer_json)
         return response
 
+#!FALTA OPTIMIZAR ESTE ENDPOINT
 @products.post('/admin/crearSerialNumber', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR|TRABAJADOR - Crear serial number')
 async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -440,7 +434,7 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     if not purchase_order_exist:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail='No existe la orden de compra')
-    
+
     #!CREAR SERIAL NUMBER
     serial_number_db = SerialNumberModel(
         sn_id=serial_number.sn_id,
@@ -466,20 +460,20 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     db.commit()
     db.refresh(movement_db)
     #!OBTENER LA CANTIDAD DEL PRODUCTO MEDIANTE EL TOTAL DE MOVIMIENTOS DE ENTRADA Y SALIDA
-    #Obtener todos los movimientos
+    # Obtener todos los movimientos
     movements_db = db.query(MovementModel).all()
-    #Obtener la cantidad de entradas y salidas del producto mediante el id del producto que se encuentra con el serial number del movimiento
+    # Obtener la cantidad de entradas y salidas del producto mediante el id del producto que se encuentra con el serial number del movimiento
     ns_list_product = []
     for movement in movements_db:
         serie_db = db.query(SerialNumberModel).filter(
             SerialNumberModel.sn_id == movement.sn_id).first()
         if serie_db.product_id == serial_number_db.product_id:
-            #Agregar el numero de serie a la lista
+            # Agregar el numero de serie a la lista
             ns_list_product.append(serie_db.sn_id)
         else:
             continue
     movements_list = []
-    #Obtener el type_id de los movimientos
+    # Obtener el type_id de los movimientos
     for ns in ns_list_product:
         movement_db = db.query(MovementModel).filter(
             MovementModel.sn_id == ns).all()
@@ -487,20 +481,20 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
             movements_list.append(movement.type_id)
         else:
             continue
-    #Obtener la cantidad de entradas y salidas
+    # Obtener la cantidad de entradas y salidas
     entradas = movements_list.count(1)
     salidas = movements_list.count(2)
-    #Obtener la cantidad de productos
+    # Obtener la cantidad de productos
     cantidad_productos = entradas - salidas
     #!ACTUALIZAR LA CANTIDAD DEL PRODUCTO
     product_db = db.query(ProductModel).filter(
         ProductModel.id == serial_number_db.product_id).first()
     product_db.quantity = cantidad_productos
     #!VALIDAR EL ESTADO DEL PRODUCTO SI ES 4 (STOCK) O 3 (AGOTADO)
-    #Cambiar el estado del producto a agotado si la cantidad es 0
+    # Cambiar el estado del producto a agotado si la cantidad es 0
     if cantidad_productos == 0:
         product_db.status_id = 3
-    #Cambiar el estado del producto a stock si la cantidad es mayor a 0
+    # Cambiar el estado del producto a stock si la cantidad es mayor a 0
     elif cantidad_productos > 0:
         product_db.status_id = 4
     db.commit()

@@ -29,8 +29,8 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         category = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
-        category.description = description
-        return {'id': category.id_table, 'description': category.description}
+        db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3, TableOfTablesModel.id_table == id_table).update({TableOfTablesModel.description: description})
+        return {'message': f"La categoria con id {id_table} ha sido actualizada"}
     
 @categories_pr.delete('/admin/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar categoria')
 async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):

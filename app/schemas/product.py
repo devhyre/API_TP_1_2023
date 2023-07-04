@@ -71,7 +71,7 @@ class Product(BaseModel):
 class ProductPost(Product):
     pass
 
-class ProductPut(Product):
+class ProductPut(BaseModel):
     name: str
     description: str
     path_image: str

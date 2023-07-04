@@ -30,7 +30,7 @@ class ClientReview(BaseModel):
 class ClientReviewPost(ClientReview):
     pass
 
-class ClientReviewPut(ClientReview):
+class ClientReviewPut(BaseModel):
     review: str
     punctuation: int
 

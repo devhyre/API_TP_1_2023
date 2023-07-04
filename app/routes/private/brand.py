@@ -28,8 +28,7 @@ async def actualizar_marca(id: int, brand: BrandPut, db: Session = Depends(get_d
         brand_db = db.query(BrandModel).filter(BrandModel.id == id).first()
         if not brand_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
-        brand_db.name = brand.name
-        brand_db.description = brand.description
+        db.query(BrandModel).filter(BrandModel.id == id).update({BrandModel.name: brand.name, BrandModel.description: brand.description})
         return {'message': 'Se actualizó la marca'}
 
 @brand_pr.delete('/admin/eliminarMarca/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar marca')

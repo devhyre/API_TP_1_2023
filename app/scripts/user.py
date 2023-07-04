@@ -25,8 +25,6 @@ def create_user(db: Session, user: UserPost, full_name: str):
     )
     send_email_user_created(full_name, user.username, user.email, user.password)
     db.add(user_db)
-    db.commit()
-    db.refresh(user_db)
     return user_db
 
 def get_user_by_username(db, username: str):
@@ -53,43 +51,22 @@ def update_email(db, num_doc: str, email: str):
         
 def change_email(db, num_doc: str, email: str):
     #Obtener el usuario
+    db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.email: email})
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
     send_email_user_updated_email(user.full_name, user.username, email)
-    user.email = email
-    db.commit()
-    db.refresh(user)
     return user
 
 def update_password(db, num_doc: str, password: str):
-    user = change_password(db, num_doc, password)
-    return user
-
-def change_password(db, num_doc: str, password: str):
+    db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.password: get_password_hash(password)})
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
     send_email_user_updated_password(user.full_name, user.username, user.email, password)
-    user.password = get_password_hash(password)
-    db.commit()
-    db.refresh(user)
     return user
 
 def update_status(db, num_doc: str):
-    user = change_status(db, num_doc)
-    return user
-
-def change_status(db, num_doc: str):
-    user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
-    if not user:
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no existe")
-    user.is_active = not user.is_active #! Invertir el estado
-    db.commit()
-    db.refresh(user)
-    return user
+    db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.is_active: not UserModel.is_active})
+    return True
 
 def update_last_connection(db, num_doc: str):
-    user = change_last_connection(db, num_doc, datetime.now())
-    return user
-
-def change_last_connection(db, num_doc: str, last_connection: datetime):
     user_type = get_type_user_by_num_doc(db, num_doc)
     user_type_map = {
             "client": ClientModel,
@@ -97,7 +74,4 @@ def change_last_connection(db, num_doc: str, last_connection: datetime):
             "admin": AdminModel
         }
     type_model = user_type_map[user_type]
-    user_type_data = db.query(type_model).filter(type_model.user_id == num_doc).first()
-    user_type_data.last_connection = last_connection
-    db.commit()
-    db.refresh(user_type_data)
+    db.query(type_model).filter(type_model.user_id == num_doc).update({type_model.last_connection: datetime.now()})

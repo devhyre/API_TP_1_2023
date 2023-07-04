@@ -21,8 +21,6 @@ async def crear_modelo(model: ModelPost, db: Session = Depends(get_db), user: di
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe la marca')
         new_model = ModelModel(name=model.name, description=model.description, brand_id=model.brand_id)
         db.add(new_model)
-        db.commit()
-        db.refresh(new_model)
         return new_model
     
 @model_pr.put('/admin/actualizarModelo/{id_model}', status_code=status.HTTP_202_ACCEPTED , name='ADMINISTRADOR - Actualizar modelo')
@@ -34,11 +32,8 @@ async def actualizar_modelo(id_model: int, model: ModelPut, db: Session = Depend
         model_db = db.query(ModelModel).filter(ModelModel.id == id_model).first()
         if not model_db:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No existe el modelo')
-        model_db.name = model.name
-        model_db.description = model.description
-        db.commit()
-        db.refresh(model_db)
-        return model_db
+        db.query(ModelModel).filter(ModelModel.id == id_model).update({ModelModel.name: model.name, ModelModel.description: model.description})
+        return {'message': 'Modelo actualizado satisfactoriamente'}
     
 @model_pr.delete('/admin/eliminarModelo/{id_model}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar modelo')
 async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -53,5 +48,4 @@ async def eliminar_modelo(id_model: int, db: Session = Depends(get_db), user: di
         if products:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='No se puede eliminar el modelo porque tiene productos asociados')
         db.delete(model_db)
-        db.commit()
-        return {'detail': 'Modelo eliminado satisfactoriamente'}
+        return {'message': 'Modelo eliminado satisfactoriamente'}

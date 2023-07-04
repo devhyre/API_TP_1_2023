@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.db import SessionLocal as Session, get_db
 from app.scripts.user import update_email, update_password, update_status
 from app.security.schemas.profile_response import ProfileResponse
@@ -49,5 +49,8 @@ async def put_password(user_data: UserPutPassword, user: dict = Depends(get_curr
 @profile.put('/actualizarEstado', status_code=status.HTTP_200_OK, name='USUARIO - Actualizar estado del usuario logueado')
 async def put_state(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
     user_type = list(user.keys())[0]
-    update_status(db, user[user_type]['numeroDocumento'])
-    return {'message': 'Estado actualizado'}
+    reponse = update_status(db, user[user_type]['numeroDocumento'])
+    if reponse:
+        return {'message': 'Estado actualizado'}
+    else:
+        raise HTTPException(status_code=status.HTTP_304_NOT_MODIFIED, detail='No se pudo actualizar el estado del usuario')

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from app.core.db import get_db
-from app.scripts.user import get_user_by_username, update_last_connection
-from app.security.token import verify_password, create_access_token, get_current_active_user, generate_password_reset_token, send_email_to_reset_password, verify_password_reset_token, get_password_hash,move_token_to_blacklist
+from app.scripts.user import get_user_by_username, update_last_connection, update_password
+from app.security.token import verify_password, create_access_token, get_current_active_user, generate_password_reset_token, send_email_to_reset_password, verify_password_reset_token,move_token_to_blacklist
 from fastapi.security import OAuth2PasswordRequestForm
 from app.models.user import User as UserModel
 from app.schemas.user import UserPutPassword
@@ -48,7 +48,7 @@ async def forgot_password(email: str, db: Session = Depends(get_db)):
     return {'message': 'Email enviado'}
 
 @auth.post('/reset-password/{token}', status_code=status.HTTP_200_OK, name='Validar token y actualizar contraseña')
-async def reset_password(token: str, data: UserPutPassword, db: Session = Depends(get_db)):
+async def reset_password(token: str, user_data: UserPutPassword, db: Session = Depends(get_db)):
     # Validar que el token sea válido
     email = verify_password_reset_token(token)
     if not email:
@@ -58,6 +58,5 @@ async def reset_password(token: str, data: UserPutPassword, db: Session = Depend
     if not user_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Email no registrado')
     # Actualizar la contraseña
-    user_db.password = get_password_hash(data.password)
-    db.commit()
+    update_password(db, user_db.num_doc, user_data.password)
     return {'message': 'Contraseña actualizada'}
