@@ -374,31 +374,35 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     db.refresh(order_guide_db)
     #!REGISTRAR LOS DETALLES DE LA GUIA DE ORDEN
     for detail_order in detail_orders:
-        #!OBTENER 1 SERIAL NUMBER POR CADA PRODUCTO UNITARIAMENTE
-        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id).first()
-        #!actualizar estado a 2 y el departure_at
-        serial_number_db.status_id = 2
-        serial_number_db.departure_at = datetime.now()
-        db.add(serial_number_db)
-        db.commit()
-        db.refresh(serial_number_db)
-        detail_order_guide_db = DetailOrderGuideModel(
-            sn_id = serial_number_db.sn_id,
-            order_guide_id = order_guide_db.id
-        )
-        db.add(detail_order_guide_db)
-        db.commit()
-        db.refresh(detail_order_guide_db)
-        #!CREAR EL MOVIMIENTO DE SALIDA
-        movement_db = MovementModel(
-            sn_id = serial_number_db.sn_id,
-            user_id = user[user_type]['numeroDocumento'],
-            created_at = datetime.now(),
-            type_id = 2
-        )
-        db.add(movement_db)
-        db.commit()
-        db.refresh(movement_db)
+        #!OBTIENE LOS SERIAL NUMBER POR CADA PRODUCTO UNITARIAMENTE, EL MAS ANTIGUO
+        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id, SerialNumberModel.status_id == 1).all()
+        if len(serial_number_db) < detail_order.quantity:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock')
+        #!DEPENDIENDO DE LA CANTIDAD DE PRODUCTOS SELECCIONADOS, SELECCIONAR LOS SERIAL NUMBER
+        for i in range(detail_order.quantity):
+            #!ACTUALIZAR ESTADO A 2 Y EL departure_at
+            serial_number_db[i].status_id = 2
+            serial_number_db[i].departure_at = datetime.now()
+            db.add(serial_number_db[i])
+            db.commit()
+            db.refresh(serial_number_db[i])
+            detail_order_guide_db = DetailOrderGuideModel(
+                sn_id = serial_number_db[i].sn_id,
+                order_guide_id = order_guide_db.id
+            )
+            db.add(detail_order_guide_db)
+            db.commit()
+            db.refresh(detail_order_guide_db)
+            #!CREAR EL MOVIMIENTO DE SALIDA
+            movement_db = MovementModel(
+                sn_id = serial_number_db[i].sn_id,
+                user_id = user[user_type]['numeroDocumento'],
+                created_at = datetime.now(),
+                type_id = 2
+            )
+            db.add(movement_db)
+            db.commit()
+            db.refresh(movement_db)
     return sale_db
 
 
