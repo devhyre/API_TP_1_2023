@@ -673,7 +673,7 @@ async def get_service(id: int, db: Session = Depends(get_db), user: dict = Depen
         # Obtener estado de producto
         state_product = [state_product for state_product in states_products if state_product['id'] == product.status_id]
         # Obtener proveedor
-        supplier = db.query(SupplierModel).filter(SupplierModel.id == serial.supplier_id).first()
+        supplier = db.query(SupplierModel).filter(SupplierModel.num_doc == serial.supplier_id).first()
         # Obtener usuario
         user = db.query(UserModel).filter(UserModel.num_doc == serial.user_id).first()
         # Obtener estado de serie
