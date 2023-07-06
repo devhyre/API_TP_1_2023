@@ -25,6 +25,7 @@ def create_user(db: Session, user: UserPost, full_name: str):
     )
     send_email_user_created(full_name, user.username, user.email, user.password)
     db.add(user_db)
+    db.commit()
     return user_db
 
 def get_user_by_username(db, username: str):
