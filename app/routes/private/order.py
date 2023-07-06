@@ -96,8 +96,6 @@ async def obtener_ordenes(db: Session = Depends(get_db), user: dict = Depends(ge
             TableOfTablesModel.id == 5).all()
         states_product_db = [
             {'id': state.id_table, 'description': state.description} for state in states_product_db]
-        # Obtener todos los usuarios
-        users_db = db.query(UserModel).all()
         # Obtener todos los estados de orden
         states_order_db = db.query(TableOfTablesModel).filter(
             TableOfTablesModel.id == 4).all()
@@ -108,8 +106,7 @@ async def obtener_ordenes(db: Session = Depends(get_db), user: dict = Depends(ge
         response = []
         for order in orders_db:
             # Obtener el usuario
-            user = [user for user in users_db if user.num_doc ==
-                    order.user_id]
+            user = db.query(UserModel).filter(UserModel.num_doc == order.user_id).first()
             # Obtener el estado de la orden
             state_order = [
                 state for state in states_order_db if state['id'] == order.status_order]
@@ -132,20 +129,18 @@ async def obtener_ordenes(db: Session = Depends(get_db), user: dict = Depends(ge
             }
             for detail in details:
                 # Obtener el producto
-                product = [
-                    product for product in products_db if product.id == detail.product_id]
+                product = db.query(ProductModel).filter(
+                    ProductModel.id == detail.product_id).first()
                 # Obtener la categoria
-                category = [
-                    category for category in categories_db if category['id'] == product.category_id]
+                category = next((category for category in categories_db if category['id'] == product.category_id), None)
                 # Obtener el modelo
-                model = [model for model in models_db if model.id ==
-                         product.model_id]
+                model = db.query(ModelModel).filter(
+                    ModelModel.id == product.model_id).first()
                 # Obtener la marca
-                brand = [brand for brand in brands_db if brand.id ==
-                         model.brand_id]
+                brand = db.query(BrandModel).filter(
+                    BrandModel.id == product.brand_id).first()
                 # Obtener el estado del producto
-                state_product = [
-                    state for state in states_product_db if state['id'] == product.status_id]
+                state_product = next((state for state in states_product_db if state['id'] == product.status_id), None)
                 # Crear el Json de respuesta
                 detail_json = {
                     'id': detail.id,
@@ -208,8 +203,7 @@ async def obtener_ordenes_por_usuario(db: Session = Depends(get_db), user: dict 
     response = []
     for order in orders:
         # Obtener el usuario
-        user = [user for user in users_db if user.num_doc ==
-                order.user_id]
+        user = db.query(UserModel).filter(UserModel.num_doc == order.user_id).first()
         # Obtener el estado de la orden
         state_order = [
             state for state in states_order_db if state['id'] == order.status_order]
@@ -232,17 +226,17 @@ async def obtener_ordenes_por_usuario(db: Session = Depends(get_db), user: dict 
         }
         for detail in details:
             # Obtener el producto
-            product = [
-                product for product in products_db if product.id == detail.product_id]
+            product = db.query(ProductModel).filter(
+                ProductModel.id == detail.product_id).first()
             # Obtener la categoria
             category = [
                 category for category in categories_db if category['id'] == product.category_id]
             # Obtener el modelo
-            model = [model for model in models_db if model.id ==
-                     product.model_id]
+            model = db.query(ModelModel).filter(
+                ModelModel.id == product.model_id).first()
             # Obtener la marca
-            brand = [brand for brand in brands_db if brand.id ==
-                     model.brand_id]
+            brand = db.query(BrandModel).filter(
+                BrandModel.id == product.brand_id).first()
             # Obtener el estado del producto
             state_product = [
                 state for state in states_product_db if state['id'] == product.status_id]
@@ -318,17 +312,17 @@ async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: di
     response = []
     for detail in details_db:
         # Obtener el producto
-        product = [
-            product for product in products_db if product.id == detail.product_id]
+        product = db.query(ProductModel).filter(
+            ProductModel.id == detail.product_id).first()
         # Obtener la categoria
         category = [
             category for category in categories_db if category['id'] == product.category_id]
         # Obtener el modelo
-        model = [model for model in models_db if model.id ==
-                 product.model_id]
+        model = db.query(ModelModel).filter(
+            ModelModel.id == product.model_id).first()
         # Obtener la marca
-        brand = [brand for brand in brands_db if brand.id ==
-                 model.brand_id]
+        brand = db.query(BrandModel).filter(
+            BrandModel.id == product.brand_id).first()
         # Obtener el estado del producto
         state_product = [
             state for state in states_product_db if state['id'] == product.status_id]
