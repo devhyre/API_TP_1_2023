@@ -65,7 +65,7 @@ async def registrar_rol(id_table:int, description: str, db: Session = Depends(ge
         db.add(role)
         db.add(new_role_privilege)
         db.commit()
-        return {'id': role.id_table, 'description': role.description}
+        return {'message': 'Rol registrado satisfactoriamente', 'data': {'id': role.id_table, 'description': role.description}}
 
 @roles.put('/admin/actualizarRol/{id_table}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar rol')
 async def actualizar_rol(id_table: int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -76,9 +76,9 @@ async def actualizar_rol(id_table: int, description: str, db: Session = Depends(
         role = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
-        role.description = description
-        db.commit()
-        return {'id': role.id_table, 'description': role.description}
+        db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).update({'description': description})
+        role_updated = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
+        return {'message': 'Rol actualizado satisfactoriamente', 'data': {'id': role_updated.id_table, 'description': role_updated.description}}
 
 @roles.delete('/admin/eliminarRol/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar rol')
 async def eliminar_rol(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):

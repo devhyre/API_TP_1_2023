@@ -74,7 +74,7 @@ async def create_combo(combo: ComboPost, db: Session = Depends(get_db), user: di
     db.add(combo_db)
     db.commit()
     db.refresh(combo_db)
-    return {'message': 'Combo creado, su ID es: ' + combo_id}
+    return {'message': 'Combo creado', 'data': combo_db}
 
 
 @combo_pr.delete('/admin/eliminarCombo/{combo_id}', status_code=status.HTTP_204_NO_CONTENT, name='TRABAJADOR - Eliminar combo')

@@ -107,7 +107,10 @@ async def crear_assembly(assembly: AssemblyPost, db: Session = Depends(get_db), 
             description = assembly.description
         )
         db.add(assembly_db)
-        return {'message': 'Recomendación de ensamble creada exitosamente'}
+        db.commit()
+        db.refresh(assembly_db)
+        return {'message': 'Recomendación de ensamble creada exitosamente',
+                'data': assembly_db}
 
 #!ACTUALIZAR ASSEMBLY
 @assemblies_pr.put('/actualizarAssembly/{id}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR|TRABAJADOR - Actualizar Recomendación')
@@ -121,7 +124,9 @@ async def actualizar_assembly(id:int, assembly: AssemblyPut, db: Session = Depen
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El assembly no existe')
         else:
             db.query(AssemblyModel).filter(AssemblyModel.id == id).update({AssemblyModel.description: assembly.description})
-            return {'message': 'Recomendación de ensamble actualizada'}
+            recomendation_updated = db.query(AssemblyModel).filter(AssemblyModel.id == id).first()
+            return {'message': 'Recomendación de ensamble actualizada',
+                    'data': recomendation_updated}
         
 #!ELIMINAR ASSEMBLY
 @assemblies_pr.delete('/eliminarAssembly/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Eliminar Recomendación')

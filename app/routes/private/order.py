@@ -276,8 +276,9 @@ async def crear_orden(order: OrderPost, db: Session = Depends(get_db), user: dic
         status_order=1,
     )
     db.add(order_db)
-    order_created = db.query(OrderModel).filter(OrderModel.user_id == user[user_type]['numeroDocumento']).order_by(OrderModel.id.desc()).first()
-    return order_created
+    db.commit()
+    db.refresh(order_db)
+    return {'message': 'Orden creada exitosamente', 'data': order_db}
 
 @order.get('/obtenerDetalleOrdenUsuario/{id}', status_code=status.HTTP_200_OK, name='USUARIO - Obtener detalle de orden por id de orden')
 async def obtener_detalle_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -378,7 +379,7 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
             order_id=detail_order.order_id,
         )
         db.add(detail_order_db)
-        return {'message': 'Detalle de orden creado exitosamente'}
+        return {'message': 'Detalle de orden creado exitosamente', 'data': detail_order_db}
 
 @order.put('/aprobarOrden/{id}', status_code=status.HTTP_202_ACCEPTED, name='USUARIO - Aprobar orden')
 async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -495,7 +496,7 @@ async def entregado_orden(id: int, db: Session = Depends(get_db), user: dict = D
         else:
             if order_db.status_order == 9:
                 db.query(OrderModel).filter(OrderModel.id == id).update(
-                    {OrderModel.status_order: 10})
+                    {OrderModel.status_order: 3})
                 return {'message': 'Orden entregada exitosamente'}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,

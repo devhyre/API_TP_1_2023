@@ -31,7 +31,7 @@ async def update_sale(id: str, sale: SalePut, db: Session = Depends(get_db), use
     sale_db.code_payment = sale.code_payment
     db.commit()
     db.refresh(sale_db)
-    return sale_db
+    return {'message': 'Venta actualizada exitosamente', 'data': sale_db}
 
 @sale.get('/admin/contarVentas', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Contar ventas')
 async def count_sales(user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
@@ -342,8 +342,6 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         product_db = db.query(ProductModel).filter(ProductModel.id == id_cant['id']).first()
         product_db.quantity = id_cant['quantity']
         db.add(product_db)
-        db.commit()
-        db.refresh(product_db)
     #!APLICAR DESCUENTO
     descuento_decimal_order = order_db.discount / 100
     precio_descuento_order = total * (1 - descuento_decimal_order)
@@ -357,13 +355,9 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         total = total
     )
     db.add(sale_db)
-    db.commit()
-    db.refresh(sale_db)
     #!ACTUALIZAR EL ESTADO DE LA ORDEN
     order_db.status_order = 8
     db.add(order_db)
-    db.commit()
-    db.refresh(order_db)
     #!REGISTRAR LA GUIA DE ORDEN
     order_guide_db = OrderGuideModel(
         order_id = sale.order_id,
@@ -371,11 +365,12 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     )
     db.add(order_guide_db)
     db.commit()
+    db.refresh(sale_db)
     db.refresh(order_guide_db)
     #!REGISTRAR LOS DETALLES DE LA GUIA DE ORDEN
     for detail_order in detail_orders:
         #!OBTIENE LOS SERIAL NUMBER POR CADA PRODUCTO UNITARIAMENTE, EL MAS ANTIGUO
-        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id, SerialNumberModel.status_id == 1).all()
+        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id, SerialNumberModel.status_id == 1).order_by(SerialNumberModel.created_at.asc()).all()
         if len(serial_number_db) < detail_order.quantity:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock')
         #!DEPENDIENDO DE LA CANTIDAD DE PRODUCTOS SELECCIONADOS, SELECCIONAR LOS SERIAL NUMBER
@@ -383,16 +378,12 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
             #!ACTUALIZAR ESTADO A 2 Y EL departure_at
             serial_number_db[i].status_id = 2
             serial_number_db[i].departure_at = datetime.now()
-            db.add(serial_number_db[i])
-            db.commit()
-            db.refresh(serial_number_db[i])
+            #!REGISTRAR EL DETALLE DE LA GUIA DE ORDEN
             detail_order_guide_db = DetailOrderGuideModel(
                 sn_id = serial_number_db[i].sn_id,
                 order_guide_id = order_guide_db.id
             )
             db.add(detail_order_guide_db)
-            db.commit()
-            db.refresh(detail_order_guide_db)
             #!CREAR EL MOVIMIENTO DE SALIDA
             movement_db = MovementModel(
                 sn_id = serial_number_db[i].sn_id,
@@ -401,9 +392,8 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
                 type_id = 2
             )
             db.add(movement_db)
-            db.commit()
-            db.refresh(movement_db)
-    return sale_db
+    db.commit()
+    return {'message': 'Venta registrada satisfactoriamente', 'data': sale_db}
 
 
     

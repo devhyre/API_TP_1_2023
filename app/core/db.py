@@ -21,7 +21,6 @@ def get_db():
     db = ScopedSession()
     try:
         yield db
-        db.commit()
     except Exception as e:
         db.rollback()
         raise e

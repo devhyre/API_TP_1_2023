@@ -117,7 +117,7 @@ async def update_worker(dni: str, role_id: int, db: Session = Depends(get_db), u
             'descripcion': role['description'],
         }
     }
-    return worker_json
+    return {'message': 'Rol actualizado', 'data': worker_json}
 
 @workers.put('/admin/actualizarEstadoTrabajador/{dni}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Actualizar el estado de un trabajador')
 async def update_worker(dni: str, is_active: bool, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -155,5 +155,5 @@ async def update_worker(dni: str, is_active: bool, db: Session = Depends(get_db)
         },
         'role': role
     }
-    return worker_json
+    return {'message': 'Estado actualizado', 'data': worker_json}
     

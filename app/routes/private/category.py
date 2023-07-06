@@ -18,7 +18,9 @@ async def registrar_categoria(id_table:int, description: str, db: Session = Depe
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"La categoria con id {id_table} ya existe")
         category = TableOfTablesModel(id=3, id_table=id_table, description=description)
         db.add(category)
-        return {'id': category.id_table, 'description': category.description}
+        db.commit()
+        db.refresh(category)
+        return {'message': "La categoria ha sido registrada", 'data': category}
     
 @categories_pr.put('/admin/actualizarCategoria/{id_table}', status_code=status.HTTP_202_ACCEPTED, name='ADMINISTRADOR - Actualizar categoria')
 async def actualizar_categoria(id_table: int, description: str, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -30,7 +32,8 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3, TableOfTablesModel.id_table == id_table).update({TableOfTablesModel.description: description})
-        return {'message': f"La categoria con id {id_table} ha sido actualizada"}
+        category_updated = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
+        return {'message': "La categoria ha sido actualizada", 'data': category_updated}
     
 @categories_pr.delete('/admin/eliminarCategoria/{id_table}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar categoria')
 async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -42,5 +45,5 @@ async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user:
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         db.delete(category)
-        return {'message': f"La categoria con id {id_table} ha sido eliminada"}
+        return {'message': "La categoria ha sido eliminada"}
     

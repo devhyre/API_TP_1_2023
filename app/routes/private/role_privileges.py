@@ -103,50 +103,7 @@ async def obtener_privilegios_rol(id_role: int, db: Session = Depends(get_db), u
             }
         }
         return response
-        
-    
-@role_privileges.post('/admin/crearPrivilegioRol', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Crear privilegio de un rol')
-async def crear_privilegio_rol(role_privilege: RolePrivilegePost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
-    user_type = list(user.keys())[0]
-    if user_type != 'admin':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
-    else:
-        # Obtener los roles
-        roles = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).all()
-        roles =  [{'id': role.id_table, 'description': role.description} for role in roles]
-        # Obtener el role
-        role = next((role for role in roles if role['id'] == role_privileges.role_id), None)
-        if not role:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {role_privileges.role_id} no existe")
-        # Si existe el role, crear el privilegio
-        new_role_privilege = RolePrivilegeModel(
-            role_id = role_privilege.role_id,
-            module_1 = False,
-            module_2 = False,
-            module_3 = False,
-            module_4 = False,
-            module_5 = False,
-            module_6 = False,
-            module_7 = False,
-            module_8 = False,
-            module_9 = False,
-            module_10 = False,
-            module_11 = False,
-            module_12 = False,
-            module_13 = False,
-            module_14 = False,
-            module_15 = False,
-            module_16 = False,
-            module_17 = False,
-            module_18 = False,
-            module_19 = False,
-            module_20 = False
-        )
-        db.add(new_role_privilege)
-        db.commit()
-        db.refresh(new_role_privilege)
-        return new_role_privilege
-    
+
 @role_privileges.put('/admin/actualizarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Actualizar privilegio de un rol')
 async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegePut, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -181,7 +138,7 @@ async def actualizar_privilegio_rol(id_role: int, role_privilege: RolePrivilegeP
             role_privilege_db.module_20 = role_privilege.module_20
             db.commit()
             db.refresh(role_privilege_db)
-            return role_privilege_db
+            return {'message': 'Se ha actualizado el rol con éxito', 'data': role_privilege_db}
         
 @role_privileges.delete('/admin/eliminarPrivilegioRol/{id_role}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar privilegio de un rol')
 async def eliminar_privilegio_rol(id_role: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):

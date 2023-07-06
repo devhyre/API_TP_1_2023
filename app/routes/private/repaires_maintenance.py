@@ -842,7 +842,7 @@ async def post_repairs_maintenance(repairs_maintenance: RepairsMaintenancePost, 
     db.commit()
     db.refresh(db_service_history)
 
-    return db_service
+    return {'message': 'Servicio registrado satisfactoriamente', 'data': {'service': db_service, 'history': db_service_history}}
 
 
 @repairs_maintenance.put('/admin/actualizarContenidoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar contenido de reparación o mantenimiento')
@@ -861,7 +861,7 @@ async def put_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenan
 
     db.commit()
     db.refresh(db_service)
-    return db_service
+    return {'message': 'Servicio actualizado satisfactoriamente', 'data': db_service}
 
 @repairs_maintenance.put('/admin/actualizarEstadoServicio/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar estado de reparación o mantenimiento\nUsar siempre después de actualizar el contenido del servicio')
 async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMaintenanceStatusPut, user: dict = Depends(get_current_active_user), db: Session = Depends(get_db)):
@@ -900,7 +900,7 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
             db.add(db_service_history)
             db.commit()
             db.refresh(db_service_history)
-            return db_service_history
+            return {'message': 'Servicio actualizado satisfactoriamente', 'data': {'service': db_service, 'history': db_service_history}}
     # Si el estado es 2
     if last_status == 2:
         # El nuevo estado debe ser 3
@@ -919,7 +919,7 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
             db.add(db_service_history)
             db.commit()
             db.refresh(db_service_history)
-            return db_service_history
+            return {'message': 'Servicio actualizado satisfactoriamente', 'data': {'service': db_service, 'history': db_service_history}}
     # Si el estado es 3
     if last_status == 3:
         # El nuevo estado debe ser 4
@@ -938,7 +938,7 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
             db.add(db_service_history)
             db.commit()
             db.refresh(db_service_history)
-            return db_service_history
+            return {'message': 'Servicio actualizado satisfactoriamente', 'data': {'service': db_service, 'history': db_service_history}}
     # Si el estado es 4
     if last_status == 4:
         # El nuevo estado debe ser 3 o 5
@@ -961,4 +961,4 @@ async def put_status_repairs_maintenance(id: int, repairs_maintenance: RepairsMa
                 db_service.departure_date = datetime.now()
                 db.commit()
                 db.refresh(db_service)
-            return db_service_history
+            return {'message': 'Servicio actualizado satisfactoriamente', 'data': {'service': db_service, 'history': db_service_history}}

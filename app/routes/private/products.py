@@ -206,7 +206,9 @@ async def crear_producto(product: ProductPost, db: Session = Depends(get_db), us
             ranking=0
         )
         db.add(product_db)
-        return product_db
+        db.commit()
+        db.refresh(product_db)
+        return {'message': 'Producto creado satisfactoriamente', 'data': product_db}
 
 
 @products.put('/admin/actualizarProducto/{id}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Actualizar producto')
@@ -228,7 +230,9 @@ async def actualizar_producto(id: int, product: ProductPut, db: Session = Depend
         ProductModel.warranty: product.warranty,
         ProductModel.status_id: product.status_id
     })
-    return {'message': 'Producto actualizado'}
+    product_updated = db.query(ProductModel).filter(
+        ProductModel.id == id).first()
+    return {'message': 'Producto actualizado', 'data': product_updated}
 
 
 @products.get('/estadosSerialNumbers', status_code=status.HTTP_200_OK, name='Obtener estados de los serial numbers')
@@ -399,7 +403,6 @@ async def obtener_serial_numbers_product(product_id: int, db: Session = Depends(
             response.append(serial_numer_json)
         return response
 
-#!FALTA OPTIMIZAR ESTE ENDPOINT
 @products.post('/admin/crearSerialNumber', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR|TRABAJADOR - Crear serial number')
 async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
     user_type = list(user.keys())[0]
@@ -457,8 +460,6 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
         type_id=1,
     )
     db.add(movement_db)
-    db.commit()
-    db.refresh(movement_db)
     #!OBTENER LA CANTIDAD DEL PRODUCTO MEDIANTE EL TOTAL DE MOVIMIENTOS DE ENTRADA Y SALIDA
     # Obtener todos los movimientos
     movements_db = db.query(MovementModel).all()
@@ -475,9 +476,9 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     movements_list = []
     # Obtener el type_id de los movimientos
     for ns in ns_list_product:
-        movement_db = db.query(MovementModel).filter(
+        movements_db_sn = db.query(MovementModel).filter(
             MovementModel.sn_id == ns).all()
-        for movement in movement_db:
+        for movement in movements_db_sn:
             movements_list.append(movement.type_id)
         else:
             continue
@@ -498,5 +499,4 @@ async def crear_serial_number(serial_number: SerialNumberPost, db: Session = Dep
     elif cantidad_productos > 0:
         product_db.status_id = 4
     db.commit()
-    db.refresh(product_db)
-    return serial_number_db
+    return {'message': 'Serial number creado exitosamente', 'data': serial_number_db}

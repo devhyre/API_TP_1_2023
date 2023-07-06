@@ -94,7 +94,7 @@ async def registrar_categoria_proveedor(supplier_category: SupplierCategoryPost,
         db.add(supplier_category_db)
         db.commit()
         db.refresh(supplier_category_db)
-        return {'id_supplier': supplier_category_db.supplier_id, 'id_category': supplier_category_db.category_id}
+        return {'message': 'Se registró la categoría del proveedor', 'data': supplier_category_db}
     
 @supplier_categories.delete('/admin/eliminarCategoriaProveedor/{num_doc_supplier}/{id_category}', status_code=status.HTTP_200_OK, name='ADMINISTRADOR - Eliminar categoria de proveedor')
 async def eliminar_categoria_proveedor(num_doc_supplier: str, id_category: int, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):

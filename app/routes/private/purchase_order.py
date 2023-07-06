@@ -360,7 +360,7 @@ async def create(purchase_order: PurchaseOrderPost, db: Session = Depends(get_db
         'created_at': purchase_order.created_at
     }
 
-    return response
+    return {'message': 'Orden de compra creada exitosamente', 'data': response}
 
 #! CREATE DETAIL PURCHASE ORDER
 @purchase_order_router.post("/admin/crearDetalleOC", status_code=status.HTTP_201_CREATED, name='TRABAJADOR - Crear detalle de orden de compra')
@@ -410,7 +410,7 @@ async def create_detail_purchase_order(detail_purchase_order: DetailPurchaseOrde
         'quantity': detail_purchase_order.quantity
     }
 
-    return response
+    return {'message': 'Detalle de orden de compra creado exitosamente', 'data': response}
 
 #! PUT - UPDATE DETAIL PURCHASE ORDER
 @purchase_order_router.put("/admin/actualizarDetalleOC/{detail_purchase_order_id}", status_code=status.HTTP_200_OK, name='TRABAJADOR - Actualizar detalle de orden de compra')
@@ -455,7 +455,7 @@ async def update_detail_purchase_order(detail_purchase_order_id: int, detail_pur
         'quantity': detail_purchase_order_db.quantity
     }
 
-    return response
+    return {'message': 'Detalle de orden de compra actualizado exitosamente', 'data': response}
 
 #! DELETE - DELETE DETAIL PURCHASE ORDER
 @purchase_order_router.delete("/admin/eliminarDetalleOC/{detail_purchase_order_id}", status_code=status.HTTP_200_OK, name='TRABAJADOR - Eliminar detalle de orden de compra')

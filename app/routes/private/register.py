@@ -20,8 +20,8 @@ async def register_worker(worker: UserPost, role_id: int, db: Session = Depends(
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='El DNI, email o username ya esta registrado')
         if role_id == 0 or role_id == 1:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='El rol no es valido')
-        create_user_worker(db, worker, role_id, 0)
-        return {'message': 'Trabajador creado'}
+        created = create_user_worker(db, worker, role_id, 0)
+        return {'message': 'Trabajador creado', 'data': created}
     
 @register.post('/admin/registrarAdministrador', status_code=status.HTTP_201_CREATED, name='ADMINISTRADOR - Registrar trabajador')
 async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: dict = Depends(get_current_active_user)):
@@ -32,5 +32,5 @@ async def register_admin(admin: UserPost, db: Session = Depends(get_db), user: d
         admin_exists = get_user_by_num_doc_username_email(db, admin.num_doc, admin.username, admin.email)
         if admin_exists:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='El DNI, email o username ya esta registrado')
-        create_user_admin(db, admin, 1, 5)
-        return {'message': 'Administrador creado'}
+        created = create_user_admin(db, admin, 1, 5)
+        return {'message': 'Administrador creado', 'data': created}

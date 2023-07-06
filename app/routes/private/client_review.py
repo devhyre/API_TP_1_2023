@@ -60,7 +60,9 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
         # ACTUALIZAR EL RANKING DEL PRODUCTO
         db.query(ProductModel).filter(ProductModel.id ==
                                       review_data.product_id).update({ProductModel.ranking: average})
-        return client_review_db
+        client_review_created = db.query(ClientReviewModel).filter(
+            ClientReviewModel.client_id == user[user_type]['id']).order_by(ClientReviewModel.id.desc()).first()
+        return {'message': 'Reseña creada correctamente', 'data': client_review_created}
 
 
 @client_review.put('/actualizarReviewCliente/{id}', status_code=status.HTTP_202_ACCEPTED, name='CLIENTE - Actualizar la reseña de un Producto que le pertenece al Cliente')
@@ -95,7 +97,9 @@ async def actualizar_reseña_cliente(id: int, review_data: ClientReviewPut, db: 
         # Actualizar el ranking del producto
         db.query(ProductModel).filter(ProductModel.id ==
                                       client_review_db.product_id).update({ProductModel.ranking: average})
-        return {'message': 'Reseña actualizada correctamente'}
+        client_review_updated = db.query(ClientReviewModel).filter(
+            ClientReviewModel.id == id).first()
+        return {'message': 'Reseña actualizada correctamente', 'data': client_review_updated}
 
 
 @client_review.get('/admin/obtenerReviews', status_code=status.HTTP_200_OK, name='ADMINISTRADOR|TRABAJADOR - Obtener todas las reseñas hechas a los productos')
