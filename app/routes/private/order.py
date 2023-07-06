@@ -379,6 +379,8 @@ async def crear_detalle_orden(detail_order: DetailOrderPost, db: Session = Depen
             order_id=detail_order.order_id,
         )
         db.add(detail_order_db)
+        db.commit()
+        db.refresh(detail_order_db)
         return {'message': 'Detalle de orden creado exitosamente', 'data': detail_order_db}
 
 @order.put('/aprobarOrden/{id}', status_code=status.HTTP_202_ACCEPTED, name='USUARIO - Aprobar orden')
@@ -410,7 +412,10 @@ async def aprobar_orden(id: int, db: Session = Depends(get_db), user: dict = Dep
                 #!SI HAY STOCK SUFICIENTE DE TODOS LOS PRODUCTOS, SE ACTUALIZA EL ESTADO DE LA ORDEN A APROBADA
                 db.query(OrderModel).filter(OrderModel.id == id).update(
                     {OrderModel.status_order: 2})
-                return {'message': 'Orden aprobada exitosamente'}
+                db.commit()
+                order_updated = db.query(OrderModel).filter(
+                    OrderModel.id == id).first()
+                return {'message': 'Orden aprobada exitosamente' , 'data': order_updated}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -432,8 +437,9 @@ async def anular_orden_cliente(id: int, db: Session = Depends(get_db), user: dic
                 db.query(OrderModel).filter(OrderModel.id == id).update(
                     {OrderModel.status_order: 5})
                 db.commit()
-                db.refresh(order_db)
-                return {'message': 'Orden anulada exitosamente'}
+                order_updated = db.query(OrderModel).filter(
+                    OrderModel.id == id).first()
+                return {'message': 'Orden anulada exitosamente' , 'data': order_updated}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -454,7 +460,10 @@ async def rechazar_orden(id: int, db: Session = Depends(get_db), user: dict = De
             if order_db.status_order == 1 or order_db.status_order == 2:
                 db.query(OrderModel).filter(OrderModel.id == id).update(
                     {OrderModel.status_order: 4})
-                return {'message': 'Orden rechazada exitosamente'}
+                db.commit()
+                order_updated = db.query(OrderModel).filter(
+                    OrderModel.id == id).first()
+                return {'message': 'Orden rechazada exitosamente' , 'data': order_updated}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -476,7 +485,10 @@ async def listo_orden(id: int, db: Session = Depends(get_db), user: dict = Depen
             if order_db.status_order == 8:
                 db.query(OrderModel).filter(OrderModel.id == id).update(
                     {OrderModel.status_order: 9})
-                return {'message': 'Orden lista exitosamente'}
+                db.commit()
+                order_updated = db.query(OrderModel).filter(
+                    OrderModel.id == id).first()
+                return {'message': 'Orden lista exitosamente' , 'data': order_updated}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')
@@ -497,7 +509,10 @@ async def entregado_orden(id: int, db: Session = Depends(get_db), user: dict = D
             if order_db.status_order == 9:
                 db.query(OrderModel).filter(OrderModel.id == id).update(
                     {OrderModel.status_order: 3})
-                return {'message': 'Orden entregada exitosamente'}
+                db.commit()
+                order_updated = db.query(OrderModel).filter(
+                    OrderModel.id == id).first()
+                return {'message': 'Orden entregada exitosamente' , 'data': order_updated}
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                     detail='El estado de la orden no permite realizar esta acción')

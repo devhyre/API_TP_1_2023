@@ -48,4 +48,5 @@ async def eliminar_marca(id: int, db: Session = Depends(get_db), user: dict = De
         if models:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Existen modelos asociados a esta marca')
         db.delete(brand_db)
+        db.commit()
         return {'message': 'Se eliminó la marca'}

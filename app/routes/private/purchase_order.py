@@ -504,6 +504,5 @@ async def delete_purchase_order(purchase_order_id: int, db: Session = Depends(ge
     # Eliminar orden de compra de la base de datos
     db.delete(purchase_order)
     db.commit()
-
     return {'detail': 'Se eliminó correctamente la orden de compra'}
 

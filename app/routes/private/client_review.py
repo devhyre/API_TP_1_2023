@@ -47,7 +47,8 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
             punctuation=review_data.punctuation
         )
         db.add(client_review_db)
-
+        db.commit()
+        db.refresh(client_review_db)
         # OBTENER TODAS LAS RESEÑAS DEL PRODUCTO
         client_reviews = db.query(ClientReviewModel).filter(
             ClientReviewModel.product_id == review_data.product_id).all()
@@ -60,9 +61,8 @@ async def crear_reseña_cliente(review_data: ClientReviewPost, db: Session = Dep
         # ACTUALIZAR EL RANKING DEL PRODUCTO
         db.query(ProductModel).filter(ProductModel.id ==
                                       review_data.product_id).update({ProductModel.ranking: average})
-        client_review_created = db.query(ClientReviewModel).filter(
-            ClientReviewModel.client_id == user[user_type]['id']).order_by(ClientReviewModel.id.desc()).first()
-        return {'message': 'Reseña creada correctamente', 'data': client_review_created}
+        db.commit()
+        return {'message': 'Reseña creada correctamente', 'data': client_review_db}
 
 
 @client_review.put('/actualizarReviewCliente/{id}', status_code=status.HTTP_202_ACCEPTED, name='CLIENTE - Actualizar la reseña de un Producto que le pertenece al Cliente')
@@ -85,6 +85,7 @@ async def actualizar_reseña_cliente(id: int, review_data: ClientReviewPut, db: 
         # Actualizar la reseña y la puntuación
         db.query(ClientReviewModel).filter(
             ClientReviewModel.id == id).update({ClientReviewModel.review: review_data.review, ClientReviewModel.punctuation: review_data.punctuation})
+        db.commit()
         # Obtener todas las reseñas del producto
         client_reviews = db.query(ClientReviewModel).filter(
             ClientReviewModel.product_id == client_review_db.product_id).all()
@@ -97,6 +98,7 @@ async def actualizar_reseña_cliente(id: int, review_data: ClientReviewPut, db: 
         # Actualizar el ranking del producto
         db.query(ProductModel).filter(ProductModel.id ==
                                       client_review_db.product_id).update({ProductModel.ranking: average})
+        db.commit()
         client_review_updated = db.query(ClientReviewModel).filter(
             ClientReviewModel.id == id).first()
         return {'message': 'Reseña actualizada correctamente', 'data': client_review_updated}
@@ -276,6 +278,7 @@ async def eliminar_reseña(id: int, db: Session = Depends(get_db), user: dict = 
         product_id_temp = client_review.product_id
         # Eliminar la reseña
         db.delete(client_review)
+        db.commit()
         # Obtener todas las reseñas del producto
         client_reviews = db.query(ClientReviewModel).filter(
             ClientReviewModel.product_id == product_id_temp).all()
@@ -288,4 +291,5 @@ async def eliminar_reseña(id: int, db: Session = Depends(get_db), user: dict = 
         # Actualizar el promedio del producto
         db.query(ProductModel).filter(ProductModel.id ==
                                       product_id_temp).update({ProductModel.ranking: average})
+        db.commit()
         return {'message': 'Reseña eliminada correctamente'}

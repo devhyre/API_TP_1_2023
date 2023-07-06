@@ -32,6 +32,7 @@ async def actualizar_categoria(id_table: int, description: str, db: Session = De
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3, TableOfTablesModel.id_table == id_table).update({TableOfTablesModel.description: description})
+        db.commit()
         category_updated = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).filter(TableOfTablesModel.id_table == id_table).first()
         return {'message': "La categoria ha sido actualizada", 'data': category_updated}
     
@@ -45,5 +46,6 @@ async def eliminar_categoria(id_table: int, db: Session = Depends(get_db), user:
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"La categoria con id {id_table} no existe")
         db.delete(category)
+        db.commit()
         return {'message': "La categoria ha sido eliminada"}
     

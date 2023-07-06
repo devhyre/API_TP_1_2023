@@ -230,6 +230,7 @@ async def actualizar_producto(id: int, product: ProductPut, db: Session = Depend
         ProductModel.warranty: product.warranty,
         ProductModel.status_id: product.status_id
     })
+    db.commit()
     product_updated = db.query(ProductModel).filter(
         ProductModel.id == id).first()
     return {'message': 'Producto actualizado', 'data': product_updated}

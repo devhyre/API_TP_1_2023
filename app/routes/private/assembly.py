@@ -140,4 +140,5 @@ async def eliminar_assembly(id:int, db: Session = Depends(get_db), user: dict = 
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='El assembly no existe')
         else:
             db.delete(assembly_db)
+            db.commit()
             return {'message': 'Recomendación de ensamble eliminada'}

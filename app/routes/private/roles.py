@@ -77,6 +77,7 @@ async def actualizar_rol(id_table: int, description: str, db: Session = Depends(
         if not role:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"El rol con id {id_table} no existe")
         db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).update({'description': description})
+        db.commit()
         role_updated = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 2).filter(TableOfTablesModel.id_table == id_table).first()
         return {'message': 'Rol actualizado satisfactoriamente', 'data': {'id': role_updated.id_table, 'description': role_updated.description}}
 
