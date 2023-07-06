@@ -355,6 +355,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
         total = total
     )
     db.add(sale_db)
+    db.commit()
     #!ACTUALIZAR EL ESTADO DE LA ORDEN
     order_db.status_order = 8
     db.add(order_db)
