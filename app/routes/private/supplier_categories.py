@@ -64,7 +64,7 @@ async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depen
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='No tiene permisos para realizar esta acción')
     else:
         # Obtener las categorias del proveedor
-        supplier_categories = db.query(SupplierCategoryModel).filter(SupplierCategoryModel.num_doc_supplier == num_doc_supplier).all()
+        supplier_categories = db.query(SupplierCategoryModel).filter(SupplierCategoryModel.supplier_id == num_doc_supplier).all()
         # Obtener las categorias
         categories = db.query(TableOfTablesModel).filter(TableOfTablesModel.id == 3).all()
         categories = sorted(categories, key=lambda x: x.id_table)
@@ -74,7 +74,7 @@ async def obtener_categoria_proveedor(num_doc_supplier: str, db: Session = Depen
         # Recorrer las categorias del proveedor y agregarlas a la respuesta
         for supplier_category in supplier_categories:
             # Obtener la categoria
-            category = next((category for category in categories if category['id'] == supplier_category.id_category), None)
+            category = next((category for category in categories if category['id'] == supplier_category.category_id), None)
             # Crear el Json de la categoria
             category_json = {
                 'id': category['id'],
