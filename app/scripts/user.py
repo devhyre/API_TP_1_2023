@@ -52,18 +52,21 @@ def update_email(db, num_doc: str, email: str):
 def change_email(db, num_doc: str, email: str):
     #Obtener el usuario
     db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.email: email})
+    db.commit()
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
     send_email_user_updated_email(user.full_name, user.username, email)
     return user
 
 def update_password(db, num_doc: str, password: str):
     db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.password: get_password_hash(password)})
+    db.commit()
     user = db.query(UserModel).filter(UserModel.num_doc == num_doc).first()
     send_email_user_updated_password(user.full_name, user.username, user.email, password)
     return user
 
 def update_status(db, num_doc: str):
     db.query(UserModel).filter(UserModel.num_doc == num_doc).update({UserModel.is_active: not UserModel.is_active})
+    db.commit()
     return True
 
 def update_last_connection(db, num_doc: str):
@@ -75,3 +78,4 @@ def update_last_connection(db, num_doc: str):
         }
     type_model = user_type_map[user_type]
     db.query(type_model).filter(type_model.user_id == num_doc).update({type_model.last_connection: datetime.now()})
+    db.commit()
