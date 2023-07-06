@@ -370,7 +370,7 @@ async def create_sale2(sale: SalePost, user: dict = Depends(get_current_active_u
     #!REGISTRAR LOS DETALLES DE LA GUIA DE ORDEN
     for detail_order in detail_orders:
         #!OBTIENE LOS SERIAL NUMBER POR CADA PRODUCTO UNITARIAMENTE, EL MAS ANTIGUO
-        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id, SerialNumberModel.status_id == 1).order_by(SerialNumberModel.created_at.asc()).all()
+        serial_number_db = db.query(SerialNumberModel).filter(SerialNumberModel.product_id == detail_order.product_id, SerialNumberModel.status_id == 1).order_by(SerialNumberModel.entrance_at.asc()).all()
         if len(serial_number_db) < detail_order.quantity:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='No se cuenta con los productos requeridos en el stock')
         #!DEPENDIENDO DE LA CANTIDAD DE PRODUCTOS SELECCIONADOS, SELECCIONAR LOS SERIAL NUMBER
